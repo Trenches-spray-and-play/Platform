@@ -1,0 +1,313 @@
+/* EARN HUB STYLES */
+
+.earnHubSection {
+    margin-top: 1rem;
+}
+
+.hubCategory {
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(5, 5, 5, 0.8);
+}
+
+.hubActive {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.hubBtn {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    transition: background 0.2s;
+}
+
+.hubBtn:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.hubBtnContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.hubBtnTitle {
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.hubBtnDesc {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.chevron {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.hubContent {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tabSwitcher {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tabSwitcher button {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.activeTab {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.taskGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.taskCard {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.taskReward {
+    padding: 0.5rem 0.75rem;
+    background: linear-gradient(135deg, rgba(57, 255, 20, 0.1), rgba(57, 255, 20, 0.05));
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: var(--accent-rapid);
+}
+
+.taskInfo {
+    flex: 1;
+}
+
+.taskInfo h4 {
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem 0;
+}
+
+.taskInfo p {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.executeBtn {
+    padding: 0.5rem 1rem;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.completedTag {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: var(--accent-rapid);
+}
+
+.emptyHub {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+.campaignGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.campaignCard {
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+}
+
+.campaignHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.campaignIcon {
+    font-size: 2rem;
+}
+
+.campaignHeader h4 {
+    font-size: 0.9rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.campaignHeader p {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin: 0.25rem 0 0 0;
+}
+
+.campaignYield {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+}
+
+.beliefReward {
+    color: var(--accent-deep) !important;
+    font-weight: 800;
+}
+
+.submissionBox {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.subInput {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.75rem;
+}
+
+.subInput::placeholder {
+    color: #444;
+}
+
+.subBtn {
+    padding: 0.6rem 1rem;
+    background: var(--accent-deep);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.subBtn:disabled {
+    opacity: 0.5;
+}
+
+.raidList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.raidItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.raidMain {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.raidPlatform {
+    padding: 0.35rem 0.6rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    font-size: 0.6rem;
+    font-weight: 900;
+}
+
+.raidTitle {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.raidAction {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.raidReward {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: var(--accent-rapid);
+}
+
+.raidBtn {
+    padding: 0.5rem 1rem;
+    background: var(--accent-rapid);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.raidBtn:disabled {
+    opacity: 0.5;
+}

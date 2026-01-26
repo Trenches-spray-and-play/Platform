@@ -1,0 +1,325 @@
+.card {
+    position: relative;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    background: #020202;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    width: 460px;
+    height: 290px;
+    padding: 2rem;
+    gap: 1.75rem;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+}
+
+.card:hover {
+    transform: translateY(-8px) rotateX(2deg) rotateY(-2deg);
+}
+
+/* --- TIER SKINS --- */
+
+.v_deep_cyber {
+    background: #050505;
+    border: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.v_deep_cyber::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, transparent 95%, rgba(212, 175, 55, 0.05) 100%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    animation: scanline 6s linear infinite;
+}
+
+.v_deep_cyber:hover {
+    border-color: rgba(212, 175, 55, 0.4);
+}
+
+.v_mid_titanium {
+    background: #0a0a0a;
+    border: 1px solid #222;
+}
+
+.v_mid_titanium::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.01) 10px, rgba(255, 255, 255, 0.01) 20px);
+    pointer-events: none;
+}
+
+.v_mid_titanium:hover {
+    border-color: #444;
+}
+
+.v_rapid_plasma {
+    background: #020202;
+    border: 1px solid rgba(0, 255, 102, 0.1);
+}
+
+.v_rapid_plasma:hover {
+    border-color: rgba(0, 255, 102, 0.4);
+}
+
+@keyframes scanline {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 0 100%;
+    }
+}
+
+/* Metallic luster effect */
+.v_deep_cyber::after,
+.v_mid_titanium::after,
+.v_rapid_plasma::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    transform: skewX(-25deg);
+    transition: 0.75s;
+    pointer-events: none;
+}
+
+.v_deep_cyber:hover::after,
+.v_mid_titanium:hover::after,
+.v_rapid_plasma:hover::after {
+    left: 150%;
+}
+
+.v_deep_cyber::after {
+    background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.1), transparent);
+}
+
+.v_mid_titanium::after {
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent);
+}
+
+.v_rapid_plasma::after {
+    background: linear-gradient(to right, transparent, rgba(0, 255, 102, 0.1), transparent);
+}
+
+/* --- CONTENT STYLES --- */
+
+.nameRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 2;
+}
+
+.tokenInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.name {
+    font-size: 1.35rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    color: #fff;
+    margin: 0;
+}
+
+.addressWrap {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.symbol {
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: #fff;
+    opacity: 0.8;
+}
+
+.address {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.address:hover {
+    color: #fff;
+}
+
+.tierTag {
+    font-size: 0.6rem;
+    font-weight: 900;
+    opacity: 0.8;
+    /* Increased opacity to show color */
+    letter-spacing: 2px;
+}
+
+.v_deep_cyber .tierTag {
+    color: var(--accent-deep);
+}
+
+.v_mid_titanium .tierTag {
+    color: var(--accent-mid);
+}
+
+.v_rapid_plasma .tierTag {
+    color: var(--accent-rapid);
+}
+
+.metricsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1.5rem;
+    z-index: 2;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.metricLabel {
+    font-size: 0.55rem;
+    font-weight: 800;
+    opacity: 0.3;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.metricValue {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #fff;
+}
+
+.countdownValue {
+    font-size: 1.15rem;
+    font-weight: 950;
+    color: #fff;
+    font-family: var(--font-mono);
+    letter-spacing: 0.5px;
+}
+
+.v_rapid_plasma .countdownValue {
+    color: #00FF66;
+}
+
+.v_mid_titanium .countdownValue {
+    color: #ffffff;
+}
+
+.v_deep_cyber .countdownValue {
+    color: #d4af37;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+    margin-top: auto;
+}
+
+.entryRange {
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.3;
+}
+
+.sprayButton {
+    padding: 12px 24px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+}
+
+/* Phase Transitions */
+.state_enlist .sprayButton {
+    background: transparent;
+    border: 1px solid #222;
+    color: #666;
+}
+
+.state_enlist .sprayButton:hover {
+    border-color: #fff;
+    color: #fff;
+}
+
+.state_secure .sprayButton {
+    background: linear-gradient(to bottom, #f2d06b, #d4af37) !important;
+    color: #000 !important;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2) !important;
+}
+
+.v_rapid_plasma.state_spray .sprayButton {
+    background: #00FF66;
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
+}
+
+.v_deep_cyber.state_spray .sprayButton {
+    background: #fff;
+    color: #000;
+}
+
+/* Responsive Scaling */
+@media (max-width: 480px) {
+    .card {
+        width: 100%;
+        height: auto;
+        padding: 1.15rem;
+        gap: 1rem;
+    }
+
+    .name {
+        font-size: 1rem;
+    }
+
+    .address {
+        font-size: 0.65rem;
+    }
+
+    .metricValue,
+    .countdownValue {
+        font-size: 0.9rem;
+    }
+
+    .metricsGrid {
+        gap: 1rem;
+    }
+
+    .metricLabel {
+        font-size: 0.5rem;
+        letter-spacing: 1.5px;
+    }
+
+    .entryRange {
+        font-size: 0.65rem;
+    }
+
+    .sprayButton {
+        padding: 10px 18px;
+        font-size: 0.65rem;
+        letter-spacing: 1.5px;
+    }
+}

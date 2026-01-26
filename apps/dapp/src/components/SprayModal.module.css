@@ -1,0 +1,627 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.98) 100%);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    z-index: 1000;
+}
+
+.modal {
+    width: 100%;
+    max-width: 420px;
+    background: #050505;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    box-shadow: 0 50px 150px rgba(0, 0, 0, 0.9);
+    position: relative;
+    overflow: hidden;
+}
+
+.modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(57, 255, 20, 0.2), transparent);
+}
+
+.title {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: 0.25rem;
+}
+
+.description {
+    color: #444;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    text-align: center;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.highlight {
+    color: #fff;
+    font-weight: 950;
+}
+
+.imgHighlight {
+    color: var(--accent-primary);
+    font-weight: 950;
+}
+
+.calcBox {
+    background: #000;
+    padding: 1rem;
+    border: 1px solid #121212;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calcRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #333;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.totalBlt {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 950;
+    letter-spacing: -0.5px;
+    font-family: var(--font-mono);
+}
+
+.walletBox {
+    background: #000;
+    padding: 2.5rem;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    margin: 1.5rem 0;
+    text-align: center;
+    border-radius: 12px;
+}
+
+.addressDisplay {
+    font-weight: 900;
+    color: #fff;
+    background: #080808;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border: 1px solid #181818;
+    word-break: break-all;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    line-height: 1.6;
+}
+
+.instruction {
+    font-size: 0.7rem;
+    color: #555;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.warning {
+    font-size: 0.7rem;
+    color: #fff;
+    font-weight: 950;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    border-radius: 12px;
+}
+
+.actions {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.cancelBtn,
+.confirmBtn {
+    flex: 1;
+    padding: 1.5rem;
+    font-weight: 950;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 0.85rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cancelBtn {
+    background: transparent;
+    border: 1px solid #181818;
+    color: #333;
+}
+
+.cancelBtn:hover {
+    border-color: #444;
+    color: #fff;
+}
+
+.confirmBtn {
+    background: #fff;
+    color: #000;
+    border: 1px solid #fff;
+}
+
+.confirmBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-white);
+}
+
+.timerContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #fff;
+    font-weight: 950;
+    margin-bottom: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    gap: 12px;
+}
+
+.statusView {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 350px;
+    gap: 2.5rem;
+}
+
+.spinner {
+    width: 80px;
+    height: 80px;
+    border: 2px solid rgba(255, 255, 255, 0.05);
+    border-top: 2px solid #fff;
+    border-radius: 50%;
+    animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.successIcon {
+    font-size: 5rem;
+    color: var(--accent-primary);
+    filter: drop-shadow(0 0 20px rgba(57, 255, 20, 0.4));
+}
+
+.subStatus {
+    font-size: 0.75rem;
+    font-weight: 950;
+    color: #222;
+    animation: blink 1.5s infinite;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.2;
+    }
+}
+
+.inputContainer {
+    display: flex;
+    align-items: center;
+    background: #000;
+    border: 1px solid #181818;
+    border-radius: 12px;
+    padding: 0 2rem;
+    margin: 2rem 0;
+    transition: all 0.2s;
+}
+
+.inputContainer:focus-within {
+    border-color: #333;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.currencyPrefix {
+    font-size: 1.5rem;
+    color: #333;
+    font-weight: 950;
+}
+
+.amountInput {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 2.5rem;
+    font-weight: 950;
+    padding: 2rem;
+    outline: none;
+    letter-spacing: -2px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.amountInput:focus {
+    outline: none;
+}
+
+.amountInput::-webkit-outer-spin-button,
+.amountInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.amountInput[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.capInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.7rem;
+    color: #444;
+    font-weight: 900;
+    background: #000;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin: 1.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.unlockHint {
+    color: #666;
+    font-size: 0.65rem;
+}
+
+.balanceDisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 2rem;
+    background: #000;
+    border: 1px solid #121212;
+    margin-bottom: 2.5rem;
+    border-radius: 16px;
+}
+
+.balanceLabel {
+    font-size: 0.7rem;
+    color: #333;
+    font-weight: 950;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.balanceValue {
+    font-size: 2rem;
+    font-weight: 950;
+    color: #fff;
+    letter-spacing: -1px;
+    font-family: var(--font-mono);
+}
+
+.currencySuffix {
+    font-size: 1.15rem;
+    color: #333;
+    font-weight: 950;
+}
+
+.error {
+    font-size: 0.8rem;
+    color: #ff2e00;
+    font-weight: 950;
+    padding: 1.5rem;
+    text-align: center;
+    background: rgba(255, 46, 0, 0.05);
+    border: 1px solid rgba(255, 46, 0, 0.1);
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+}
+
+.confirmSummary {
+    background: #000;
+    border: 1px solid #121212;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    border-radius: 16px;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    font-weight: 950;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.summaryRow span:first-child {
+    color: #555;
+    font-weight: 800;
+}
+
+.insufficientBox {
+    background: #000;
+    border: 1px solid #222;
+    padding: 3.5rem 2.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    color: #fff;
+    border-radius: 16px;
+}
+
+.insufficientBox p {
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1.6;
+}
+
+.insufficientBox strong {
+    font-weight: 950;
+    color: var(--accent-primary);
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+}
+
+.notice {
+    font-size: 0.75rem;
+    color: #444;
+    text-align: center;
+    font-weight: 900;
+    padding: 1.5rem;
+    background: #000;
+    border: 1px dashed rgba(255, 255, 255, 0.05);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-radius: 12px;
+}
+
+.tasksContainer {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 0;
+    padding-right: 15px;
+}
+
+.tasksContainer::-webkit-scrollbar {
+    width: 2px;
+}
+
+.tasksContainer::-webkit-scrollbar-thumb {
+    background: #222;
+}
+
+.stickyTaskHeader {
+    position: sticky;
+    top: 0;
+    background: #050505;
+    padding: 0.75rem 0;
+    margin-bottom: 0.5rem;
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: var(--accent-primary);
+    border-bottom: 1px solid #111;
+    z-index: 10;
+}
+
+.queuePosition {
+    font-size: 2.5rem;
+    color: #fff;
+    font-weight: 950;
+    letter-spacing: -3px;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+.walletInputSection {
+    background: #000;
+    border: 1px solid #121212;
+    padding: 0.75rem;
+    margin-bottom: 0;
+    border-radius: 12px 12px 0 0;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.walletLabel {
+    display: block;
+    font-size: 0.75rem;
+    color: #333;
+    margin-bottom: 1.25rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.requiredStar {
+    color: #fff;
+    margin-left: 6px;
+}
+
+.walletInput {
+    width: 100%;
+    background: #050505;
+    border: 1px solid #181818;
+    color: #fff;
+    font-size: 1rem;
+    padding: 1.5rem;
+    outline: none;
+    font-weight: 800;
+    border-radius: 12px;
+    font-family: var(--font-mono);
+    letter-spacing: -0.5px;
+    transition: all 0.2s;
+}
+
+.walletInput:focus {
+    border-color: #444;
+    background: #080808;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.03);
+}
+
+.walletInput::placeholder {
+    color: #111;
+}
+
+.walletHint {
+    font-size: 0.7rem;
+    color: #222;
+    margin-top: 1.25rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+@media (max-width: 480px) {
+    .overlay {
+        padding: 0.5rem;
+    }
+
+    .modal {
+        padding: 1rem;
+        gap: 1rem;
+        max-height: 95vh;
+        overflow-y: auto;
+        border-radius: var(--radius-lg);
+    }
+
+    .title {
+        font-size: 0.95rem;
+        letter-spacing: 2px;
+    }
+
+    .description {
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+
+    .balanceDisplay {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+    }
+
+    .balanceValue {
+        font-size: 1.5rem;
+    }
+
+    .amountInput {
+        font-size: 1.75rem;
+        padding: 1.25rem;
+    }
+
+    .inputContainer {
+        padding: 0 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .calcBox {
+        padding: 1.25rem;
+        gap: 10px;
+    }
+
+    .totalBlt {
+        font-size: 1rem;
+    }
+
+    .confirmSummary {
+        padding: 1.5rem;
+        gap: 1.25rem;
+    }
+
+    .summaryRow {
+        font-size: 0.85rem;
+    }
+
+    .walletInputSection {
+        padding: 1.5rem;
+    }
+
+    .walletInput {
+        padding: 1rem;
+        font-size: 0.85rem;
+    }
+
+    .actions {
+        gap: 1rem;
+        flex-direction: column-reverse;
+        /* Stack buttons, cancel at bottom */
+    }
+
+    .cancelBtn,
+    .confirmBtn {
+        padding: 1.25rem;
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        width: 100%;
+        flex: none;
+    }
+
+    .statusView {
+        min-height: 250px;
+        gap: 1.5rem;
+    }
+
+    .spinner {
+        width: 60px;
+        height: 60px;
+    }
+
+    .successIcon {
+        font-size: 4rem;
+    }
+
+    .queuePosition {
+        font-size: 1.75rem;
+    }
+}

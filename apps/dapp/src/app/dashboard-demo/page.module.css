@@ -1,0 +1,393 @@
+.container {
+    min-height: 100vh;
+    padding: 2rem;
+    color: #fff;
+    font-family: 'JetBrains Mono', 'Inter', monospace;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    margin-bottom: 3rem;
+    width: 100%;
+    max-width: 1400px;
+    align-self: center;
+}
+
+.headerTop {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.userBrief {
+    display: flex;
+    gap: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.userStat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.statLabel {
+    font-size: 0.6rem;
+    color: #666;
+    letter-spacing: 0.1em;
+}
+
+.statValue {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #00ff66;
+}
+
+.dashboardSection {
+    width: 100%;
+    max-width: 1400px;
+    align-self: center;
+    flex: 1;
+}
+
+.tableControls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.tabs {
+    display: flex;
+    gap: 1rem;
+}
+
+.tabActive {
+    background: transparent;
+    border: none;
+    color: #00ff66;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid #00ff66;
+    cursor: pointer;
+}
+
+.tab {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.tab:hover {
+    color: #fff;
+}
+
+.searchBox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    color: #666;
+}
+
+.searchBox input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 0.7rem;
+    outline: none;
+    width: 200px;
+}
+
+.tableWrapper {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.positionTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.positionTable th {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #444;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.row {
+    transition: background 0.2s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.row:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.row td {
+    padding: 1.5rem;
+    vertical-align: middle;
+}
+
+.trenchCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.typeBadge {
+    font-size: 0.6rem;
+    font-weight: 900;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    width: fit-content;
+    letter-spacing: 0.05em;
+}
+
+.typeSpray {
+    background: rgba(0, 255, 102, 0.1);
+    color: #00ff66;
+    border: 1px solid rgba(0, 255, 102, 0.2);
+}
+
+.typeSecure {
+    background: rgba(0, 153, 255, 0.1);
+    color: #0099ff;
+    border: 1px solid rgba(0, 153, 255, 0.2);
+}
+
+.typeEnlist {
+    background: rgba(255, 255, 255, 0.05);
+    color: #888;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.levelText {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.amountCell {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+}
+
+.amount {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.amountExit {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #00ff66;
+}
+
+.currency {
+    font-size: 0.6rem;
+    color: #444;
+}
+
+.roiCell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 800;
+    color: #00ff66;
+}
+
+.roiIcon {
+    color: #00ff66;
+}
+
+.roiIconDisabled {
+    color: #333;
+}
+
+.statusCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.statusPrimary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.statusSecondary {
+    display: flex;
+    gap: 1rem;
+}
+
+.metric {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.6rem;
+    color: #666;
+}
+
+.iconSuccess {
+    color: #00ff66;
+}
+
+.iconActive {
+    color: #00ff66;
+    animation: pulse 2s infinite;
+}
+
+.iconQueued {
+    color: #ffcc00;
+}
+
+.iconPending {
+    color: #ff3333;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.boostBtn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+}
+
+.boostBtn:hover {
+    background: #00ff66;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 255, 102, 0.3);
+}
+
+.footer {
+    padding: 2rem 0;
+    align-self: center;
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+
+    .positionTable th:nth-child(3),
+    .positionTable td:nth-child(3) {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .headerTop {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .userBrief {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .tableControls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .searchBox {
+        width: 100%;
+    }
+
+    .searchBox input {
+        width: 100%;
+    }
+
+    /* Mobile Table: Convert to Cards */
+    .positionTable thead {
+        display: none;
+    }
+
+    .row td {
+        display: block;
+        padding: 1rem 1.5rem;
+        border: none;
+    }
+
+    .row td:not(:last-child) {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .row td::before {
+        content: attr(data-label);
+        font-size: 0.6rem;
+        color: #444;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .row {
+        display: block;
+        margin-bottom: 1rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+    }
+}

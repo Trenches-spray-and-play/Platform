@@ -1,0 +1,725 @@
+.hubContainer {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    background: #000;
+    color: #fff;
+}
+
+.hubHeader {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.hubHeader h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+}
+
+.hubHeader p {
+    color: #888;
+    font-size: 1.2rem;
+}
+
+.hubGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .hubGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.hubCard {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 20px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.hubCard:hover {
+    border-color: #333;
+    background: #111;
+    transform: translateY(-2px);
+}
+
+.cardIcon {
+    background: rgba(255, 255, 255, 0.05);
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cardContent h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.cardContent p {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.cardArrow {
+    margin-left: auto;
+    color: #444;
+    transition: transform 0.2s ease;
+}
+
+.hubCard:hover .cardArrow {
+    transform: translateX(5px);
+    color: #fff;
+}
+
+.hubFooter {
+    margin-top: 4rem;
+    text-align: center;
+    border-top: 1px solid #1a1a1a;
+    padding-top: 2rem;
+}
+
+.hubFooter a {
+    color: #00FF66;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Variation 1: Modern Startup */
+.v1Container {
+    background: #ffffff;
+    color: #000;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+.v1Nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.v1BtnPrimary {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Variation 5: Premium Minimalist Proof Lab */
+.v5Container {
+    --text-primary: #000;
+    --text-secondary: #444;
+    --bg-main: #ffffff;
+    --bg-surface: #fcfcfc;
+    --border-subtle: #eeeeee;
+    --accent-glow: rgba(21, 128, 61, 0.15);
+    --accent-primary: #15803d;
+    /* Industrial Dark Green for Light Mode */
+    --anim-x: 200px;
+    --anim-y: 0;
+    --anim-x-rev: -200px;
+    --anim-y-rev: 0;
+
+    background: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.v5Container[data-theme='dark'] {
+    --text-primary: #ffffff;
+    --text-secondary: #A1A1AA;
+    --bg-main: #060606;
+    /* Premium Obsidian */
+    --bg-surface: #0E0E10;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --accent-glow: rgba(0, 255, 102, 0.15);
+    --accent-primary: #00FF66;
+    /* Neon Green for Dark Mode */
+}
+
+.v5Meta {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 1.2rem 2.5rem;
+    background: rgba(var(--bg-main-rgb, 255, 255, 255), 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.v5Container[data-theme='dark'] .v5Meta {
+    background: rgba(6, 6, 6, 0.7);
+}
+
+.v5Logo {
+    color: var(--text-primary) !important;
+}
+
+.v5Logo svg {
+    height: 1.1rem !important;
+    width: auto !important;
+}
+
+.v5Logo span {
+    font-size: 1.1rem !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.5px !important;
+}
+
+.v5MetaRight {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.v5MetaCTA {
+    background: var(--text-primary);
+    color: var(--bg-main);
+    border: none;
+    padding: 0.4rem 1rem;
+    font-size: 0.6rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.v5MetaCTA:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.themeToggle {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    padding: 0.4rem 1.2rem;
+    border-radius: 2px;
+    font-size: 0.55rem;
+    font-weight: 950;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.themeToggle:hover {
+    border-color: var(--text-primary);
+}
+
+.v5MainFull {
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 15rem 2.5rem 8rem;
+}
+
+.v5FullSection {
+    margin-bottom: 18rem;
+}
+
+.v5SectionTag {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 900;
+    color: #71717A;
+    letter-spacing: 4px;
+    margin-bottom: 2.5rem;
+    text-transform: uppercase;
+}
+
+.v5FullSection h2 {
+    font-size: 6rem;
+    line-height: 0.9;
+    font-weight: 900;
+    letter-spacing: -4px;
+    margin-bottom: 3.5rem;
+    color: var(--text-primary);
+}
+
+.v5FullSection p {
+    font-size: 1.5rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin-bottom: 4.5rem;
+}
+
+.v5SectionStats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 3rem;
+}
+
+.v5StatBox {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 1.2rem 2.5rem;
+    font-size: 0.65rem;
+    font-weight: 950;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+}
+
+/* Calculator Area */
+.v5Calculator {
+    margin-top: 5rem;
+    width: 100%;
+}
+
+.v5TierSelector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 5rem;
+}
+
+.v5TierBtn {
+    flex: 1;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 1.8rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: all 0.2s ease;
+    color: inherit;
+}
+
+.v5TierBtnActive {
+    border-color: var(--text-primary);
+    background: var(--bg-main);
+}
+
+.v5TierLabel {
+    font-size: 0.8rem;
+    font-weight: 950;
+    letter-spacing: 2px;
+    margin-bottom: 0.6rem;
+}
+
+.v5TierSub {
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: #71717A;
+}
+
+.v5CalcInputs {
+    display: flex;
+    align-items: center;
+    gap: 5rem;
+    margin-bottom: 6rem;
+}
+
+.v5LabelFlex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.v5CalcGroup {
+    flex: 1;
+}
+
+.v5CalcGroup label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: #71717A;
+    letter-spacing: 2px;
+}
+
+.v5CapLabel,
+.v5DurationLabel {
+    font-size: 0.6rem;
+    font-weight: 950;
+    color: var(--text-primary);
+    opacity: 0.8;
+}
+
+.v5Slider {
+    width: 100%;
+    height: 2px;
+    background: var(--border-subtle);
+    appearance: none;
+    outline: none;
+}
+
+.v5Slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 40px;
+    height: 6px;
+    background: var(--text-primary);
+    cursor: pointer;
+}
+
+.v5CalcValue {
+    font-size: 4.5rem;
+    font-weight: 950;
+    letter-spacing: -3px;
+    color: var(--text-primary);
+}
+
+.accentZEN {
+    color: var(--accent-primary);
+    text-shadow: 0 0 35px var(--accent-glow);
+}
+
+/* Logic Flow Area */
+.v5LogicFlow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3rem 4rem;
+    /* Tightened padding */
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    margin-top: 6rem;
+    width: fit-content;
+    /* Fit to content */
+    margin-left: auto;
+    margin-right: auto;
+    /* Centered */
+}
+
+.v5Node {
+    font-size: 0.6rem;
+    font-weight: 950;
+    letter-spacing: 2px;
+    padding: 1.5rem;
+    border: 1px solid var(--text-primary);
+    background: var(--bg-main);
+    text-transform: uppercase;
+}
+
+.v5Line {
+    flex: none;
+    /* Disable flex growing */
+    width: 200px;
+    /* Exact match to animation distance */
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 0;
+    /* Remove margin as width provides spacing */
+    position: relative;
+}
+
+.v5Dot {
+    width: 8px;
+    height: 8px;
+    background: var(--text-primary);
+    border-radius: 50%;
+    position: absolute;
+    top: -4px;
+}
+
+.v5DotLarge {
+    width: 0px;
+    height: 0px;
+    border: 7px solid transparent;
+    border-top-color: var(--accent-primary);
+    background: transparent;
+    top: -7px;
+    box-shadow: 0 0 25px var(--accent-primary);
+}
+
+/* Comparison Area */
+.v5ComparisonGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-subtle);
+    border: 1px solid var(--border-subtle);
+    margin-top: 6rem;
+}
+
+.v5CompHeader {
+    background: var(--bg-surface);
+    padding: 2.5rem;
+    font-size: 0.65rem;
+    font-weight: 950;
+    color: #71717A;
+    text-transform: uppercase;
+}
+
+.v5CompItem {
+    background: var(--bg-main);
+    padding: 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.v5InfoBox {
+    margin-top: 5rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.v5InfoBox a {
+    color: var(--text-primary);
+    text-decoration: underline;
+    font-weight: 800;
+}
+
+.v5Trust {
+    padding: 12rem 0;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.v5TrustLogos {
+    display: flex;
+    justify-content: center;
+    gap: 6rem;
+    font-size: 0.65rem;
+    font-weight: 950;
+    color: #52525B;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.v5End {
+    text-align: center;
+    padding: 15rem 0;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.v5CTA {
+    background: var(--text-primary);
+    color: var(--bg-main);
+    border: none;
+    padding: 2rem 6rem;
+    font-size: 1.2rem;
+    font-weight: 950;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.v5CTA:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* 
+   MOBILE COMPACT (iPhone 12/Pro Max optimised)
+   ------------------------------------------
+*/
+@media (max-width: 768px) {
+    .v5Container {
+        --anim-x: 0;
+        --anim-y: 100px;
+        --anim-x-rev: 0;
+        --anim-y-rev: -100px;
+    }
+
+    .v5Container .v5Meta {
+        padding: 0 1.5rem;
+        height: 60px;
+    }
+
+    .v5Container .v5Logo svg {
+        height: 1rem !important;
+    }
+
+    .v5Container .v5Logo span {
+        font-size: 1rem !important;
+    }
+
+    .v5Container .v5MainFull {
+        padding: 4.5rem 1.25rem 2rem;
+    }
+
+    .v5FullSection {
+        margin-bottom: 4.5rem !important;
+    }
+
+    .v5SectionTag {
+        margin-bottom: 0.75rem !important;
+        font-size: 0.45rem;
+        letter-spacing: 2px;
+    }
+
+    .v5Container .v5FullSection h2 {
+        font-size: 1.7rem;
+        line-height: 1.1;
+        letter-spacing: -0.8px;
+        margin-bottom: 1.1rem !important;
+    }
+
+    .v5Container .v5FullSection p {
+        font-size: 0.9rem;
+        margin-bottom: 1.25rem;
+        line-height: 1.4;
+    }
+
+    .v5Container .v5Calculator {
+        margin-top: 1rem;
+    }
+
+    .v5Container .v5CalcInputs {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
+        margin-bottom: 2rem !important;
+    }
+
+    .v5Container .v5TierSelector {
+        flex-direction: row;
+        width: 100%;
+        gap: 0.3rem;
+        margin-bottom: 1.8rem !important;
+    }
+
+    .v5Container .v5TierBtn {
+        padding: 0.5rem 0.2rem;
+        flex: 1;
+    }
+
+    .v5Container .v5TierLabel {
+        font-size: 0.4rem;
+        letter-spacing: 0.5px;
+    }
+
+    .v5Container .v5TierSub {
+        display: none;
+    }
+
+    .v5Container .v5CalcValue {
+        font-size: 2.3rem;
+        letter-spacing: -1px;
+    }
+
+    .v5Container .v5LogicFlow {
+        flex-direction: column;
+        gap: 1.2rem;
+        padding: 1.5rem 1rem;
+        margin-top: 1.5rem;
+        border: none;
+        background: transparent;
+    }
+
+    .v5Container .v5Line {
+        width: 1px;
+        height: 70px;
+        margin: 0.6rem 0;
+    }
+
+    .v5Container .v5Dot {
+        left: -3.5px;
+        top: 0;
+    }
+
+    .v5Container .v5DotLarge {
+        top: auto;
+        bottom: 0;
+        left: -6px;
+    }
+
+    .v5Container .v5ComparisonGrid {
+        grid-template-columns: 1fr 1fr;
+        margin-top: 2rem;
+    }
+
+    .v5Container .v5CompHeader {
+        padding: 0.6rem 0.3rem;
+        font-size: 0.38rem;
+    }
+
+    .v5Container .v5CompItem {
+        padding: 0.6rem 0.3rem;
+        font-size: 0.55rem;
+    }
+
+    .v5Trust {
+        padding: 3rem 0 !important;
+    }
+
+    .v5TrustLogos {
+        gap: 1.2rem;
+        font-size: 0.38rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .v5End {
+        padding: 4rem 0 !important;
+    }
+
+    .v5Container .v5CTA {
+        width: 100%;
+        padding: 1.1rem;
+        font-size: 0.95rem;
+        letter-spacing: 1px;
+    }
+
+    .v5Container .v5SectionStats {
+        display: flex;
+        flex-direction: row;
+        gap: 0.4rem;
+        margin-top: 0.8rem;
+    }
+
+    .v5Container .v5StatBox {
+        flex: 1;
+        padding: 0.6rem 0.2rem;
+        font-size: 0.35rem;
+        text-align: center;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .v5Container .v5InfoBox {
+        padding: 1.2rem;
+        margin-top: 1.5rem;
+        font-size: 0.8rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+}

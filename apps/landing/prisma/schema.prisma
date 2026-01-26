@@ -1,0 +1,478 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id               String           @id @default(uuid())
+  handle           String           @unique
+  email            String?          @unique
+  supabaseId       String?          @unique
+  wallet           String?          @unique
+  walletEvm        String?          // EVM compatible wallet (ETH/Base/Arbitrum/HyperEVM)
+  walletSol        String?          // Solana wallet
+  beliefScore      Int              @default(0)
+  balance          Decimal          @default(0) @db.Decimal(18, 2) // USD-normalized balance
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  
+  // Referral system
+  referralCode     String?          @unique    // Unique 8-char code for sharing
+  referredById     String?                     // Who referred this user
+  referrer         User?            @relation("Referrals", fields: [referredById], references: [id])
+  referrals        User[]           @relation("Referrals")
+  telegramHandle   String?                     // Telegram username
+  
+  // Relations
+  deposits            Deposit[]
+  depositAddresses    DepositAddress[]
+  participants        Participant[]
+  postSubmissions     PostSubmission[]
+  sprayEntries        SprayEntry[]
+  transactions        Transaction[]
+  userTasks           UserTask[]
+  validationsGiven    Validation[]           @relation("validator")
+  campaignWaitlists   CampaignWaitlist[]
+  userRaids           UserRaid[]
+  contentSubmissions  UserContentSubmission[]
+
+  // Indexes for query optimization
+  @@index([referredById])  // For counting referrals efficiently
+  @@index([createdAt])     // For queue position calculations
+}
+
+model Trench {
+  id            String        @id @default(uuid())
+  name          String
+  level         TrenchLevel
+  entrySize     Int
+  usdEntry      Int
+  durationHours Int           @default(24)  // Baseline wait time in hours (Rapid=24, Mid=72, Deep=168)
+  cadence       String
+  reserves      String
+  active        Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  participants  Participant[]
+  transactions  Transaction[]
+  sprayEntries  SprayEntry[]
+}
+
+// SprayEntry tracks spray payments that are pending task completion
+model SprayEntry {
+  id          String           @id @default(uuid())
+  userId      String
+  trenchId    String
+  amount      Decimal          @db.Decimal(18, 2)  // USD amount
+  status      SprayEntryStatus @default(PENDING_TASKS)
+  createdAt   DateTime         @default(now())
+  finalizedAt DateTime?
+  user        User             @relation(fields: [userId], references: [id])
+  trench      Trench           @relation(fields: [trenchId], references: [id])
+  userTasks   UserTask[]       // Tasks completed for this spray
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum SprayEntryStatus {
+  PENDING_TASKS
+  ACTIVE
+  EXPIRED
+}
+
+model Participant {
+  id               String    @id @default(uuid())
+  userId           String
+  trenchId         String
+  status           String
+  joinedAt         DateTime  @default(now())
+  boostPoints      Int       @default(0)
+  entryAmount      Int       @default(0)
+  expectedPayoutAt DateTime?                     // Calculated payout time (joinedAt + duration - BP reduction)
+  expiresAt        DateTime?
+  maxPayout        Int       @default(0)
+  receivedAmount   Int       @default(0)
+  payoutTxHash     String?                       // Transaction hash once paid
+  trench           Trench    @relation(fields: [trenchId], references: [id])
+  user             User      @relation(fields: [userId], references: [id])
+
+  @@unique([userId, trenchId])
+  @@index([expectedPayoutAt])                   // Index for efficient payout queries
+}
+
+model Transaction {
+  id            String    @id @default(uuid())
+  userId        String
+  trenchId      String
+  amount        Int
+  type          String
+  status        String
+  targetAddress String
+  txHash        String?
+  blockNumber   Int?
+  fromAddress   String?
+  toAddress     String?
+  deadline      DateTime
+  verifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  trench        Trench    @relation(fields: [trenchId], references: [id])
+  user          User      @relation(fields: [userId], references: [id])
+}
+
+// Task type: ONE_TIME = done once, never again. RECURRING = must do per spray
+enum TaskType {
+  ONE_TIME
+  RECURRING
+}
+
+model UserTask {
+  id           String      @id @default(uuid())
+  userId       String
+  taskId       String
+  sprayEntryId String?     // Links to spray entry for recurring tasks
+  completedAt  DateTime    @default(now())
+  user         User        @relation(fields: [userId], references: [id])
+  task         Task        @relation(fields: [taskId], references: [id])
+  sprayEntry   SprayEntry? @relation(fields: [sprayEntryId], references: [id])
+
+  @@unique([userId, taskId, sprayEntryId])
+  @@index([sprayEntryId])
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  reward      Int        @default(0)  // Boost points reward
+  link        String?                 // External link (Twitter, Telegram, etc.)
+  taskType    TaskType   @default(ONE_TIME)  // ONE_TIME or RECURRING
+  isActive    Boolean    @default(true)
+  order       Int        @default(0)  // Display order
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  completions UserTask[]
+}
+
+model PostSubmission {
+  id           String       @id @default(uuid())
+  userId       String
+  platform     String
+  url          String
+  contentType  String
+  status       String       @default("pending")
+  endorsements Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  user         User         @relation(fields: [userId], references: [id])
+  validations  Validation[]
+
+  // Unique constraint for upsert operations (one submission per user per content type)
+  @@unique([userId, contentType])
+}
+
+model Validation {
+  id            String         @id @default(uuid())
+  postId        String
+  validatorId   String
+  rating        Int
+  proofUrl      String?
+  endorsed      Boolean        @default(false)
+  boostAwarded  Int            @default(0)
+  beliefAwarded Int            @default(0)
+  createdAt     DateTime       @default(now())
+  post          PostSubmission @relation(fields: [postId], references: [id])
+  validator     User           @relation("validator", fields: [validatorId], references: [id])
+
+  @@unique([postId, validatorId])
+}
+
+model DepositAddress {
+  id              String    @id @default(uuid())
+  userId          String
+  chain           String
+  address         String    @unique
+  derivationIndex Int
+  createdAt       DateTime  @default(now())
+  deposits        Deposit[]
+  user            User      @relation(fields: [userId], references: [id])
+  
+  // Cached on-chain balance for admin display
+  cachedBalance      Decimal?  @db.Decimal(36, 18)
+  cachedBalanceAt    DateTime?
+
+  @@unique([userId, chain])
+  @@index([address])
+  @@index([userId])
+}
+
+model Deposit {
+  id               String         @id @default(uuid())
+  depositAddressId String
+  userId           String
+  txHash           String         @unique
+  chain            String
+  asset            String
+  amount           Decimal        @db.Decimal(36, 18)
+  amountUsd        Decimal        @db.Decimal(18, 2)
+  status           DepositStatus  @default(PENDING)
+  blockNumber      BigInt
+  confirmations    Int            @default(0)
+  confirmedAt      DateTime?
+  sweepBatchId     String?
+  sweepTxHash      String?
+  sweptAt          DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  depositAddress   DepositAddress @relation(fields: [depositAddressId], references: [id])
+  sweepBatch       SweepBatch?    @relation(fields: [sweepBatchId], references: [id])
+  user             User           @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([depositAddressId])
+}
+
+model VaultAddress {
+  id      String @id @default(uuid())
+  chain   String @unique
+  address String
+  purpose String @default("primary")
+}
+
+model SweepBatch {
+  id           String      @id @default(uuid())
+  chain        String
+  txHash       String?
+  status       SweepStatus @default(PENDING)
+  depositCount Int
+  totalAmount  Decimal     @db.Decimal(36, 18)
+  gasCost      Decimal?    @db.Decimal(36, 18)
+  createdAt    DateTime    @default(now())
+  executedAt   DateTime?
+  deposits     Deposit[]
+
+  @@index([status])
+  @@index([chain])
+}
+
+enum TrenchLevel {
+  RAPID
+  MID
+  DEEP
+}
+
+enum DepositStatus {
+  PENDING
+  CONFIRMED
+  SWEPT
+  FAILED
+}
+
+enum SweepStatus {
+  PENDING
+  EXECUTING
+  COMPLETED
+  FAILED
+}
+
+enum PayoutStatus {
+  PENDING
+  EXECUTING
+  CONFIRMED
+  FAILED
+}
+
+model Payout {
+  id            String       @id @default(uuid())
+  participantId String
+  userId        String
+  trenchId      String
+  amount        Decimal      @db.Decimal(36, 18)
+  amountUsd     Decimal      @db.Decimal(18, 2)
+  toAddress     String
+  tokenAddress  String
+  tokenSymbol   String
+  chainId       Int
+  txHash        String?
+  status        PayoutStatus @default(PENDING)
+  createdAt     DateTime     @default(now())
+  executedAt    DateTime?
+  confirmedAt   DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([participantId])
+}
+
+model CampaignConfig {
+  id              String   @id @default(uuid())
+  name            String   @default("Default Campaign")  // Campaign name
+  trenchIds       String[] @default([])                  // Array of trench IDs this campaign applies to
+  // Payout token configuration
+  tokenAddress    String
+  tokenSymbol     String
+  tokenDecimals   Int                             // Configurable decimals
+  chainId         Int
+  chainName       String                          // Configurable chain name
+  // Accepted deposit tokens (JSON array of {address, symbol, chainId})
+  acceptedTokens  String   @default("[]")         // JSON: [{address, symbol, chainId}]
+  // ROI configuration
+  roiMultiplier   Decimal  @default(1.5) @db.Decimal(5, 2)  // 1.5x, 2.0x, etc
+  // Price configuration
+  manualPrice     Decimal? @db.Decimal(18, 8)
+  useOracle       Boolean  @default(false)
+  oracleSource    String?
+  // Reserve configuration
+  reserveRoundingUnit    Int       @default(1000000)  // 1M default
+  reserveCachedBalance   String?   // Cached display "500M $BLT"
+  reserveCacheUpdatedAt  DateTime?
+  // Status
+  isHidden        Boolean  @default(false)       // Hide from homepage
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Campaign timing & waitlist
+  startsAt                   DateTime?            // When campaign goes live (null = already live)
+  acceptDepositsBeforeStart  Boolean  @default(false)  // Accept deposits during wait period
+  isPaused                   Boolean  @default(false)  // Pause payouts
+  payoutIntervalSeconds      Int      @default(5)      // Seconds between payouts
+  
+  // Relations
+  waitlist        CampaignWaitlist[]
+}
+
+// Waitlist for campaigns that haven't started yet
+model CampaignWaitlist {
+  id            String   @id @default(uuid())
+  campaignId    String
+  userId        String
+  hasDeposited  Boolean  @default(false)
+  depositAmount Decimal? @db.Decimal(18, 2)
+  joinedAt      DateTime @default(now())
+  queueNumber   Int?                           // Assigned based on joinedAt order
+  
+  campaign      CampaignConfig @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id])
+  
+  @@unique([campaignId, userId])
+  @@index([campaignId, hasDeposited])
+}
+
+// Centralized Platform Configuration (singleton pattern)
+model PlatformConfig {
+  id                      String   @id @default("default")
+  
+  // Deployment Timer (Universal Countdown)
+  deploymentDate          DateTime?
+  
+  // Social Media Links
+  telegramUrl             String   @default("https://t.me/trenchesprotocol")
+  twitterUrl              String   @default("https://x.com/traboraofficial")
+  twitterHandle           String   @default("@traboraofficial")
+  onboardingTweetText     String   @default("Just enlisted in the @traboraofficial deployment queue. Spray and Pray! 🔫")
+  
+  // Branding
+  platformName            String   @default("Trenches")
+  referralDomain          String   @default("playtrenches.xyz")
+  docsUrl                 String   @default("https://docs.playtrenches.xyz")
+  
+  // Status Messages
+  waitlistStatusMessage   String   @default("WAITLIST PROTOCOL ACTIVE")
+  deploymentStatusMessage String   @default("DEPLOYMENT WINDOW OPEN")
+  
+  // Belief Score Tier Configuration (JSON array)
+  // Format: [{"minScore": 0, "multiplier": 0.5}, {"minScore": 100, "multiplier": 0.75}, ...]
+  beliefTiers             String   @default("[{\"minScore\":0,\"multiplier\":0.5},{\"minScore\":100,\"multiplier\":0.75},{\"minScore\":500,\"multiplier\":0.9},{\"minScore\":1000,\"multiplier\":1.0}]")
+
+  // Time-Based Payout Configuration
+  bpToMinutesRate         Int      @default(1)   // 1 BP = X minutes off payout time
+
+  // Metadata
+  updatedAt               DateTime @updatedAt
+  updatedBy               String?
+}
+
+// ========================================
+// EARN HUB MODELS (Content Market & Raids)
+// ========================================
+
+// Content Campaign - brands paying for content syndication (rewards Belief Points)
+model ContentCampaign {
+  id                    String   @id @default(uuid())
+  brand                 String                           // Brand name (e.g., "MetaWin")
+  name                  String                           // Campaign name (e.g., "Elite Clipping")
+  description           String?
+  platforms             String[] @default([])            // ["X", "TT", "IG"]
+  beliefPointsPer1k     Decimal  @db.Decimal(5, 2)       // Belief Points per 1k views (e.g., 1.5)
+  usdPer1k              Decimal? @db.Decimal(10, 2)      // Optional USD reward per 1k views
+  budgetUsd             Decimal? @db.Decimal(18, 2)      // Total campaign budget
+  spentUsd              Decimal  @default(0) @db.Decimal(18, 2) // Amount spent so far
+  icon                  String?                          // Emoji or icon URL
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  submissions           UserContentSubmission[]
+}
+
+// User's content submission to a campaign
+model UserContentSubmission {
+  id                String          @id @default(uuid())
+  userId            String
+  campaignId        String
+  url               String                               // The social link submitted
+  platform          String                               // X, TT, IG, YT
+  viewCount         Int             @default(0)          // Verified view count
+  beliefAwarded     Decimal         @default(0) @db.Decimal(5, 2) // Belief points given
+  usdAwarded        Decimal?        @db.Decimal(10, 2)   // USD awarded (optional)
+  status            String          @default("pending")  // pending, approved, rejected
+  createdAt         DateTime        @default(now())
+  verifiedAt        DateTime?
+
+  user              User            @relation(fields: [userId], references: [id])
+  campaign          ContentCampaign @relation(fields: [campaignId], references: [id])
+
+  @@index([userId])
+  @@index([campaignId])
+  @@index([status])
+}
+
+// Raid Campaign - social amplification targets (rewards Boost Points)
+model Raid {
+  id          String    @id @default(uuid())
+  title       String
+  platform    String                                     // X, TT, IG, YT
+  url         String                                     // The social link to raid
+  reward      Int       @default(50)                     // BP reward for raiding
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+
+  // Relations
+  completions UserRaid[]
+}
+
+// Tracks which users have completed which raids
+model UserRaid {
+  id          String   @id @default(uuid())
+  userId      String
+  raidId      String
+  bpAwarded   Int      @default(0)
+  completedAt DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  raid        Raid     @relation(fields: [raidId], references: [id])
+
+  @@unique([userId, raidId])
+  @@index([userId])
+  @@index([raidId])
+}

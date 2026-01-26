@@ -1,0 +1,279 @@
+:root {
+    --lock-gold: #FFD700;
+    --lock-gold-glow: rgba(255, 215, 0, 0.4);
+}
+
+.labContainer {
+    padding: 4rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.labHeader {
+    margin-bottom: 4rem;
+    text-align: center;
+}
+
+.labTitle {
+    font-family: var(--font-header);
+    font-size: 3.5rem;
+    font-weight: 900;
+    letter-spacing: -2px;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.labSubtitle {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.matrixGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 3rem;
+}
+
+/* Base Wrapper for Variations */
+.variationWrapper {
+    position: relative;
+    min-height: 500px;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.variationLabel {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.viewContent {
+    flex: 1;
+    position: relative;
+    padding: 2rem;
+}
+
+/* Common Overlay Styles */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    padding: 2rem;
+    text-align: center;
+}
+
+/* VARIATION 1: Institutional Gatekeeper (Frosted Blur) */
+.frostedGate {
+    backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* VARIATION 2: Cyber-Pulse Lock (Scanlines) */
+.cyberPulse {
+    background: radial-gradient(circle at center, rgba(30, 30, 30, 0.9) 0%, rgba(0, 0, 0, 0.95) 100%);
+}
+
+.cyberPulse::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.25) 50%),
+        linear-gradient(90deg,
+            rgba(255, 215, 0, 0.02),
+            rgba(255, 215, 0, 0));
+    background-size: 100% 4px, 100% 100%;
+    pointer-events: none;
+}
+
+.scanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--lock-gold), transparent);
+    opacity: 0.3;
+    animation: scan 4s linear infinite;
+    box-shadow: 0 0 15px var(--lock-gold);
+}
+
+@keyframes scan {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(500px);
+    }
+}
+
+/* VARIATION 3: Redacted Profile (Skeleton-ish) */
+.redactedBar {
+    height: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.redactedBar::after {
+    content: "ENCRYPTED DATA";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.1);
+    letter-spacing: 4px;
+}
+
+/* VARIATION 4: Terminal Protocol */
+.terminal {
+    background: #050505;
+    font-family: var(--font-mono);
+    color: #00ff66;
+    text-align: left;
+    padding: 1.5rem;
+    font-size: 0.75rem;
+}
+
+.cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: #00ff66;
+    animation: blink 1s infinite;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* VARIATION 5: Zenith Vault */
+.vaultIcon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 0 20px var(--lock-gold-glow));
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* VARIATION 6: Progressive Blur */
+.progressiveBlur {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
+    backdrop-filter: blur(var(--blur-amt));
+}
+
+/* VARIATION 7: Institutional Grid */
+.titaniumGrid {
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.accessBadge {
+    background: #111;
+    border: 1px solid #333;
+    padding: 0.5rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: #c00;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 1.5rem;
+}
+
+/* VARIATION 9: Interactive Gating */
+.neonGlowCta {
+    padding: 1.25rem 3rem;
+    background: transparent;
+    border: 1px solid var(--accent-primary);
+    color: var(--accent-primary);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.neonGlowCta:hover {
+    background: var(--accent-primary);
+    color: #000;
+    box-shadow: 0 0 30px rgba(57, 255, 20, 0.4);
+}
+
+/* Skeleton Elements for background */
+.skeletonCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.4;
+}
+
+.skeletonLine {
+    height: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 10px;
+    border-radius: 2px;
+}
+
+.skeletonLine.short {
+    width: 40%;
+}
+
+.skeletonLine.medium {
+    width: 70%;
+}
+
+.skeletonLine.long {
+    width: 100%;
+}

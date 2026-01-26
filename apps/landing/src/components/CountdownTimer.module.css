@@ -1,0 +1,53 @@
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    padding: 2rem;
+    background: transparent;
+}
+
+.timeBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+}
+
+.value {
+    font-size: 4rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.unit {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+@media (max-width: 768px) {
+    .container {
+        gap: 1.5rem;
+    }
+
+    .value {
+        font-size: 2.5rem;
+    }
+}
+
+.simple {
+    padding: 0;
+    gap: 0;
+}
+
+.simpleValue {
+    font-size: 1.5rem;
+    font-weight: 950;
+    letter-spacing: -1.5px;
+    color: #fff;
+    text-align: center;
+}

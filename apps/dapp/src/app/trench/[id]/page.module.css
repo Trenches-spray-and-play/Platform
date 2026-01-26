@@ -1,0 +1,132 @@
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--spacing-md);
+    padding-bottom: 80px;
+    /* Space for sticky button */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.loading {
+    text-align: center;
+    margin-top: var(--spacing-xl);
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    position: relative;
+}
+
+.backLink {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.title {
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    letter-spacing: -1px;
+}
+
+.liveIndicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    color: var(--accent-blt);
+    font-weight: 700;
+    border: 1px solid var(--accent-blt);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    background: var(--accent-blt);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.statBox {
+    background: var(--bg-secondary);
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.value {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.actionContainer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--spacing-md);
+    background: linear-gradient(to top, var(--bg-color) 80%, transparent);
+    display: flex;
+    justify-content: center;
+    /* Ensure it's above BottomNav if needed, or adjust padding */
+    z-index: 50;
+    margin-bottom: 60px;
+    /* Space for BottomNav */
+}
+
+.sprayButton {
+    width: 100%;
+    max-width: 500px;
+    background: var(--bg-secondary);
+    border: 1px solid;
+    /* Color set inline */
+    padding: var(--spacing-md);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+.sprayButton:active {
+    transform: scale(0.98);
+}

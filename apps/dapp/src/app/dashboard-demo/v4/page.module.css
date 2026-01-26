@@ -1,0 +1,210 @@
+.container {
+    min-height: 100vh;
+    background: #020202;
+    color: #fff;
+    padding: 4rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.blob1 {
+    position: absolute;
+    top: 10%;
+    left: 20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0, 255, 102, 0.1) 0%, transparent 70%);
+    filter: blur(80px);
+    z-index: 1;
+}
+
+.blob2 {
+    position: absolute;
+    bottom: 10%;
+    right: 20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0, 153, 255, 0.08) 0%, transparent 70%);
+    filter: blur(80px);
+    z-index: 1;
+}
+
+.glassPanel {
+    width: 100%;
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2.5rem;
+    padding: 3rem;
+    z-index: 10;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4rem;
+}
+
+.label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    color: #00ff66;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.header h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.stats {
+    display: flex;
+    gap: 3rem;
+}
+
+.sBlock {
+    text-align: right;
+}
+
+.sLabel {
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: #555;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.sVal {
+    font-size: 1.5rem;
+    font-weight: 900;
+}
+
+.rowHead {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    font-weight: 900;
+    color: #444;
+    letter-spacing: 0.15em;
+    margin-bottom: 1.5rem;
+    padding: 0 1rem;
+}
+
+.table {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.row:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: scale(1.02);
+}
+
+.trenchIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00ff66;
+}
+
+.cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 120px;
+}
+
+.cLabel {
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: #444;
+}
+
+.cVal {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ccc;
+}
+
+.cValSuccess {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #00ff66;
+}
+
+.actionBtn {
+    margin-left: auto;
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 1rem;
+    font-size: 0.7rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.actionBtn:hover {
+    background: #00ff66;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .glassPanel {
+        padding: 1.5rem;
+        border-radius: 1.5rem;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .row {
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .cell {
+        min-width: 80px;
+    }
+
+    .actionBtn {
+        width: 100%;
+        margin-top: 1rem;
+    }
+}

@@ -1,0 +1,481 @@
+.labContainer {
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.labHeader {
+    padding: 2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid #111;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.headerTitle h1 {
+    font-size: 1.25rem;
+    font-weight: 950;
+    letter-spacing: 3px;
+    margin: 0;
+}
+
+.headerTitle p {
+    font-size: 0.65rem;
+    color: #444;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.backLink {
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: #fff;
+    opacity: 0.5;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.backLink:hover {
+    opacity: 1;
+}
+
+.previewArea {
+    padding: 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* --- Global HUD --- */
+.topBar {
+    display: flex;
+    gap: 6rem;
+    margin-bottom: 6rem;
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+}
+
+.statLabel {
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.statValue {
+    font-size: 3.5rem;
+    font-weight: 950;
+    letter-spacing: -2px;
+}
+
+/* --- Sections --- */
+.section {
+    margin-bottom: 8rem;
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    font-weight: 950;
+    margin-bottom: 3rem;
+    letter-spacing: -0.5px;
+}
+
+/* --- Deployment Grid --- */
+.deploymentGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.5rem;
+}
+
+.studioCard {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 2.5rem;
+    border-radius: 24px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.studioCard:hover {
+    transform: translateY(-8px);
+    border-color: #333;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.cardType {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+.cardQueue {
+    font-size: 0.7rem;
+    color: #444;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.cardROI {
+    font-size: 2.5rem;
+    font-weight: 950;
+    color: #00FF66;
+    margin-bottom: 0.5rem;
+}
+
+.cardFlow {
+    font-size: 1.1rem;
+    color: #666;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 2.5rem;
+}
+
+.studioBtn {
+    width: 100%;
+    padding: 1.25rem;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    font-weight: 950;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.studioBtn:hover {
+    transform: scale(1.02);
+}
+
+/* --- EARN HUB --- */
+.earnHub {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.hubCategory {
+    border-radius: 24px;
+    background: #050505;
+    border: 1px solid #111;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hubCategory.active {
+    border-color: #333;
+    background: #080808;
+}
+
+.hubBtn {
+    width: 100%;
+    padding: 2rem 3rem;
+    background: transparent;
+    border: none;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    text-align: left;
+}
+
+.hubBtnContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.hubBtnTitle {
+    font-size: 1.25rem;
+    font-weight: 950;
+    letter-spacing: 1px;
+}
+
+.hubBtnDesc {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+    max-width: 600px;
+}
+
+.chevron {
+    font-size: 0.8rem;
+    opacity: 0.3;
+}
+
+.hubContent {
+    padding: 0 3rem 3rem 3rem;
+}
+
+/* Tasks Tab Switcher */
+.tabSwitcher {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid #111;
+}
+
+.tabSwitcher button {
+    background: transparent;
+    border: none;
+    color: #444;
+    font-size: 0.75rem;
+    font-weight: 900;
+    padding: 1rem 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.tabSwitcher button.activeTab {
+    color: #fff;
+}
+
+.tabSwitcher button.activeTab::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+}
+
+/* Task Cards */
+.taskGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.miniTaskCard {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 2rem;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.taskReward {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: #00FF66;
+    background: rgba(0, 255, 102, 0.05);
+    padding: 0.5rem 1rem;
+    width: fit-content;
+    border-radius: 100px;
+}
+
+.taskInfo h3 {
+    font-size: 1rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.taskInfo p {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.executeBtn {
+    background: #111;
+    color: #888;
+    border: 1px solid #222;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 900;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.executeBtn:hover {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+}
+
+/* Content Market Cards */
+.campaignGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: 2rem;
+}
+
+.studioCampaignCard {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 2.5rem;
+    border-radius: 24px;
+}
+
+.campaignHeader {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.campaignIcon {
+    font-size: 2rem;
+    background: #111;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+}
+
+.campaignHeader h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.campaignHeader p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.campaignYield {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 900;
+    margin-bottom: 2.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+}
+
+.submissionBox {
+    display: flex;
+    gap: 1rem;
+}
+
+.subInput {
+    flex: 1;
+    background: #000;
+    border: 1px solid #222;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.subBtn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 0 1.5rem;
+    border-radius: 12px;
+    font-weight: 950;
+    cursor: pointer;
+}
+
+/* Raid List */
+.raidList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.raidItem {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.raidMain {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.raidPlatform {
+    background: #111;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #666;
+}
+
+.raidTitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.raidAction {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.raidReward {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #00FF66;
+    font-weight: 700;
+}
+
+.raidBtn {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.raidBtn:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.accentText {
+    color: #00FF66;
+}

@@ -1,0 +1,84 @@
+.container {
+  min-height: 100vh;
+  padding: 0 1.5rem 0 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.tagline {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  letter-spacing: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+.trenchSection {
+  margin-bottom: 6rem;
+}
+
+.sectionHeaderWrap {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid #111;
+  padding-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: -3px;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0;
+  line-height: 0.9;
+}
+
+.sectionSubtitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #333;
+  text-transform: uppercase;
+}
+
+.campaignStack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  justify-content: flex-start;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-bottom: 4rem;
+  }
+
+  .sectionTitle {
+    font-size: 2rem;
+  }
+
+  .sectionHeaderWrap {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .trenchSection {
+    margin-bottom: 3rem;
+  }
+
+  .tagline {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+  }
+}

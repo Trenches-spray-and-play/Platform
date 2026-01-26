@@ -1,0 +1,98 @@
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.label {
+    text-transform: uppercase;
+}
+
+/* Status Variants */
+.active .dot {
+    background: var(--status-success);
+    box-shadow: 0 0 8px var(--status-success);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.active .label {
+    color: var(--status-success);
+}
+
+.pending .dot {
+    background: var(--status-pending);
+    animation: spin 1s linear infinite;
+    border-radius: 50%;
+    border: 2px solid var(--status-pending);
+    border-top-color: transparent;
+    width: 8px;
+    height: 8px;
+    background: transparent;
+}
+
+.pending .label {
+    color: var(--status-pending);
+}
+
+.exited .dot {
+    background: var(--text-muted);
+}
+
+.exited .label {
+    color: var(--text-muted);
+}
+
+.expired .dot {
+    background: var(--status-expired);
+}
+
+.expired .label {
+    color: var(--status-expired);
+    text-decoration: line-through;
+}
+
+.onClock .dot {
+    background: var(--status-warning);
+    box-shadow: 0 0 12px var(--status-warning);
+    animation: pulse 1s ease-in-out infinite;
+}
+
+.onClock .label {
+    color: var(--status-warning);
+}
+
+/* Animations */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

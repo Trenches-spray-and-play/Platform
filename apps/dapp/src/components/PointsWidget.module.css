@@ -1,0 +1,84 @@
+.container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.container.compact {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0;
+    border-radius: 12px;
+    background: #050505;
+}
+
+.mainScores {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+}
+
+.compact .mainScores {
+    gap: 2rem;
+    justify-content: space-between;
+}
+
+.scoreItem {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.value {
+    font-size: 2.5rem;
+    font-weight: 950;
+    letter-spacing: -2px;
+    line-height: 1;
+}
+
+.compact .value {
+    font-size: 1.75rem;
+    letter-spacing: -1px;
+}
+
+.belief_color {
+    color: var(--status-success);
+    text-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+}
+
+.label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.compact .label {
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+}
+
+.divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border-color);
+}
+
+.compact .divider {
+    height: 24px;
+}
+
+/* Hover effects */
+.container:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.container.compact:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: #080808;
+}

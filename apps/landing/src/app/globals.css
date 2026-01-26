@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap');
+
+:root {
+  /* Core Colors - Zenith Obsidian Palette */
+  --bg-zenith: #020202;
+  --bg-secondary: #050505;
+  --bg-tertiary: #0A0A0A;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #999999;
+  --text-muted: #555555;
+
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-secondary: rgba(255, 255, 255, 0.15);
+
+  /* Accents - Zenith Neon */
+  --accent-zenith: #39FF14;
+  --accent-primary: #39FF14;
+  --accent-secondary: #2ECC71;
+
+  --accent-rapid: #39FF14;
+  --accent-mid: #2ECC71;
+  --accent-deep: #1E8449;
+
+  /* Zenith Glows */
+  --glow-green: 0 0 15px rgba(57, 255, 20, 0.4);
+  --glow-green-intense: 0 0 25px rgba(57, 255, 20, 0.6);
+  --glow-white: 0 0 20px rgba(255, 255, 255, 0.2);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-accent: rgba(57, 255, 20, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-accent: rgba(57, 255, 20, 0.2);
+  --glass-blur: blur(12px);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Space Mono', 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--bg-zenith);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Zenith Vignette Background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 0%, rgba(59, 130, 246, 0.05) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Base Glassmorphism */
+.glass-zenith {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+}
+
+/* Zenith Typography */
+.zenith-h1 {
+  font-size: clamp(2.625rem, 5.625vw, 4.21875rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -4px;
+  text-transform: none;
+}
+
+.zenith-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.neon-green {
+  color: var(--accent-zenith);
+}
+
+.neon-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+  color: var(--accent-zenith);
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.status-pulse {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-zenith);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 12px var(--accent-zenith);
+}
+
+/* Utility classes */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.max-w-7xl {
+  max-width: 80rem;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-zenith);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: 10px;
+}
+
+::selection {
+  background: var(--accent-zenith);
+  color: #000;
+}
+
+/* Mobile utility - hide elements on mobile */
+@media (max-width: 768px) {
+  .mobile-hidden {
+    display: none !important;
+  }
+
+  .neon-tag {
+    display: none;
+  }
+}

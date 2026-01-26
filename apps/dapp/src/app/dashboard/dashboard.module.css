@@ -1,0 +1,1330 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 0 2rem;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-weight: 700;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.header_minimal {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 0.5rem 0;
+    z-index: 20;
+}
+
+.topHeader {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    padding: 1.5rem 2rem;
+    z-index: 20;
+}
+
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+}
+
+/* ===== NEW HEADER STATS BAR ===== */
+.headerStats {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.userBrief {
+    display: flex;
+    gap: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.userStat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.statLabel {
+    font-size: 0.6rem;
+    color: #666;
+    letter-spacing: 0.1em;
+    font-weight: 800;
+}
+
+.statValue {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #00ff66;
+}
+
+.userMeta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.handle {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.refCount {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #666;
+    letter-spacing: 0.05em;
+}
+
+.pillBtn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 8px 20px;
+    font-size: 0.65rem;
+    font-weight: 950;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 100px;
+    text-transform: uppercase;
+    transition: transform 0.2s;
+}
+
+.pillBtn:hover {
+    transform: scale(1.05);
+    background: #00ff66;
+}
+
+/* ===== TABLE CONTROLS ===== */
+.tableControls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.tabs {
+    display: flex;
+    gap: 1rem;
+}
+
+.tabActive {
+    background: transparent;
+    border: none;
+    color: #00ff66;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid #00ff66;
+    cursor: pointer;
+}
+
+.tab {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.tab:hover {
+    color: #fff;
+}
+
+.searchBox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    color: #666;
+}
+
+.searchBox input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 0.7rem;
+    outline: none;
+    width: 180px;
+}
+
+.searchBox input::placeholder {
+    color: #444;
+}
+
+/* ===== POSITIONS TABLE ===== */
+.tableWrapper {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.positionTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.positionTable th {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #444;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.tableRow {
+    transition: background 0.2s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.tableRow:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.tableRow td {
+    padding: 1.25rem 1.5rem;
+    vertical-align: middle;
+}
+
+.trenchCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.typeBadge {
+    font-size: 0.6rem;
+    font-weight: 900;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    width: fit-content;
+    letter-spacing: 0.05em;
+}
+
+.typeSpray {
+    background: rgba(0, 255, 102, 0.1);
+    color: #00ff66;
+    border: 1px solid rgba(0, 255, 102, 0.2);
+}
+
+.typeSecure {
+    background: rgba(255, 215, 0, 0.1);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.typeEnlist {
+    background: rgba(255, 255, 255, 0.05);
+    color: #888;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.levelText {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* Trench Level Colors */
+.levelRapid {
+    color: #00ff66;
+}
+
+.levelMid {
+    color: #fff;
+}
+
+.levelDeep {
+    color: #ffd700;
+}
+
+/* Mobile-only: Exit amount shown inline with entry */
+.amountDivider,
+.amountExitMobile {
+    display: none;
+}
+
+.amountExitMobile {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #00ff66;
+}
+
+.amountCell {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+}
+
+.amount {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.amountExit {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #00ff66;
+}
+
+.currency {
+    font-size: 0.6rem;
+    color: #444;
+}
+
+.roiCell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 800;
+    color: #00ff66;
+}
+
+.roiIcon {
+    color: #00ff66;
+}
+
+.roiIconDisabled {
+    color: #333;
+}
+
+.statusCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.statusPrimary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.statusSecondary {
+    display: flex;
+    gap: 1rem;
+}
+
+.metric {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.6rem;
+    color: #666;
+}
+
+.iconSuccess {
+    color: #00ff66;
+}
+
+.iconActive {
+    color: #00ff66;
+    animation: pulse 2s infinite;
+}
+
+.iconQueued {
+    color: #ffcc00;
+}
+
+.iconPending {
+    color: #888;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.tableBoostBtn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    justify-content: center;
+}
+
+.tableBoostBtn:hover {
+    background: #00ff66;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 255, 102, 0.3);
+}
+
+.tableBoostBtn.completed {
+    background: transparent;
+    border: 1px solid #00ff66;
+    color: #00ff66;
+    cursor: default;
+}
+
+.tableBoostBtn.completed:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Legacy hub styles - kept for fallback */
+.bentoHub {
+    display: none;
+}
+
+.hubActions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logoutBtn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 8px 16px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 100px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+.logoutBtn:hover {
+    border-color: #ff4d4d;
+    color: #ff4d4d;
+}
+
+/* Section Styling */
+.section {
+    width: calc(100% - 2rem);
+    max-width: 1000px;
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.sectionTitle {
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.sectionTitle::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.1), transparent);
+}
+
+/* Deployment Cards - Zenith 460x290 Standard */
+.deploymentGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+    gap: 2rem;
+}
+
+.heroCard {
+    width: 100%;
+    height: 320px;
+    padding: 1.125rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 24px;
+    background: #050505;
+    position: relative;
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.heroCard.rapid {
+    box-shadow: 0 0 40px rgba(0, 255, 102, 0.08);
+}
+
+.heroCard.mid {
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+}
+
+.heroCard.deep {
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.08);
+}
+
+.heroCard:hover {
+    transform: translateY(-5px);
+}
+
+.heroCard.rapid:hover {
+    box-shadow: 0 0 60px rgba(0, 255, 102, 0.15);
+}
+
+.heroCard.mid:hover {
+    box-shadow: 0 0 60px rgba(255, 255, 255, 0.1);
+}
+
+.heroCard.deep:hover {
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.15);
+}
+
+/* Waitlist Dashboard Inspired States (V23) */
+.heroCard.secured {
+    box-shadow: 0 0 60px rgba(212, 175, 55, 0.15);
+    /* Zenith Gold */
+    border-color: rgba(212, 175, 55, 0.2);
+}
+
+.heroCard.secured::before {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), transparent, rgba(212, 175, 55, 0.3));
+}
+
+.heroCard.enlisted {
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    background: rgba(5, 5, 5, 0.4);
+    opacity: 0.8;
+}
+
+.heroCard.enlisted::before {
+    display: none;
+    /* No border glow for muted enlisted */
+}
+
+.customCopy {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    line-height: 1.4;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.heroCard.secured .customCopy {
+    color: #FFD700;
+}
+
+.heroCard.enlisted .customCopy {
+    color: #666;
+}
+
+.lockIcon {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+}
+
+.heroCard::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    padding: 1.5px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+.heroCard.rapid::before {
+    background: linear-gradient(135deg, rgba(0, 255, 102, 0.3), transparent, rgba(0, 255, 102, 0.3));
+}
+
+.heroCard.mid::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent, rgba(255, 255, 255, 0.2));
+}
+
+.heroCard.deep::before {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), transparent, rgba(255, 215, 0, 0.3));
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.trenchInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.trenchLabel {
+    font-size: 0.7rem;
+    font-weight: 950;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.trenchLabel.rapid {
+    color: #00FF66;
+}
+
+.trenchLabel.mid {
+    color: #fff;
+}
+
+.trenchLabel.deep {
+    color: #FFD700;
+}
+
+.cardQueue {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.cardQueue.rapid {
+    color: #00FF66;
+}
+
+.cardQueue.mid {
+    color: #fff;
+}
+
+.cardQueue.deep {
+    color: #FFD700;
+}
+
+.cardMain {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Centering the timer and labels */
+    gap: 0.375rem;
+    margin: 0.75rem 0;
+    width: 100%;
+}
+
+.roiLabel {
+    font-size: 0.65rem;
+    font-weight: 950;
+    color: #333;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.roiValue {
+    font-size: 5.5rem;
+    font-weight: 950;
+    letter-spacing: -4px;
+    line-height: 0.9;
+    color: #fff;
+    margin-bottom: 0.75rem;
+}
+
+.cardFlow {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 950;
+    color: var(--accent-primary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.cardActions {
+    display: flex;
+    justify-content: center;
+}
+
+.boostBtn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 10px 30px;
+    font-size: 0.7rem;
+    font-weight: 950;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 100px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+.boostBtn:hover {
+    background: var(--accent-primary);
+    transform: scale(1.05);
+}
+
+/* ===== EARN HUB (Merged from original) ===== */
+.earnHub {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.hubCategory {
+    border-radius: 24px;
+    background: #050505;
+    border: 1px solid #111;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hubCategory.active {
+    border-color: #333;
+    background: #080808;
+}
+
+.hubBtn {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    text-align: left;
+}
+
+.hubBtnContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.hubBtnTitle {
+    font-size: 1.25rem;
+    font-weight: 950;
+    letter-spacing: 1px;
+}
+
+.hubBtnDesc {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+    max-width: 600px;
+}
+
+.chevron {
+    font-size: 0.8rem;
+    opacity: 0.3;
+}
+
+.hubContent {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.tabSwitcher {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid #111;
+}
+
+.tabSwitcher button {
+    background: transparent;
+    border: none;
+    color: #444;
+    font-size: 0.75rem;
+    font-weight: 900;
+    padding: 1rem 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.tabSwitcher button.activeTab {
+    color: #fff;
+}
+
+.tabSwitcher button.activeTab::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+}
+
+.taskGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.miniTaskCard {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 2rem;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.taskReward {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: #00FF66;
+    background: rgba(0, 255, 102, 0.05);
+    padding: 0.5rem 1rem;
+    width: fit-content;
+    border-radius: 100px;
+}
+
+.taskInfo h3 {
+    font-size: 1rem;
+    margin: 0 0 0.5rem 0;
+}
+
+.taskInfo p {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.executeBtn {
+    background: #111;
+    color: #888;
+    border: 1px solid #222;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 900;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.executeBtn:hover {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+}
+
+.completedTag {
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: #00FF66;
+    text-align: center;
+}
+
+.emptyHub {
+    color: #444;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 3rem;
+}
+
+.campaignGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: 2rem;
+}
+
+.studioCampaignCard {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 2.5rem;
+    border-radius: 24px;
+}
+
+.campaignHeader {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.campaignIcon {
+    font-size: 2rem;
+    background: #111;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+}
+
+.campaignHeader h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.campaignHeader p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.campaignYield {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 900;
+    margin-bottom: 2.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    color: #888;
+}
+
+.accentText {
+    color: #00FF66 !important;
+}
+
+.submissionBox {
+    display: flex;
+    gap: 1rem;
+}
+
+.subInput {
+    flex: 1;
+    background: #000;
+    border: 1px solid #222;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.subInput::placeholder {
+    color: #333;
+}
+
+.subBtn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 0 1.5rem;
+    border-radius: 12px;
+    font-weight: 950;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.subBtn:hover {
+    transform: scale(1.05);
+}
+
+.subBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.raidList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.raidItem {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.raidMain {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.raidPlatform {
+    background: #111;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #666;
+}
+
+.raidTitle {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.raidAction {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.raidReward {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: #00FF66;
+    font-weight: 700;
+}
+
+.raidBtn {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.raidBtn:hover {
+    background: #fff;
+    color: #000;
+}
+
+.raidBtn:disabled {
+    opacity: 0.5;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes vaultPulse {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translateY(-15px) scale(1.05);
+        opacity: 1;
+    }
+}
+
+/* ===== Vault / Login State ===== */
+.vaultContainer {
+    position: relative;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    background: transparent;
+    margin-top: 2rem;
+    overflow: hidden;
+    width: 100%;
+}
+
+.vaultIcon {
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.3));
+    animation: vaultPulse 3s ease-in-out infinite;
+}
+
+.vaultTitle {
+    font-family: var(--font-header);
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.vaultSubtitle {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    max-width: 400px;
+    margin-bottom: 3.5rem;
+    line-height: 1.6;
+}
+
+.loginBtn {
+    /* Uses global .premium-button but scoped here if needed */
+}
+
+.loginBtn:hover {
+    transform: scale(1.05);
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 2rem;
+    gap: 2rem;
+    color: #444;
+    text-align: center;
+}
+
+.emptyState p {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.sprayBtn {
+    background: #fff;
+    color: #000;
+    padding: 1rem 2.5rem;
+    font-weight: 900;
+    text-decoration: none;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: transform 0.2s;
+}
+
+.sprayBtn:hover {
+    transform: scale(1.05);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+    .positionTable th:nth-child(3),
+    .positionTable td:nth-child(3) {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem 0 1rem;
+    }
+
+    .header_minimal {
+        margin: 0;
+        padding: 0.5rem;
+    }
+
+    /* New header stats mobile */
+    .headerStats {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .userBrief {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .userMeta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .tableControls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .searchBox {
+        width: 100%;
+    }
+
+    .searchBox input {
+        width: 100%;
+    }
+
+    /* Mobile Table: Convert to Cards */
+    .positionTable thead {
+        display: none;
+    }
+
+    .tableRow {
+        display: block;
+        margin-bottom: 1rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+    }
+
+    .tableRow td {
+        display: block;
+        padding: 0.75rem 1.25rem;
+        border: none;
+    }
+
+    .tableRow td:not(:last-child) {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .tableRow td::before {
+        content: attr(data-label);
+        font-size: 0.6rem;
+        color: #444;
+        display: inline;
+        margin-right: 0.75rem;
+        letter-spacing: 0.1em;
+        font-weight: 800;
+    }
+
+    /* Hide separate EXIT column on mobile - it's now combined with ENTRY */
+    .tableRow td[data-label="EXIT_EST"] {
+        display: none;
+    }
+
+    /* Show exit amount inline with entry on mobile */
+    .amountDivider {
+        display: inline;
+        color: #444;
+        margin: 0 0.5rem;
+        font-weight: 400;
+    }
+
+    .amountExitMobile {
+        display: inline;
+    }
+
+    /* Trench cell: type badge and trench name on same line */
+    .trenchCell {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    /* Status cell: status and timer on same line */
+    .statusCell {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .statusPrimary {
+        font-size: 0.7rem;
+    }
+
+    .statusSecondary {
+        margin-top: 0;
+    }
+
+    /* Amount cell inline display */
+    .amountCell {
+        display: inline-flex;
+    }
+
+    .section {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .sectionTitle {
+        margin-bottom: 0.75rem;
+    }
+
+    .hubBtn {
+        padding: 1.125rem;
+    }
+
+    .hubBtnTitle {
+        font-size: 1rem;
+    }
+
+    .hubBtnDesc {
+        font-size: 0.8rem;
+    }
+
+    .taskGrid,
+    .campaignGrid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    .miniTaskCard,
+    .studioCampaignCard {
+        padding: 1.125rem;
+    }
+
+    .raidItem {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .raidAction {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

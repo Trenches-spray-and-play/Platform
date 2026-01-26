@@ -1,0 +1,114 @@
+.container {
+    width: 100%;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--accent-blt);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    box-shadow: 0 -4px 20px rgba(0, 255, 87, 0.1);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-sm);
+}
+
+.statusDot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-blt);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent-blt);
+    animation: pulse 2s infinite;
+}
+
+.statusText {
+    color: var(--accent-blt);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.statBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg-tertiary);
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    margin-bottom: 4px;
+}
+
+.value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.actionBtn {
+    flex: 1;
+    background: transparent;
+    border: 1px solid var(--accent-mid);
+    color: var(--accent-mid);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: var(--radius-sm);
+}
+
+.actionBtn:hover {
+    background: rgba(255, 184, 0, 0.1);
+    box-shadow: 0 0 10px rgba(255, 184, 0, 0.2);
+}
+
+.btnIcon {
+    font-size: 1.2rem;
+}
+
+.btnText {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}

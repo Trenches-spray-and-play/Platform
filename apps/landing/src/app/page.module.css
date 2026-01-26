@@ -1,0 +1,452 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+}
+
+/* --- NAVBAR --- */
+.navbar {
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 20;
+}
+
+.logo {
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #fff;
+}
+
+.logo span {
+    color: var(--accent-zenith);
+}
+
+.statusBadge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    border: 1px solid var(--glass-border);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+/* --- HERO --- */
+.hero {
+    padding: 6rem 1rem 3rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 2rem 0;
+    line-height: 1.5;
+}
+
+.enlistBtn {
+    background: #fff;
+    color: #000;
+    padding: 1rem 2.5rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.enlistBtn:hover {
+    transform: translateY(-2px);
+}
+
+/* --- COUNTDOWN --- */
+.countdownWrapper {
+    margin: 4rem 0;
+}
+
+/* --- FEATURES SECTION --- */
+.section {
+    position: relative;
+    padding: 7rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .section {
+        padding: 4rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+.sectionHeader {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.sectionHeader h2 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    letter-spacing: -2px;
+}
+
+@media (max-width: 640px) {
+    .sectionHeader h2 {
+        font-size: 1.8rem;
+        letter-spacing: -1px;
+        margin-bottom: 0.5rem;
+    }
+
+    .sectionHeader p {
+        font-size: 0.9rem;
+    }
+}
+
+.sectionHeader p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Feature Grid */
+.featureGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.featureCard {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.featureCard:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(34, 197, 94, 0.2);
+    transform: translateY(-4px);
+}
+
+.featureIcon {
+    color: var(--accent-zenith);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.featureIcon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.featureCard h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.featureCard p {
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.cardNumber {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.1);
+    letter-spacing: 0.1em;
+}
+
+/* Mechanic Section - The Game Never Stops */
+.mechanicSection {
+    padding-bottom: 10rem;
+}
+
+.mechanicContainer {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 32px;
+    padding: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4rem;
+}
+
+.mechanicContent {
+    flex: 1;
+}
+
+.mechanicContent h2 {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -2px;
+}
+
+@media (max-width: 640px) {
+    .mechanicContent h2 {
+        font-size: 2rem;
+        letter-spacing: -1px;
+        margin-bottom: 0.5rem;
+    }
+
+    .mechanicContent p {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+.mechanicContent p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 3rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.badgeList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.pillBadge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 0.6rem 1.2rem;
+    background: rgba(34, 197, 94, 0.05);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    color: var(--accent-zenith);
+    border-radius: 100px;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.radialWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.radialLabel {
+    position: absolute;
+    bottom: -2rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 0.2em;
+}
+
+/* Footer */
+.footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 6rem 2rem 4rem;
+    background: linear-gradient(to bottom, transparent, rgba(34, 197, 94, 0.02));
+}
+
+.footerGrid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6rem;
+}
+
+.footerBrand {
+    display: flex;
+    flex-direction: column;
+}
+
+.footerLinks {
+    display: flex;
+    gap: 6rem;
+}
+
+.linkColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.linkColumn h4 {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: var(--accent-zenith);
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.linkColumn a {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+}
+
+.linkColumn a:hover {
+    color: #fff;
+    transform: translateX(4px);
+}
+
+.footerBottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    padding-top: 3rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.poweredBy {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 1024px) {
+    .featureGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .mechanicContainer {
+        grid-template-columns: 1fr;
+        padding: 2rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .featureGrid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .featureCard {
+        padding: 1rem 1.25rem;
+        border-radius: 16px;
+    }
+
+    .featureCard h3 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .featureCard p {
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+
+    .featureIcon {
+        margin-bottom: 0.75rem;
+    }
+
+    .featureIcon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .cardNumber {
+        top: 1rem;
+        right: 1rem;
+        font-size: 0.65rem;
+    }
+
+    .statusBadge {
+        display: none;
+    }
+
+    .mechanicMetrics {
+        display: none;
+    }
+
+    .mechanicSection {
+        padding-bottom: 4rem;
+    }
+
+    .mechanicContainer {
+        padding: 1.5rem;
+        border-radius: 20px;
+    }
+
+    .zenith-h1 {
+        font-size: 3.5rem;
+    }
+
+    .hero {
+        padding-top: 8rem;
+    }
+
+    .footerGrid {
+        flex-direction: column;
+        gap: 3rem;
+        margin-bottom: 4rem;
+    }
+
+    .footerLinks {
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .footerBottom {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        text-align: center;
+        padding-top: 1.5rem;
+    }
+
+    .footerBottom>div {
+        flex: 0 0 auto;
+    }
+}

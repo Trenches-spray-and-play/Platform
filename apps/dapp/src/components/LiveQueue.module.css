@@ -1,0 +1,76 @@
+.container {
+    width: 100%;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(0, 255, 0, 0.03);
+    border-top: 1px solid rgba(0, 255, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+    overflow: hidden;
+}
+
+.label {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.6rem;
+    color: var(--accent-color, #00ff00);
+    letter-spacing: 0.1rem;
+    margin-bottom: 0.75rem;
+    text-align: center;
+    opacity: 0.6;
+}
+
+.queueWrapper {
+    width: 100%;
+    overflow: hidden;
+}
+
+.scrollArea {
+    display: flex;
+    gap: 1.5rem;
+    animation: scroll 30s linear infinite;
+    width: max-content;
+}
+
+.queueItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    min-width: 180px;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--accent-color, #00ff00);
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+}
+
+.handle {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #eee;
+}
+
+.action {
+    font-size: 0.6rem;
+    color: var(--accent-color, #00ff00);
+    letter-spacing: 0.05rem;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "name": "trenches-platform",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "dev:dapp": "npm run dev --workspace=apps/dapp",
+        "dev:landing": "npm run dev --workspace=apps/landing",
+        "build": "npm run build --workspaces",
+        "lint": "npm run lint --workspaces",
+        "prisma:generate": "npm run prisma:generate --workspace=packages/database",
+        "prisma:migrate": "npm run prisma:migrate --workspace=packages/database",
+        "prisma:studio": "npm run prisma:studio --workspace=packages/database"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}

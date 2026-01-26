@@ -1,0 +1,480 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 0 2rem;
+    min-height: 100vh;
+    background: transparent;
+}
+
+.header_minimal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 0.5rem 0;
+}
+
+.header {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: #050505;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+}
+
+.avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    background: #050505;
+    border: 1px solid #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #fff;
+}
+
+.identity {
+    flex: 1;
+}
+
+.username {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+}
+
+.scoreContainer {
+    display: flex;
+    gap: 4rem;
+}
+
+.scoreBox {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.topReferral {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.logoutBtn {
+    background: rgba(255, 46, 0, 0.1);
+    color: var(--status-danger);
+    border: 1px solid rgba(255, 46, 0, 0.2);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+}
+
+.logoutBtn:hover {
+    background: var(--status-danger);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255, 46, 0, 0.4);
+}
+
+.scoreLabel {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.scoreValue {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+}
+
+.scoreHint {
+    font-size: 0.65rem;
+    color: #222;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.section {
+    margin-bottom: 4rem;
+}
+
+.sectionTitle {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: #444;
+    margin-bottom: 3.5rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid #111;
+    padding-bottom: 2rem;
+    letter-spacing: 3px;
+}
+
+/* PAYOUT STRIP - COMPACT ZENITH SPEC */
+.payoutStrip {
+    width: 100%;
+    height: 64px;
+    border-radius: 12px;
+    background: #050505;
+    border: 1px solid #111;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    margin-bottom: 3.5rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(12px);
+}
+
+.editing {
+    border-color: var(--accent-primary);
+    background: rgba(0, 255, 102, 0.02);
+}
+
+.stripLabel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #444;
+}
+
+.divider {
+    width: 1px;
+    height: 24px;
+    background: #111;
+    margin: 0 2rem;
+}
+
+.nodeGroup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.nodePrefix {
+    font-size: 0.6rem;
+    font-weight: 900;
+    color: #555;
+    background: #000;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #111;
+}
+
+.nodeText {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: #fff;
+    opacity: 0.8;
+}
+
+.stripInput {
+    background: #000;
+    border: 1px solid #181818;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    width: 100%;
+    outline: none;
+}
+
+.stripInput:focus {
+    border-color: var(--accent-primary);
+}
+
+.stripActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.editBtn,
+.saveBtn,
+.cancelBtn {
+    background: transparent;
+    border: none;
+    color: #444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.editBtn:hover {
+    color: #fff;
+}
+
+.saveBtn {
+    color: var(--accent-primary);
+}
+
+.cancelBtn:hover {
+    color: var(--status-danger);
+}
+
+.walletBox {
+    background: #050505;
+    padding: 2rem;
+    border: 1px solid #111;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.inputLabel {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #444;
+    display: block;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+}
+
+.walletInput {
+    width: 100%;
+    background: #000;
+    border: 1px solid #181818;
+    color: #fff;
+    padding: 1.25rem;
+    font-size: 1rem;
+    outline: none;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-family: var(--font-mono);
+}
+
+.walletInput:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.1);
+}
+
+.helperText {
+    font-size: 0.75rem;
+    color: #222;
+    margin-top: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.socialGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+}
+
+.socialCard {
+    background: #050505;
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    border: 1px solid #111;
+    text-align: center;
+}
+
+.socialIcon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+    color: #fff;
+}
+
+.statGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+}
+
+.statBox {
+    background: #050505;
+    padding: 1.5rem 1.25rem;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    border: 1px solid var(--border-color);
+    transition: var(--transition-normal);
+}
+
+.statBox:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px);
+}
+
+.statValue {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+    color: #fff;
+    letter-spacing: -1px;
+}
+
+.statLabel {
+    font-size: 0.7rem;
+    color: #444;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0.5rem 1rem 6rem 1rem;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+    .username {
+        font-size: 1.75rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .scoreContainer {
+        gap: 2rem;
+        justify-content: center;
+    }
+
+    .payoutStrip {
+        height: auto;
+        flex-direction: column;
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+
+    .divider {
+        display: none;
+    }
+
+    .socialGrid,
+    .statGrid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .statBox,
+    .socialCard {
+        padding: 2rem 1.5rem;
+    }
+
+    .logoutBtn {
+        position: static;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Zenith Vault Gated State */
+.vaultContainer {
+    position: relative;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    background: transparent;
+    border-radius: var(--radius-xl);
+    border: none;
+    margin-top: 2rem;
+    overflow: hidden;
+}
+
+.vaultIcon {
+    font-size: 5rem;
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.3));
+    animation: vaultPulse 3s ease-in-out infinite;
+}
+
+@keyframes vaultPulse {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translateY(-15px) scale(1.05);
+        opacity: 1;
+    }
+}
+
+.vaultTitle {
+    font-family: var(--font-header);
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.vaultSubtitle {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    max-width: 400px;
+    margin-bottom: 3.5rem;
+    line-height: 1.6;
+}
+
+.vaultOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    opacity: 0.5;
+}

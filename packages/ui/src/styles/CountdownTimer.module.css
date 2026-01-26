@@ -1,0 +1,74 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-color, #333);
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.label {
+    font-size: 0.8rem;
+    letter-spacing: 0.2rem;
+    color: var(--text-dim, #888);
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.timerGrid {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.timeBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+}
+
+.value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--accent-color, #00ff00);
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    line-height: 1;
+}
+
+.unit {
+    font-size: 0.6rem;
+    color: var(--text-dim, #666);
+    margin-top: 0.25rem;
+}
+
+.divider {
+    font-size: 2rem;
+    color: var(--text-dim, #444);
+    font-weight: bold;
+    padding-bottom: 1rem;
+}
+
+/* Compact version for dashboard */
+.compactContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.compactLabel {
+    font-size: 0.7rem;
+    color: var(--text-dim, #888);
+    letter-spacing: 0.05rem;
+}
+
+.compactValue {
+    font-size: 1.1rem;
+    color: var(--accent-color, #00ff00);
+    font-weight: bold;
+}
