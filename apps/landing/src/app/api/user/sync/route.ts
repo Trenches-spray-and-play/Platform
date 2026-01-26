@@ -101,7 +101,7 @@ export async function GET(request: Request) {
             });
 
             // Get boost points from participants
-            const boostPoints = user.participants.reduce((sum, p) => sum + (p.boostPoints || 0), 0);
+            const boostPoints = user.participants.reduce((sum: number, p) => sum + (p.boostPoints || 0), 0);
 
             // Format joined date
             const joinedAt = user.createdAt.toLocaleDateString('en-US', {
