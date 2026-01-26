@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run prisma:seed:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git add:*)",
+      "Bash(git push)",
+      "Bash(npx prisma db push:*)",
+      "Bash(npx dotenv:*)",
+      "Bash(git -C \"/Users/mac/Trenches - Spray and Pray/landing\" log --oneline)",
+      "Bash(npx tsc:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(vercel --prod:*)",
+      "Bash(npx vercel --prod)",
+      "Bash(vercel --version:*)"
+    ]
+  }
+}

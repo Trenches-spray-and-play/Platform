@@ -42,6 +42,16 @@ export const RATE_LIMITS = {
         requests: 120,
         window: '1m' as const,
     },
+    // User sync - stricter for user creation/sync
+    userSync: {
+        requests: 5,
+        window: '1m' as const,
+    },
+    // Referral validation
+    referralValidate: {
+        requests: 30,
+        window: '1m' as const,
+    },
 };
 
 // ============ RATE LIMITER SETUP ============
@@ -71,9 +81,9 @@ for (const [key, config] of Object.entries(RATE_LIMITS)) {
     rateLimiters[key] = redis
         ? new Ratelimit({
             redis,
-            limiter: Ratelimit.slidingWindow(config.requests, config.window),
+            limiter: Ratelimit.slidingWindow(config.requests, (config as any).window),
             analytics: true,
-            prefix: `ratelimit:dapp:${key}`,
+            prefix: `ratelimit:platform:${key}`,
         })
         : null;
 }
@@ -251,12 +261,14 @@ export function rateLimitExceededResponse(result: RateLimitResult): NextResponse
  * Add rate limit headers to a response
  */
 export function addRateLimitHeaders(
-    response: NextResponse,
+    response: any,
     result: RateLimitResult
-): NextResponse {
-    response.headers.set('X-RateLimit-Limit', result.limit.toString());
-    response.headers.set('X-RateLimit-Remaining', result.remaining.toString());
-    response.headers.set('X-RateLimit-Reset', result.reset.toString());
+): any {
+    if (response && response.headers) {
+        response.headers.set('X-RateLimit-Limit', result.limit.toString());
+        response.headers.set('X-RateLimit-Remaining', result.remaining.toString());
+        response.headers.set('X-RateLimit-Reset', result.reset.toString());
+    }
     return response;
 }
 

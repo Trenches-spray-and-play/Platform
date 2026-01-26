@@ -168,6 +168,8 @@ model PostSubmission {
   updatedAt    DateTime     @updatedAt
   user         User         @relation(fields: [userId], references: [id])
   validations  Validation[]
+
+  @@unique([userId, contentType])
 }
 
 model Validation {
