@@ -9,7 +9,7 @@
     "scripts": {
         "dev:dapp": "npm run dev --workspace=apps/dapp",
         "dev:landing": "npm run dev --workspace=apps/landing",
-        "build": "npm run build --workspaces",
+        "build": "npm run build --workspace=apps/dapp --workspace=apps/landing",
         "lint": "npm run lint --workspaces",
         "prisma:generate": "npm run prisma:generate --workspace=packages/database",
         "prisma:migrate": "npm run prisma:migrate --workspace=packages/database",

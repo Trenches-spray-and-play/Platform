@@ -12,6 +12,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@trenches/auth": "*",
     "@trenches/database": "*",
     "@trenches/ui": "*",
     "@trenches/utils": "*",

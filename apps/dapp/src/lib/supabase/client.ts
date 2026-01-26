@@ -1,8 +1,3 @@
-import { createBrowserClient } from '@supabase/ssr';
-
-export function createClient() {
-    return createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-}
+// Re-export from shared auth package
+// This file exists for backwards compatibility with existing imports
+export { createBrowserClient as createClient } from '@trenches/auth';
