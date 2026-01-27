@@ -122,6 +122,18 @@ export default function WelcomePage() {
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
     const [isAuthenticating, setIsAuthenticating] = useState(false);
 
+    // 0. Theme Persistence
+    useEffect(() => {
+        const saved = localStorage.getItem('landing_theme');
+        if (saved) setIsDarkMode(saved === 'dark');
+    }, []);
+
+    const toggleTheme = () => {
+        const newMode = !isDarkMode;
+        setIsDarkMode(newMode);
+        localStorage.setItem('landing_theme', newMode ? 'dark' : 'light');
+    };
+
     const missionStatements = [
         "Turn Belief into Profit.",
         "The Future of Community Rewards.",
@@ -202,7 +214,21 @@ export default function WelcomePage() {
 
     // 6. Early Returns
     if (userSession) {
-        return <WaitlistDashboard userSession={userSession} onLogout={handleLogout} />;
+        return (
+            <div className={styles.v6Container} data-theme={isDarkMode ? 'dark' : 'light'}>
+                <WaitlistDashboard userSession={userSession} onLogout={handleLogout} />
+
+                {/* Dashboard-level Theme Toggle for UX parity */}
+                <button
+                    className={styles.themeToggle}
+                    style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 100 }}
+                    onClick={toggleTheme}
+                    aria-label="Toggle Theme"
+                >
+                    {isDarkMode ? <Sun size={14} strokeWidth={1.5} /> : <Moon size={14} strokeWidth={1.5} />}
+                </button>
+            </div>
+        );
     }
 
     const targetDate = config?.deploymentDate ? new Date(config.deploymentDate) : null;
@@ -239,7 +265,7 @@ export default function WelcomePage() {
 
                     <button
                         className={styles.themeToggle}
-                        onClick={() => setIsDarkMode(!isDarkMode)}
+                        onClick={toggleTheme}
                         aria-label="Toggle Theme"
                     >
                         {isDarkMode ? <Sun size={14} strokeWidth={1.5} /> : <Moon size={14} strokeWidth={1.5} />}

@@ -63,7 +63,7 @@ export default function WaitlistDashboard({ userSession, onLogout }: WaitlistDas
                     url: shareUrl,
                 });
                 return;
-            } catch (err) {
+            } catch {
                 console.log('User cancelled or share failed, falling back to copy');
             }
         }
