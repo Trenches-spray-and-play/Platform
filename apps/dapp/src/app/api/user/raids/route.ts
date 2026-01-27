@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { POINTS } from '@/constants/points';
+import { recalculatePayoutTime } from '@/services/payout-time.service';
 
 // GET /api/user/raids - Get user's completed raids
 // POST /api/user/raids - Claim a raid
@@ -73,28 +75,38 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Raid already completed' }, { status: 400 });
         }
 
-        // Create completion and award BP
-        const [userRaid] = await prisma.$transaction([
-            prisma.userRaid.create({
-                data: {
-                    userId,
-                    raidId,
-                    bpAwarded: raid.reward
-                }
-            }),
-            prisma.user.update({
-                where: { id: userId },
-                data: {
-                    beliefScore: { increment: raid.reward } // Using boostPoints through beliefScore for now
-                }
-            })
-        ]);
+        // Calculate BP reward: admin override or default 5 BP
+        const bpReward = raid.reward > 0 ? raid.reward : POINTS.RAID_REWARD;
+
+        // Create completion record
+        const userRaid = await prisma.userRaid.create({
+            data: {
+                userId,
+                raidId,
+                bpAwarded: bpReward
+            }
+        });
+
+        // Award BP to all participant records for this user
+        const updatedParticipants = await prisma.participant.updateMany({
+            where: { userId },
+            data: { boostPoints: { increment: bpReward } }
+        });
+
+        // Recalculate payout time for all affected participants
+        if (updatedParticipants.count > 0) {
+            const participants = await prisma.participant.findMany({
+                where: { userId, status: 'active' },
+                select: { id: true }
+            });
+            await Promise.all(participants.map(p => recalculatePayoutTime(p.id)));
+        }
 
         return NextResponse.json({
             success: true,
             data: {
                 id: userRaid.id,
-                bpAwarded: raid.reward
+                bpAwarded: bpReward
             }
         });
     } catch (error) {

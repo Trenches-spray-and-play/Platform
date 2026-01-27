@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { POINTS } from '@/constants/points';
+import { recalculatePayoutTime } from '@/services/payout-time.service';
 
 /**
  * GET /api/user/tasks - Get current user's completed tasks
@@ -113,20 +115,29 @@ export async function POST(request: Request) {
             },
         });
 
-        // Award boost points to user
-        if (task.reward > 0) {
-            // Update user's boost points in their participant records
-            await prisma.participant.updateMany({
-                where: { userId: session.id },
-                data: { boostPoints: { increment: task.reward } },
+        // Calculate BP reward: admin override or default 10 BP
+        const bpReward = task.reward > 0 ? task.reward : POINTS.TASK_REWARD;
+
+        // Award boost points to user's participant records
+        const updatedParticipants = await prisma.participant.updateMany({
+            where: { userId: session.id },
+            data: { boostPoints: { increment: bpReward } },
+        });
+
+        // Recalculate payout time for all affected participants
+        if (updatedParticipants.count > 0) {
+            const participants = await prisma.participant.findMany({
+                where: { userId: session.id, status: 'active' },
+                select: { id: true }
             });
+            await Promise.all(participants.map(p => recalculatePayoutTime(p.id)));
         }
 
         return NextResponse.json({
             success: true,
             data: {
                 completedAt: completion.completedAt,
-                rewardAwarded: task.reward,
+                rewardAwarded: bpReward,
             },
         });
     } catch (error) {

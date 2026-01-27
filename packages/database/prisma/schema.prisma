@@ -427,7 +427,7 @@ model UserContentSubmission {
   url               String                               // The social link submitted
   platform          String                               // X, TT, IG, YT
   viewCount         Int             @default(0)          // Verified view count
-  beliefAwarded     Decimal         @default(0) @db.Decimal(5, 2) // Belief points given
+  beliefAwarded     Decimal         @default(0) @db.Decimal(5, 2) // BP awarded (60 on approval)
   usdAwarded        Decimal?        @db.Decimal(10, 2)   // USD awarded (optional)
   status            String          @default("pending")  // pending, approved, rejected
   createdAt         DateTime        @default(now())
@@ -435,6 +435,7 @@ model UserContentSubmission {
 
   user              User            @relation(fields: [userId], references: [id])
   campaign          ContentCampaign @relation(fields: [campaignId], references: [id])
+  raid              Raid?                                // Auto-created raid on approval
 
   @@index([userId])
   @@index([campaignId])
@@ -443,14 +444,16 @@ model UserContentSubmission {
 
 // Raid Campaign - social amplification targets (rewards Boost Points)
 model Raid {
-  id          String    @id @default(uuid())
-  title       String
-  platform    String                                     // X, TT, IG, YT
-  url         String                                     // The social link to raid
-  reward      Int       @default(50)                     // BP reward for raiding
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  expiresAt   DateTime?
+  id                    String                  @id @default(uuid())
+  title                 String
+  platform              String                                     // X, TT, IG, YT
+  url                   String                                     // The social link to raid
+  reward                Int                     @default(5)        // BP reward (default 5)
+  isActive              Boolean                 @default(true)
+  createdAt             DateTime                @default(now())
+  expiresAt             DateTime?
+  contentSubmissionId   String?                 @unique            // Link to auto-created raid's source
+  contentSubmission     UserContentSubmission?  @relation(fields: [contentSubmissionId], references: [id])
 
   // Relations
   completions UserRaid[]

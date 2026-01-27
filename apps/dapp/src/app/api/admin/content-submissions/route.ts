@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAdminAuth } from '@/lib/admin-auth';
+import { POINTS } from '@/constants/points';
+import { recalculatePayoutTime } from '@/services/payout-time.service';
 
 // Admin endpoint for managing content submissions
 // GET: List all submissions
@@ -77,77 +79,9 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Invalid status' }, { status: 400 });
         }
 
-        // Get the submission with campaign data
+        // Get the submission with campaign and user data
         const submission = await prisma.userContentSubmission.findUnique({
             where: { id },
-            include: { campaign: true }
-        });
-
-        if (!submission) {
-            return NextResponse.json({ success: false, error: 'Submission not found' }, { status: 404 });
-        }
-
-        // Calculate belief points if approving with view count
-        let beliefAwarded = 0;
-        if (status === 'approved' && viewCount && viewCount > 0) {
-            beliefAwarded = (viewCount / 1000) * Number(submission.campaign.beliefPointsPer1k);
-        }
-
-        // Update submission
-        const updatedSubmission = await prisma.userContentSubmission.update({
-            where: { id },
-            data: {
-                status,
-                viewCount: viewCount || submission.viewCount,
-                beliefAwarded,
-                verifiedAt: status === 'approved' ? new Date() : null
-            }
-        });
-
-        // If approving, add belief points to user
-        if (status === 'approved' && beliefAwarded > 0) {
-            await prisma.user.update({
-                where: { id: submission.userId },
-                data: {
-                    beliefScore: { increment: Math.floor(beliefAwarded) }
-                }
-            });
-        }
-
-        return NextResponse.json({
-            success: true,
-            data: {
-                id: updatedSubmission.id,
-                status: updatedSubmission.status,
-                viewCount: updatedSubmission.viewCount,
-                beliefAwarded: Number(updatedSubmission.beliefAwarded)
-            }
-        });
-    } catch (error) {
-        console.error('Failed to update submission:', error);
-        return NextResponse.json({ success: false, error: 'Failed to update submission' }, { status: 500 });
-    }
-}
-
-// POST: Promote submission to raid
-export async function POST(request: NextRequest) {
-    // Verify admin authentication
-    const auth = await requireAdminAuth();
-    if (!auth.authorized) {
-        return auth.response;
-    }
-
-    try {
-        const body = await request.json();
-        const { submissionId, reward } = body;
-
-        if (!submissionId) {
-            return NextResponse.json({ success: false, error: 'Missing submissionId' }, { status: 400 });
-        }
-
-        // Get the submission
-        const submission = await prisma.userContentSubmission.findUnique({
-            where: { id: submissionId },
             include: {
                 campaign: true,
                 user: { select: { handle: true } }
@@ -158,33 +92,63 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Submission not found' }, { status: 404 });
         }
 
-        if (submission.status !== 'approved') {
-            return NextResponse.json({ success: false, error: 'Only approved submissions can be promoted to raids' }, { status: 400 });
-        }
-
-        // Create raid from submission
-        const raid = await prisma.raid.create({
+        // Update submission
+        const updatedSubmission = await prisma.userContentSubmission.update({
+            where: { id },
             data: {
-                title: `${submission.campaign.brand}: ${submission.user.handle}'s content`,
-                platform: submission.platform,
-                url: submission.url,
-                reward: reward || 50,
-                isActive: true
+                status,
+                viewCount: viewCount || submission.viewCount,
+                beliefAwarded: status === 'approved' ? POINTS.CONTENT_REWARD : 0,
+                verifiedAt: status === 'approved' ? new Date() : null
             }
         });
+
+        let raidId: string | null = null;
+
+        // If approving, award BP to participant and auto-create raid
+        if (status === 'approved') {
+            // Award BP to user's participant records
+            const updatedParticipants = await prisma.participant.updateMany({
+                where: { userId: submission.userId },
+                data: { boostPoints: { increment: POINTS.CONTENT_REWARD } }
+            });
+
+            // Recalculate payout time for all affected participants
+            if (updatedParticipants.count > 0) {
+                const participants = await prisma.participant.findMany({
+                    where: { userId: submission.userId, status: 'active' },
+                    select: { id: true }
+                });
+                await Promise.all(participants.map(p => recalculatePayoutTime(p.id)));
+            }
+
+            // Auto-create raid from approved content
+            const raid = await prisma.raid.create({
+                data: {
+                    title: `${submission.campaign.brand}: ${submission.user.handle}'s content`,
+                    platform: submission.platform,
+                    url: submission.url,
+                    reward: POINTS.RAID_REWARD, // Default 5 BP
+                    isActive: true,
+                    contentSubmissionId: submission.id
+                }
+            });
+            raidId = raid.id;
+        }
 
         return NextResponse.json({
             success: true,
             data: {
-                raidId: raid.id,
-                title: raid.title,
-                url: raid.url,
-                reward: raid.reward
-            },
-            message: 'Content promoted to raid successfully'
+                id: updatedSubmission.id,
+                status: updatedSubmission.status,
+                viewCount: updatedSubmission.viewCount,
+                bpAwarded: status === 'approved' ? POINTS.CONTENT_REWARD : 0,
+                raidId
+            }
         });
     } catch (error) {
-        console.error('Failed to promote to raid:', error);
-        return NextResponse.json({ success: false, error: 'Failed to promote to raid' }, { status: 500 });
+        console.error('Failed to update submission:', error);
+        return NextResponse.json({ success: false, error: 'Failed to update submission' }, { status: 500 });
     }
 }
+
