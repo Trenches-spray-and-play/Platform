@@ -516,17 +516,36 @@
 
 @media (max-width: 768px) {
     .v6Section {
-        padding: 5rem 2rem;
+        padding: 5rem 1.5rem;
+        /* Reduced horizontal padding */
         min-height: auto;
     }
 
     .v6H1 {
         font-size: var(--h1-mobile);
         letter-spacing: -2px;
+        margin-bottom: 2rem;
+    }
+
+    /* Small Mobile scaling */
+    @media (max-width: 380px) {
+        .v6H1 {
+            font-size: 2.8rem;
+        }
+
+        .v6P {
+            font-size: 1rem;
+        }
+
+        .v6CTA {
+            padding: 1.25rem;
+            font-size: 0.85rem;
+        }
     }
 
     .v6P {
         font-size: 1.1rem;
+        margin-bottom: 3rem;
     }
 
     .sectionHeader h2 {
@@ -536,11 +555,11 @@
 
     .featureGrid {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 1.5rem;
     }
 
     .featureCard {
-        padding: 2rem;
+        padding: 2.5rem 1.5rem;
     }
 
     .mechanicContainer {
@@ -549,18 +568,12 @@
     }
 
     .v6Meta {
-        padding: 0 1.5rem;
+        padding: 0 1rem;
         height: 70px;
-        /* Reduced for mobile clearance */
-    }
-
-    .v6CTA {
-        width: 100%;
-        padding: 1.5rem;
     }
 
     .v6MetaRight {
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
     .v6MetaCTA {
@@ -568,13 +581,20 @@
     }
 
     .v5Footer {
-        padding: 3rem 2rem;
+        padding: 4rem 2rem;
     }
 
     .v5FooterContent {
         flex-direction: column;
         align-items: center;
         text-align: center;
+        gap: 3rem;
+    }
+
+    .v5FooterLinks {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
     }
 
     .v5FooterRight {
@@ -584,5 +604,6 @@
     .v6TrustLogos {
         gap: 2rem;
         flex-wrap: wrap;
+        justify-content: center;
     }
 }
