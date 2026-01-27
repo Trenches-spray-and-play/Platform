@@ -87,9 +87,9 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        // Award BP to all participant records for this user
+        // Award BP to active participant records for this user
         const updatedParticipants = await prisma.participant.updateMany({
-            where: { userId },
+            where: { userId, status: 'active' },
             data: { boostPoints: { increment: bpReward } }
         });
 

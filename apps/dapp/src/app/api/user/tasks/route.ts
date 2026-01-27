@@ -118,9 +118,9 @@ export async function POST(request: Request) {
         // Calculate BP reward: admin override or default 10 BP
         const bpReward = task.reward > 0 ? task.reward : POINTS.TASK_REWARD;
 
-        // Award boost points to user's participant records
+        // Award boost points to user's active participant records
         const updatedParticipants = await prisma.participant.updateMany({
-            where: { userId: session.id },
+            where: { userId: session.id, status: 'active' },
             data: { boostPoints: { increment: bpReward } },
         });
 

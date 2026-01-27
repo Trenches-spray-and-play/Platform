@@ -92,6 +92,9 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Submission not found' }, { status: 404 });
         }
 
+        // Prevent double approval (would award BP twice and fail on raid creation)
+        const isNewApproval = status === 'approved' && submission.status !== 'approved';
+
         // Update submission
         const updatedSubmission = await prisma.userContentSubmission.update({
             where: { id },
@@ -105,11 +108,11 @@ export async function PUT(request: NextRequest) {
 
         let raidId: string | null = null;
 
-        // If approving, award BP to participant and auto-create raid
-        if (status === 'approved') {
-            // Award BP to user's participant records
+        // Only award BP and create raid on NEW approval (not re-approval)
+        if (isNewApproval) {
+            // Award BP to user's active participant records
             const updatedParticipants = await prisma.participant.updateMany({
-                where: { userId: submission.userId },
+                where: { userId: submission.userId, status: 'active' },
                 data: { boostPoints: { increment: POINTS.CONTENT_REWARD } }
             });
 
@@ -142,7 +145,7 @@ export async function PUT(request: NextRequest) {
                 id: updatedSubmission.id,
                 status: updatedSubmission.status,
                 viewCount: updatedSubmission.viewCount,
-                bpAwarded: status === 'approved' ? POINTS.CONTENT_REWARD : 0,
+                bpAwarded: isNewApproval ? POINTS.CONTENT_REWARD : 0,
                 raidId
             }
         });
