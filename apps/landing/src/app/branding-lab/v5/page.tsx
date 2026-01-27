@@ -34,6 +34,8 @@ export default function MinimalVariation() {
                                     if (depositAmount < tierData.min) setDepositAmount(tierData.min);
                                 }}
                                 className={`${styles.v5TierBtn} ${selectedTier === t ? styles.v5TierBtnActive : ''}`}
+                                aria-pressed={selectedTier === t}
+                                aria-label={`${t} tier: ${(tiers as any)[t].desc}, duration ${(tiers as any)[t].duration}`}
                             >
                                 <span className={styles.v5TierLabel}>{t}</span>
                                 <span className={styles.v5TierSub}>{(tiers as any)[t].desc}</span>
@@ -57,6 +59,10 @@ export default function MinimalVariation() {
                                 value={depositAmount}
                                 onChange={(e) => setDepositAmount(Number(e.target.value))}
                                 className={styles.v5Slider}
+                                aria-label={`Deposit amount: $${depositAmount.toLocaleString()}`}
+                                aria-valuemin={(tiers as any)[selectedTier].min}
+                                aria-valuemax={(tiers as any)[selectedTier].cap}
+                                aria-valuenow={depositAmount}
                             />
                             <div className={styles.v5CalcValue}>${depositAmount.toLocaleString()}</div>
                         </div>
@@ -66,7 +72,13 @@ export default function MinimalVariation() {
                                 <label>YOUR_PAYOUT</label>
                                 <span className={styles.v5DurationLabel}>DURATION: {(tiers as any)[selectedTier].duration}</span>
                             </div>
-                            <div className={`${styles.v5CalcValue} ${styles.accentZEN}`}>${(depositAmount * 1.5).toLocaleString()}</div>
+                            <div
+                                className={`${styles.v5CalcValue} ${styles.accentZEN}`}
+                                aria-live="polite"
+                                aria-label={`Your payout: $${(depositAmount * 1.5).toLocaleString()}`}
+                            >
+                                ${(depositAmount * 1.5).toLocaleString()}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -172,6 +184,8 @@ export default function MinimalVariation() {
                     <button
                         onClick={() => setIsDarkMode(!isDarkMode)}
                         className={styles.themeToggle}
+                        aria-pressed={isDarkMode}
+                        aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
                     >
                         {isDarkMode ? 'LIGHT' : 'DARK'}
                     </button>
@@ -179,57 +193,154 @@ export default function MinimalVariation() {
             </div>
 
             <main className={styles.v5MainFull}>
-                {sections.map((s, i) => (
+                {/* Page 1: ROI Calculator */}
+                <div className={styles.v5MobilePage} role="region" aria-label="ROI Calculator">
                     <motion.section
-                        key={i}
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-10%" }}
                         className={styles.v5FullSection}
                     >
-                        <span className={styles.v5SectionTag}>{s.title}</span>
-                        <h2>{s.heading}</h2>
-                        {s.text && <p>{s.text}</p>}
-
-                        {s.custom && s.custom}
-
-                        {s.stats && (
-                            <div className={styles.v5SectionStats}>
-                                {s.stats.map((stat, j) => (
-                                    <div key={j} className={styles.v5StatBox}>
-                                        {stat}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {s.info && (
-                            <div className={styles.v5InfoBox}>
-                                <Info size={14} />
-                                <div dangerouslySetInnerHTML={{
-                                    __html: s.info.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-                                }} />
-                            </div>
-                        )}
+                        <span className={styles.v5SectionTag}>{sections[0].title}</span>
+                        <h2>{sections[0].heading}</h2>
+                        {sections[0].custom}
                     </motion.section>
-                ))}
+                </div>
 
-                <section className={styles.v5Trust}>
-                    <div className={styles.v5TrustLogos}>
-                        <span>POWERED_BY //</span>
-                        <span>BELIEVE TRUST</span>
-                        <span>HYPEREVM</span>
-                        <span>SOLANA</span>
-                        <span>GOOGLE_CLOUD</span>
-                        <span>BASE</span>
-                        <span>ANYWALLET</span>
-                    </div>
-                </section>
+                {/* Page 2: Logic Flow */}
+                <div className={styles.v5MobilePage} role="region" aria-label="How It Works">
+                    <motion.section
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-10%" }}
+                        className={styles.v5FullSection}
+                    >
+                        <span className={styles.v5SectionTag}>{sections[1].title}</span>
+                        <h2>{sections[1].heading}</h2>
+                        {sections[1].custom}
+                    </motion.section>
+                </div>
 
-                <section className={styles.v5End}>
-                    <button className={styles.v5CTA}>Get Started Now</button>
-                    <p>Simple. Direct. Powerful.</p>
-                </section>
+                {/* Page 3: Comparison & Fund */}
+                <div className={styles.v5MobilePage} role="region" aria-label="Comparison and Benefits">
+                    {[2, 3].map(i => (
+                        <motion.section
+                            key={i}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-10%" }}
+                            className={styles.v5FullSection}
+                        >
+                            <span className={styles.v5SectionTag}>{sections[i].title}</span>
+                            <h2>{sections[i].heading}</h2>
+                            {sections[i].text && <p>{sections[i].text}</p>}
+                            {sections[i].custom}
+                            {sections[i].stats && (
+                                <div className={styles.v5SectionStats}>
+                                    {sections[i].stats!.map((stat, j) => (
+                                        <div key={j} className={styles.v5StatBox}>
+                                            {stat}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </motion.section>
+                    ))}
+                </div>
+
+                {/* Page 4: Security & Math */}
+                <div className={styles.v5MobilePage} role="region" aria-label="Security and Sustainability">
+                    {[4, 5].map(i => (
+                        <motion.section
+                            key={i}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-10%" }}
+                            className={styles.v5FullSection}
+                        >
+                            <span className={styles.v5SectionTag}>{sections[i].title}</span>
+                            <h2>{sections[i].heading}</h2>
+                            {sections[i].text && <p>{sections[i].text}</p>}
+                            {sections[i].stats && (
+                                <div className={styles.v5SectionStats}>
+                                    {sections[i].stats!.map((stat, j) => (
+                                        <div key={j} className={styles.v5StatBox}>
+                                            {stat}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </motion.section>
+                    ))}
+                </div>
+
+                {/* Page 5: Steps 01 & 02 */}
+                <div className={styles.v5MobilePage} role="region" aria-label="Getting Started Steps">
+                    {[6, 7].map(i => (
+                        <motion.section
+                            key={i}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-10%" }}
+                            className={styles.v5FullSection}
+                        >
+                            <span className={styles.v5SectionTag}>{sections[i].title}</span>
+                            <h2>{sections[i].heading}</h2>
+                            {sections[i].text && <p>{sections[i].text}</p>}
+                            {sections[i].info && (
+                                <div className={styles.v5InfoBox}>
+                                    <Info size={14} />
+                                    <div dangerouslySetInnerHTML={{
+                                        __html: sections[i].info!.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+                                    }} />
+                                </div>
+                            )}
+                        </motion.section>
+                    ))}
+                </div>
+
+                {/* Page 6: Steps 03 & 04 + Trust + Footer */}
+                <div className={styles.v5MobilePage} role="region" aria-label="Advanced Steps and Call to Action">
+                    {[8, 9].map(i => (
+                        <motion.section
+                            key={i}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-10%" }}
+                            className={styles.v5FullSection}
+                        >
+                            <span className={styles.v5SectionTag}>{sections[i].title}</span>
+                            <h2>{sections[i].heading}</h2>
+                            {sections[i].text && <p>{sections[i].text}</p>}
+                            {sections[i].stats && (
+                                <div className={styles.v5SectionStats}>
+                                    {sections[i].stats!.map((stat, j) => (
+                                        <div key={j} className={styles.v5StatBox}>
+                                            {stat}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </motion.section>
+                    ))}
+
+                    <section className={styles.v5Trust}>
+                        <div className={styles.v5TrustLogos}>
+                            <span>POWERED_BY //</span>
+                            <span>BELIEVE TRUST</span>
+                            <span>HYPEREVM</span>
+                            <span>SOLANA</span>
+                            <span>GOOGLE_CLOUD</span>
+                            <span>BASE</span>
+                            <span>ANYWALLET</span>
+                        </div>
+                    </section>
+
+                    <section className={styles.v5End}>
+                        <button className={styles.v5CTA}>Get Started Now</button>
+                        <p>Simple. Direct. Powerful.</p>
+                    </section>
+                </div>
             </main>
         </div>
     );
