@@ -174,17 +174,18 @@
     top: 0;
     left: 0;
     right: 0;
-    padding: 0 3rem;
+    padding: 1.5rem 3rem;
+    /* PC Breathing room */
     background: rgba(var(--bg-main-rgb, 255, 255, 255), 0.7);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     z-index: 1000;
-    /* High Z-Index for Fixed Header */
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border-subtle);
-    min-height: 80px;
+    min-height: 100px;
+    /* PC Breathing room */
 }
 
 .v5Container[data-theme='dark'] .v5Meta {
@@ -196,13 +197,13 @@
 }
 
 .v5Logo svg {
-    height: 1.1rem !important;
+    height: 1.3rem !important;
     width: auto !important;
 }
 
 .v5Logo span {
-    font-size: 1.1rem !important;
-    font-weight: 900 !important;
+    font-size: 1.3rem !important;
+    font-weight: 950 !important;
     letter-spacing: -0.5px !important;
 }
 
@@ -900,12 +901,26 @@
     }
 
     .v5End {
-        padding: 1.5rem 0 2rem !important;
+        padding: 5rem 0 10rem !important;
+        /* Extreme clearance for footer text */
+        text-align: center !important;
+        border-top: 1px solid var(--border-subtle) !important;
+    }
+
+    .v5End p {
+        margin-top: 5rem !important;
+        /* Fix collision with button */
+        font-size: 1.1rem !important;
+        opacity: 0.7 !important;
     }
 
     /* Calculator */
     .v5Calculator {
         margin-top: 1.5rem !important;
+        width: 80% !important;
+        /* Reduced for better mobile density */
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 
     /* Stats boxes */
