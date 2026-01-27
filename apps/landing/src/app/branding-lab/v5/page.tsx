@@ -4,7 +4,7 @@ import React from "react";
 import styles from "../lab.module.css";
 import Logo from "@/components/Logo";
 import { motion } from "framer-motion";
-import { ArrowDown, Info, ArrowRight } from "lucide-react";
+import { ArrowDown, Info, ArrowRight, Sun, Moon } from "lucide-react";
 
 export default function MinimalVariation() {
     const [isDarkMode, setIsDarkMode] = React.useState(true);
@@ -187,7 +187,10 @@ export default function MinimalVariation() {
                         aria-pressed={isDarkMode}
                         aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
                     >
-                        {isDarkMode ? 'LIGHT' : 'DARK'}
+                        <span className={styles.themeToggleText}>{isDarkMode ? 'LIGHT' : 'DARK'}</span>
+                        <span className={styles.themeToggleIcon}>
+                            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+                        </span>
                     </button>
                 </div>
             </div>
@@ -340,6 +343,21 @@ export default function MinimalVariation() {
                         <button className={styles.v5CTA}>Get Started Now</button>
                         <p>Simple. Direct. Powerful.</p>
                     </section>
+
+                    <footer className={styles.v5Footer}>
+                        <div className={styles.v5FooterContent}>
+                            <div className={styles.v5FooterLinks}>
+                                <a href="#" className={styles.v5FooterLink}>Documentation</a>
+                                <a href="#" className={styles.v5FooterLink}>Terms</a>
+                                <a href="#" className={styles.v5FooterLink}>Privacy</a>
+                                <a href="#" className={styles.v5FooterLink}>Support</a>
+                            </div>
+                            <div className={styles.v5FooterRight}>
+                                <span className={styles.v5FooterTagline}>Spray & Play</span>
+                                <span className={styles.v5FooterCopyright}>© 2025 Trenches Protocol. All rights reserved.</span>
+                            </div>
+                        </div>
+                    </footer>
                 </div>
             </main>
         </div>

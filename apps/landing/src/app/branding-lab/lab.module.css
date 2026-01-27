@@ -590,8 +590,73 @@
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-/* 
-   MOBILE PERFECTED (SUPER SCALE + 6-Page Viewport Snap)
+/* Theme Toggle Icon - hidden on desktop by default */
+.themeToggleIcon {
+    display: none;
+}
+
+.themeToggleText {
+    display: inline;
+}
+
+/* Footer Styles */
+.v5Footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: 4rem 0 3rem;
+    margin-top: 2rem;
+}
+
+.v5FooterContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.v5FooterLinks {
+    display: flex;
+    gap: 2.5rem;
+}
+
+.v5FooterLink {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--text-secondary);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: color 0.2s ease;
+}
+
+.v5FooterLink:hover {
+    color: var(--text-primary);
+}
+
+.v5FooterRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.v5FooterCopyright {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+}
+
+.v5FooterTagline {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: var(--accent-primary);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/*
+   MOBILE PERFECTED (Smooth Scroll + Reduced Fonts)
 ------------------------------------------------------
 */
 @media (max-width: 768px) {
@@ -601,97 +666,145 @@
         --anim-x-rev: 0 !important;
         --anim-y-rev: -60px !important;
 
-        height: 100svh !important;
-        overflow-y: scroll !important;
-        scroll-snap-type: y mandatory !important;
+        height: auto !important;
+        overflow-y: auto !important;
         scroll-behavior: smooth !important;
         -webkit-overflow-scrolling: touch !important;
     }
 
     .v5Meta {
-        padding: 0 1.5rem !important;
-        height: 75px !important;
+        padding: 0 0.75rem !important;
+        height: 60px !important;
         z-index: 1000 !important;
+        gap: 0.5rem !important;
+    }
+
+    /* Logo closer together and to left edge */
+    .v5Logo {
+        gap: 0.25rem !important;
+        margin-left: -0.25rem !important;
+    }
+
+    .v5Logo svg {
+        height: 0.9rem !important;
     }
 
     .v5Logo span {
-        font-size: 1.2rem !important;
+        font-size: 0.9rem !important;
+        letter-spacing: -0.3px !important;
+    }
+
+    /* Header right side - buttons close together on far right */
+    .v5MetaRight {
+        gap: 0.5rem !important;
+        margin-left: auto !important;
+    }
+
+    .v5MetaCTA {
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.5rem !important;
+    }
+
+    /* Theme toggle as icon button */
+    .themeToggle {
+        width: 36px !important;
+        height: 36px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 4px !important;
+    }
+
+    .themeToggleText {
+        display: none !important;
+    }
+
+    .themeToggleIcon {
+        display: flex !important;
     }
 
     .v5MainFull {
-        padding: 0 !important;
+        padding: 80px 1rem 0 !important;
         max-width: 100% !important;
     }
 
     .v5MobilePage {
-        min-height: 100svh !important;
-        padding: 95px 1.5rem env(safe-area-inset-bottom, 2rem) !important;
-        overflow-y: auto !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        scroll-snap-align: start !important;
-        scroll-snap-stop: always !important;
-        box-sizing: border-box !important;
+        min-height: auto !important;
+        padding: 2rem 0 !important;
+        overflow-y: visible !important;
+        display: block !important;
+    }
+
+    .v5MobilePage:first-child {
+        padding-top: 1rem !important;
     }
 
     .v5MobilePage:last-child {
-        justify-content: flex-start !important;
-        padding-bottom: 5rem !important;
-        scroll-snap-align: end !important;
+        padding-bottom: 0 !important;
     }
 
     .v5FullSection {
-        margin-bottom: 2rem !important;
+        margin-bottom: 3rem !important;
         width: 100% !important;
-        scroll-margin-top: 100px !important;
+        scroll-margin-top: 80px !important;
     }
 
+    /* 40% font reduction: 0.95rem -> 0.57rem */
     .v5SectionTag {
-        margin-bottom: 1.2rem !important;
-        font-size: 0.95rem !important;
-        letter-spacing: 4px !important;
+        margin-bottom: 0.75rem !important;
+        font-size: 0.57rem !important;
+        letter-spacing: 3px !important;
     }
 
+    /* 40% reduction: 3.5rem -> 2.1rem */
     .v5FullSection h2 {
-        font-size: 3.5rem !important;
-        line-height: 0.95 !important;
-        letter-spacing: -2px !important;
-        margin-bottom: 1rem !important;
+        font-size: 2.1rem !important;
+        line-height: 1 !important;
+        letter-spacing: -1px !important;
+        margin-bottom: 0.75rem !important;
         text-wrap: balance !important;
         -webkit-font-smoothing: antialiased !important;
     }
 
+    /* 40% reduction: 1.6rem -> 0.96rem */
     .v5FullSection p {
-        font-size: 1.6rem !important;
-        line-height: 1.4 !important;
-        margin-bottom: 1.5rem !important;
+        font-size: 0.96rem !important;
+        line-height: 1.5 !important;
+        margin-bottom: 1rem !important;
     }
 
     .v5TierSelector {
         flex-direction: row !important;
-        gap: 0.6rem !important;
-        margin-bottom: 3rem !important;
-        min-height: 80px !important;
+        gap: 0.4rem !important;
+        margin-bottom: 1.5rem !important;
+        min-height: 60px !important;
     }
 
     .v5TierBtn {
-        padding: 1.2rem 0.5rem !important;
+        padding: 0.75rem 0.4rem !important;
         flex: 1 !important;
         border-radius: 4px !important;
         font-size: 16px !important;
     }
 
+    /* 40% reduction: 0.75rem -> 0.45rem */
     .v5TierLabel {
-        font-size: 0.75rem !important;
-        letter-spacing: 2px !important;
+        font-size: 0.45rem !important;
+        letter-spacing: 1.5px !important;
+    }
+
+    /* 40% reduction: 0.6rem -> 0.36rem */
+    .v5TierSub {
+        font-size: 0.36rem !important;
+        letter-spacing: 0.5px !important;
     }
 
     .v5Slider {
-        height: 38px !important;
+        height: 32px !important;
         background: transparent !important;
         padding: 0 !important;
-        border: 20px solid transparent !important;
+        border: 14px solid transparent !important;
         background-clip: padding-box !important;
     }
 
@@ -701,139 +814,139 @@
     }
 
     .v5Slider::-webkit-slider-thumb {
-        width: 38px !important;
-        height: 38px !important;
-        margin-top: -18px !important;
+        width: 32px !important;
+        height: 32px !important;
+        margin-top: -15px !important;
         border-radius: 2px !important;
         background: var(--text-primary) !important;
     }
 
+    /* 40% reduction: clamp(3rem, 15vw, 4.5rem) -> clamp(1.8rem, 9vw, 2.7rem) */
     .v5CalcValue {
-        font-size: clamp(3rem, 15vw, 4.5rem) !important;
-        letter-spacing: -3px !important;
-        margin-top: 1rem !important;
+        font-size: clamp(1.8rem, 9vw, 2.7rem) !important;
+        letter-spacing: -2px !important;
+        margin-top: 0.75rem !important;
     }
 
     .v5LogicFlow {
         flex-direction: column !important;
         gap: 0 !important;
-        padding: 3rem 2rem !important;
+        padding: 1.5rem 1rem !important;
+        margin-top: 1.5rem !important;
     }
 
     .v5Line {
         width: 1px !important;
-        height: 60px !important;
+        height: 40px !important;
         margin: 0 !important;
     }
 
+    /* 40% reduction: 0.75rem -> 0.45rem */
     .v5Node {
-        font-size: 0.75rem !important;
-        padding: 1.8rem !important;
+        font-size: 0.45rem !important;
+        padding: 1rem !important;
     }
 
     .v5ComparisonGrid {
         grid-template-columns: 1fr 1fr !important;
+        margin-top: 1rem !important;
     }
 
+    /* 40% reduction: 0.65rem -> 0.39rem */
     .v5CompHeader {
-        padding: 1.5rem 0.75rem !important;
-        font-size: 0.65rem !important;
+        padding: 1rem 0.5rem !important;
+        font-size: 0.39rem !important;
     }
 
+    /* 40% reduction: 0.85rem -> 0.51rem */
     .v5CompItem {
-        padding: 1.8rem 0.75rem !important;
-        font-size: 0.85rem !important;
+        padding: 1rem 0.5rem !important;
+        font-size: 0.51rem !important;
         word-break: break-word !important;
     }
 
+    /* 40% reduction: 1.4rem -> 0.84rem */
     .v5CTA {
         width: 100% !important;
-        padding: 1.5rem 1rem !important;
-        font-size: 1.4rem !important;
+        padding: 1rem 0.75rem !important;
+        font-size: 0.84rem !important;
     }
 
-    /* P0 Critical: Calculator inputs - stack vertically */
+    /* Calculator inputs - stack vertically */
     .v5CalcInputs {
         flex-direction: column !important;
-        gap: 1.5rem !important;
-        margin-bottom: 2rem !important;
+        gap: 1rem !important;
+        margin-bottom: 1.5rem !important;
     }
 
-    /* P0 Critical: Hide arrow on mobile (vertical flow) */
+    /* Hide arrow on mobile (vertical flow) */
     .v5CalcArrow {
         display: none !important;
     }
 
-    /* P0 Critical: Trust logos - wrap on narrow screens */
+    /* Trust logos - wrap on narrow screens */
     .v5TrustLogos {
         flex-wrap: wrap !important;
-        gap: 1rem 2rem !important;
+        gap: 0.75rem 1.5rem !important;
         justify-content: center !important;
         text-align: center !important;
+        /* 40% reduction: 0.65rem -> 0.39rem */
+        font-size: 0.39rem !important;
     }
 
-    /* P0 Critical: Reduce excessive padding */
+    /* Reduce excessive padding */
     .v5Trust {
-        padding: 2rem 0 !important;
+        padding: 1.5rem 0 !important;
     }
 
     .v5End {
-        padding: 2rem 0 3rem !important;
+        padding: 1.5rem 0 2rem !important;
     }
 
-    /* P1 High: Calculator and component margins */
+    /* Calculator */
     .v5Calculator {
-        margin-top: 2rem !important;
-    }
-
-    .v5LogicFlow {
-        margin-top: 2rem !important;
-        padding: 2rem 1.5rem !important;
-    }
-
-    .v5ComparisonGrid {
         margin-top: 1.5rem !important;
     }
 
-    /* P1 High: Stats boxes */
+    /* Stats boxes */
     .v5SectionStats {
-        gap: 0.75rem !important;
-        margin-top: 1.5rem !important;
-    }
-
-    .v5StatBox {
-        padding: 1rem 1.25rem !important;
-        font-size: 0.6rem !important;
-        letter-spacing: 2px !important;
-    }
-
-    /* P1 High: Info box mobile */
-    .v5InfoBox {
-        margin-top: 1.5rem !important;
-        padding: 1.5rem !important;
-        gap: 1rem !important;
-        font-size: 1rem !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-    }
-
-    /* P1 High: Label flex spacing */
-    .v5LabelFlex {
-        margin-bottom: 1rem !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
         gap: 0.5rem !important;
+        margin-top: 1rem !important;
     }
 
-    /* P1 High: Tier selector tighter */
-    .v5TierSelector {
-        margin-bottom: 2rem !important;
+    /* 40% reduction: 0.6rem -> 0.36rem */
+    .v5StatBox {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.36rem !important;
+        letter-spacing: 1.5px !important;
     }
 
-    /* P2 Medium: Tier sub-label visibility */
-    .v5TierSub {
+    /* Info box mobile - 40% reduction: 1rem -> 0.6rem */
+    .v5InfoBox {
+        margin-top: 1rem !important;
+        padding: 1rem !important;
+        gap: 0.75rem !important;
         font-size: 0.6rem !important;
-        letter-spacing: 1px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    /* Label flex spacing */
+    .v5LabelFlex {
+        margin-bottom: 0.75rem !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.35rem !important;
+    }
+
+    /* 40% reduction on labels */
+    .v5CalcGroup label {
+        font-size: 0.39rem !important;
+    }
+
+    .v5CapLabel,
+    .v5DurationLabel {
+        font-size: 0.36rem !important;
     }
 
     /* Firefox mobile slider */
@@ -843,8 +956,8 @@
     }
 
     .v5Slider::-moz-range-thumb {
-        width: 38px !important;
-        height: 38px !important;
+        width: 32px !important;
+        height: 32px !important;
         border-radius: 2px !important;
         background: var(--text-primary) !important;
     }
@@ -866,6 +979,36 @@
 
     .themeToggle:active {
         opacity: 0.8 !important;
+    }
+
+    /* Footer styles for mobile */
+    .v5Footer {
+        padding: 1.5rem 0 !important;
+        margin-top: 1rem !important;
+    }
+
+    .v5FooterContent {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        text-align: center !important;
+    }
+
+    .v5FooterLinks {
+        gap: 1rem !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+
+    .v5FooterLink {
+        font-size: 0.45rem !important;
+    }
+
+    .v5FooterCopyright {
+        font-size: 0.39rem !important;
+    }
+
+    .v5FooterTagline {
+        font-size: 0.45rem !important;
     }
 }
 
