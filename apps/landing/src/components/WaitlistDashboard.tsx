@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import styles from './WaitlistDashboard.module.css';
 import CountdownTimer from './CountdownTimer';
 import Logo from './Logo';
+import TacticalButton from './TacticalButton';
+import { Share2 } from 'lucide-react';
 
 interface PlatformConfig {
     deploymentDate: string | null;
@@ -16,7 +18,12 @@ interface PlatformConfig {
 }
 
 interface WaitlistDashboardProps {
-    userSession: any;
+    userSession: {
+        handle?: string;
+        position?: string | number;
+        referralCount?: number;
+        referralCode?: string;
+    };
     onLogout?: () => void;
 }
 
@@ -43,10 +50,26 @@ export default function WaitlistDashboard({ userSession, onLogout }: WaitlistDas
     const referralCode = userSession?.referralCode || 'LOADING';
     const handle = userSession?.handle || '@user';
     const referralDomain = config?.referralDomain || 'playtrenches.xyz';
-    const statusMessage = config?.waitlistStatusMessage || 'WAITLIST PROTOCOL ACTIVE';
+    const statusMessage = config?.waitlistStatusMessage || 'SYSTEM LIVE // READY';
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(`https://${referralDomain}/ref/${referralCode}`);
+    const shareUrl = `https://${referralDomain}/ref/${referralCode}`;
+
+    const handleShare = async () => {
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Join Trenches',
+                    text: 'Join the waitlist for Trenches: Spray & Play',
+                    url: shareUrl,
+                });
+                return;
+            } catch (err) {
+                console.log('User cancelled or share failed, falling back to copy');
+            }
+        }
+
+        // Fallback to clipboard
+        navigator.clipboard.writeText(shareUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -56,36 +79,51 @@ export default function WaitlistDashboard({ userSession, onLogout }: WaitlistDas
             <header className={styles.topHeader}>
                 <Logo platformName={config?.platformName} />
             </header>
-            {/* Compact Identity Hub - Refined Bento Style */}
-            <div className={`${styles.bentoHub} ${styles.glass}`}>
+
+            {/* Bento Identity Hub */}
+            <div className={`${styles.bentoHub} ${styles.glass}`} aria-label="User Stats">
                 <div className={styles.profileSide}>
                     <span className={styles.handle}>{handle}</span>
                     <span className={styles.referralStat}>REFERRALS: <span>{referralCount}</span></span>
                 </div>
 
-                <span className={styles.referral}>{referralDomain}/ref/{referralCode}</span>
+                <span className={styles.referral}>
+                    {referralDomain}/ref/{referralCode}
+                </span>
 
                 <div className={styles.hubActions}>
-                    <button className={styles.copyBtn} onClick={handleCopy}>
-                        {copied ? 'COPIED' : 'COPY LINK'}
-                    </button>
+                    <TacticalButton
+                        onClick={handleShare}
+                        className={styles.copyBtn}
+                    >
+                        {copied ? (
+                            <>COPIED</>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <Share2 size={12} strokeWidth={2.5} /> SHARE
+                            </div>
+                        )}
+                    </TacticalButton>
+
                     {onLogout && (
-                        <button className={styles.logoutBtn} onClick={onLogout}>
-                            LOGOUT
+                        <button className={styles.logoutBtn} onClick={onLogout} aria-label="Logout">
+                            [ Logout ]
                         </button>
                     )}
                 </div>
             </div>
 
-            {/* Centered Hero Card - Zenith Elite Standard */}
-            <div className={`${styles.heroCard} ${styles.glass}`}>
+            {/* Zenith Hero Card */}
+            <div className={`${styles.heroCard} ${styles.glass}`} aria-label="Waitlist Position">
                 <div className={styles.customCopy}>
-                    Overtake the competition by <br /> creating high-value content.
+                    Invite friends or create contents about <br /> Trenches to move ahead in the queue
                 </div>
 
                 <div className={styles.queueBox}>
                     <p className={styles.queueLabel}>QUEUE POSITION</p>
-                    <p className={styles.queueValue}>#{queuePosition}</p>
+                    <p className={styles.queueValue}>
+                        <span>#</span>{queuePosition}
+                    </p>
                 </div>
 
                 <div className={styles.timerFooter}>
@@ -96,12 +134,14 @@ export default function WaitlistDashboard({ userSession, onLogout }: WaitlistDas
             </div>
 
             <footer className={styles.footer}>
-                <div className={styles.footerLinks} style={{ display: 'flex', gap: '1.5rem', marginBottom: '1rem', fontSize: '0.7rem', opacity: 0.6 }}>
-                    <a href={config?.twitterUrl || "#"} target="_blank" rel="noopener noreferrer">𝕏 TWITTER</a>
-                    <a href={config?.telegramUrl || "#"} target="_blank" rel="noopener noreferrer">TELEGRAM</a>
-                    <a href={config?.docsUrl || "#"} target="_blank" rel="noopener noreferrer">DOCS</a>
+                <div className={styles.footerLinks}>
+                    <a href={config?.twitterUrl || "#"} target="_blank" rel="https://x.com/trenches121000" className={styles.footerLink}>𝕏 TWITTER</a>
+                    <a href={config?.telegramUrl || "#"} target="_blank" rel="https://t.me/playTrenches" className={styles.footerLink}>TELEGRAM</a>
+                    <a href={config?.docsUrl || "#"} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>DOCS</a>
                 </div>
-                <p className={styles.footerText}>{statusMessage} // CORE_STABLE_V1.1_ELITE</p>
+                <p className={styles.footerText}>
+                    {statusMessage} {"//"} CORE_STABLE_V6_ELITE
+                </p>
             </footer>
         </main>
     );

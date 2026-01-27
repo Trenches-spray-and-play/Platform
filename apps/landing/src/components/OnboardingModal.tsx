@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import styles from './OnboardingModal.module.css';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface PlatformConfig {
     telegramUrl: string;
@@ -73,7 +74,7 @@ export default function OnboardingModal({ isOpen, onClose, onComplete }: Onboard
                 if (data.telegramConfirmed) setTelegramConfirmed(true);
                 if (data.twitterConfirmed) setTwitterConfirmed(true);
             }
-        } catch (e) {
+        } catch {
             console.error("Failed to restore onboarding state");
         }
     }, []);
@@ -111,10 +112,10 @@ export default function OnboardingModal({ isOpen, onClose, onComplete }: Onboard
     if (!isOpen) return null;
 
     // Config values with fallbacks
-    const telegramUrl = config?.telegramUrl || 'https://t.me/trenchesprotocol';
-    const twitterUrl = config?.twitterUrl || 'https://x.com/traboraofficial';
+    const telegramUrl = config?.telegramUrl || 'https://t.me/playTrenches';
+    const twitterUrl = config?.twitterUrl || 'https://x.com/trenches121000';
     const referralDomain = config?.referralDomain || 'playtrenches.xyz';
-    const defaultTweetText = `Just enlisted in the @traboraofficial deployment queue. Spray and Pray!\n\nhttps://${referralDomain}`;
+    const defaultTweetText = `Just joined the playtrenches.xyz deployment queue. Spray and Play!\n\nhttps://${referralDomain}`;
     const tweetText = encodeURIComponent(config?.onboardingTweetText || defaultTweetText);
 
     const handleTelegramClick = () => {
@@ -190,7 +191,9 @@ export default function OnboardingModal({ isOpen, onClose, onComplete }: Onboard
     return (
         <div className={styles.overlay}>
             <div className={styles.modal}>
-                <button className={styles.closeBtn} onClick={onClose}>×</button>
+                <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+                    <X size={24} strokeWidth={1.5} />
+                </button>
 
                 {/* Step Indicator */}
                 <div className={styles.stepIndicator}>
@@ -202,126 +205,149 @@ export default function OnboardingModal({ isOpen, onClose, onComplete }: Onboard
                 </div>
 
                 {/* Error Toast */}
-                {error && (
-                    <div className={styles.errorToast}>
-                        <span>{error}</span>
-                    </div>
-                )}
+                <AnimatePresence>
+                    {error && (
+                        <motion.div
+                            className={styles.errorToast}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                        >
+                            <span>{error}</span>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-                {step === 1 && (
-                    <div className={styles.content}>
-                        <h2 className={styles.title}>CONNECT YOUR SOCIALS</h2>
-                        <p className={styles.desc}>
-                            Join our community channels to stay updated and connect with other members.
-                        </p>
+                <AnimatePresence mode="wait">
+                    {step === 1 ? (
+                        <motion.div
+                            key="step1"
+                            className={styles.content}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <span className={styles.v6Tag}>[ Step 01 Get Started ]</span>
+                            <h2 className={styles.title}>Link your accounts</h2>
+                            <p className={styles.desc}>
+                                Get the latest updates and connect with other members.
+                            </p>
 
-                        {configLoading ? (
-                            <div className={styles.loadingState}>
-                                <Loader2 size={24} className={styles.spinner} />
-                                <span>Loading...</span>
-                            </div>
-                        ) : (
-                            <>
-                                <div className={styles.missionGrid}>
-                                    {/* Telegram */}
-                                    <a
-                                        href={telegramUrl}
-                                        className={`${styles.missionButton} ${telegramConfirmed ? styles.completed : ''}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={handleTelegramClick}
-                                    >
-                                        <span className={styles.missionIcon}>
-                                            {telegramConfirmed ? (
-                                                <Check size={20} color="#00ff00" />
-                                            ) : (
-                                                '📱'
-                                            )}
-                                        </span>
-                                        <div className={styles.missionContent}>
-                                            <span className={styles.missionText}>JOIN TELEGRAM</span>
-                                            {telegramConfirmed && (
-                                                <span className={styles.missionSuccess}>Connected!</span>
-                                            )}
-                                        </div>
-                                    </a>
-
-                                    {/* Twitter/X */}
-                                    <a
-                                        href={twitterUrl}
-                                        className={`${styles.missionButton} ${twitterConfirmed ? styles.completed : ''}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={handleTwitterClick}
-                                    >
-                                        <span className={styles.missionIcon}>
-                                            {twitterConfirmed ? (
-                                                <Check size={20} color="#00ff00" />
-                                            ) : (
-                                                '𝕏'
-                                            )}
-                                        </span>
-                                        <div className={styles.missionContent}>
-                                            <span className={styles.missionText}>FOLLOW ON X</span>
-                                            {twitterConfirmed && (
-                                                <span className={styles.missionSuccess}>Connected!</span>
-                                            )}
-                                        </div>
-                                    </a>
+                            {configLoading ? (
+                                <div className={styles.loadingState}>
+                                    <Loader2 size={24} strokeWidth={1.5} className={styles.spinner} />
+                                    <span>...</span>
                                 </div>
-
-                                <button
-                                    className={styles.nextBtn}
-                                    onClick={handleContinue}
-                                    disabled={!canContinue}
-                                >
-                                    {canContinue ? 'CONTINUE' : 'Complete tasks above to continue'}
-                                </button>
-                            </>
-                        )}
-                    </div>
-                )}
-
-                {step === 2 && (
-                    <div className={styles.content}>
-                        <h2 className={styles.title}>SHARE</h2>
-                        <p className={styles.descText}>
-                            Help spread the word! Share your enlistment with your followers.
-                        </p>
-
-                        <div className={styles.shareBox}>
-                            {!shareConfirmed && !isSyncing ? (
-                                <a
-                                    href={`https://x.com/intent/tweet?text=${tweetText}`}
-                                    className={styles.shareBtn}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={handleShareClick}
-                                >
-                                    𝕏 SHARE ON X
-                                </a>
                             ) : (
-                                <div className={styles.shareComplete}>
-                                    <Check size={20} color="#00ff00" />
-                                    <span>Shared!</span>
+                                <>
+                                    <div className={styles.missionGrid}>
+                                        {/* Telegram */}
+                                        <a
+                                            href={telegramUrl}
+                                            className={`${styles.missionButton} ${telegramConfirmed ? styles.completed : ''}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={handleTelegramClick}
+                                        >
+                                            <span className={styles.missionIcon}>
+                                                {telegramConfirmed ? (
+                                                    <Check size={20} color="var(--accent-zenith)" />
+                                                ) : (
+                                                    '📱'
+                                                )}
+                                            </span>
+                                            <div className={styles.missionContent}>
+                                                <span className={styles.missionText}>Join the telegram group</span>
+                                                {telegramConfirmed && (
+                                                    <span className={styles.missionSuccess}>Joined!</span>
+                                                )}
+                                            </div>
+                                        </a>
+
+                                        {/* Twitter/X */}
+                                        <a
+                                            href={twitterUrl}
+                                            className={`${styles.missionButton} ${twitterConfirmed ? styles.completed : ''}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={handleTwitterClick}
+                                        >
+                                            <span className={styles.missionIcon}>
+                                                {twitterConfirmed ? (
+                                                    <Check size={20} color="var(--accent-zenith)" />
+                                                ) : (
+                                                    '𝕏'
+                                                )}
+                                            </span>
+                                            <div className={styles.missionContent}>
+                                                <span className={styles.missionText}>Follow on X</span>
+                                                {twitterConfirmed && (
+                                                    <span className={styles.missionSuccess}>Following!</span>
+                                                )}
+                                            </div>
+                                        </a>
+                                    </div>
+
+                                    <button
+                                        className={styles.nextBtn}
+                                        onClick={handleContinue}
+                                        disabled={!canContinue}
+                                    >
+                                        {canContinue ? 'CONTINUE' : 'Complete Next Steps to continue'}
+                                    </button>
+                                </>
+                            )}
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="step2"
+                            className={styles.content}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <span className={styles.v6Tag}>[ Step 02 Finish ]</span>
+                            <h2 className={styles.title}>Confirm your spot</h2>
+                            <p className={styles.descText}>
+                                Invite your friends to the queue.
+                            </p>
+
+                            <div className={styles.shareBox}>
+                                {!shareConfirmed && !isSyncing ? (
+                                    <a
+                                        href={`https://x.com/intent/tweet?text=${tweetText}`}
+                                        className={styles.shareBtn}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={handleShareClick}
+                                    >
+                                        𝕏 Confirm your spot
+                                    </a>
+                                ) : (
+                                    <div className={styles.shareComplete}>
+                                        <Check size={20} color="var(--accent-zenith)" />
+                                        <span>Confirmed!</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {isSyncing && (
+                                <div className={styles.finalizingState}>
+                                    <Loader2 size={24} strokeWidth={1.5} className={styles.spinner} />
+                                    <span>almost there...</span>
                                 </div>
                             )}
-                        </div>
 
-                        {isSyncing && (
-                            <div className={styles.finalizingState}>
-                                <Loader2 size={24} className={styles.spinner} />
-                                <span>Finalizing your spot...</span>
-                            </div>
-                        )}
-
-                        {!shareConfirmed && !isSyncing && (
-                            <p className={styles.skipHint}>
-                                Click the share button above to complete your registration
-                            </p>
-                        )}
-                    </div>
-                )}
+                            {!shareConfirmed && !isSyncing && (
+                                <p className={styles.skipHint}>
+                                    Click the button above to complete your registration
+                                </p>
+                            )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );

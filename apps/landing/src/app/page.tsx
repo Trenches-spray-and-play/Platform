@@ -1,23 +1,85 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import styles from "./page.module.css";
-import CountdownTimer from "@/components/CountdownTimer";
+import { Shield, Zap, Cpu, Activity, Sun, Moon, X } from "lucide-react";
+import Logo from "@/components/Logo";
+import { useAuth } from "@/components/AuthProvider";
 import OnboardingModal from "@/components/OnboardingModal";
 import WaitlistDashboard from "@/components/WaitlistDashboard";
-import { useAuth } from "@/components/AuthProvider";
-import { Twitter, Shield, Zap, Cpu, Activity, ArrowRight, CornerDownRight, Box, Terminal, ChevronRight, Activity as ActivityIcon } from "lucide-react";
-import Logo from "@/components/Logo";
-import TacticalButton from "@/components/TacticalButton";
+import { GoogleIcon } from "@/components/GoogleIcon";
 
+/**
+ * [UI] Standardized Animation Presets
+ * Purpose: Codifies the "Institutional Elite" motion standard.
+ */
+const springConfig = { type: "spring", stiffness: 300, damping: 30, mass: 1 };
+
+const fadeUp = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { ...springConfig, duration: 0.6 }
+};
+
+/**
+ * [UI] Countdown Timer
+ * Purpose: Re-introduces launch-critical transparency with Super Scale aesthetic.
+ */
+const CountdownTimer = ({ targetDate }: { targetDate: Date | null }) => {
+    const [timeLeft, setTimeLeft] = useState<{ days: number, hours: number, minutes: number, seconds: number } | null>(null);
+
+    useEffect(() => {
+        if (!targetDate) return;
+
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = targetDate.getTime() - now;
+
+            if (distance < 0) {
+                clearInterval(timer);
+                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                return;
+            }
+
+            setTimeLeft({
+                days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                seconds: Math.floor((distance % (1000 * 60)) / 1000)
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [targetDate]);
+
+    if (!timeLeft) return null;
+
+    return (
+        <div className={styles.v6Timer} aria-label="Launch Countdown">
+            <div className={styles.v6TimerUnits}>
+                {Object.entries(timeLeft).map(([unit, val]) => (
+                    <div key={unit} className={styles.v6TimerUnit}>
+                        <span className={styles.v6TimerVal}>{val.toString().padStart(2, '0')}</span>
+                    </div>
+                ))}
+            </div>
+            <div className={styles.v6TimerGlobalLabel}>(24h Cycle)</div>
+        </div>
+    );
+};
+
+/**
+ * [UI] Radial Progress
+ * Purpose: Dynamic data-binding for platform metrics.
+ */
 const RadialProgress = ({ percentage, label }: { percentage: number, label: string }) => {
     const strokeDasharray = 2 * Math.PI * 45;
     const strokeDashoffset = strokeDasharray * ((100 - percentage) / 100);
 
     return (
         <div className={styles.radialWrapper}>
-            <svg width="200" height="200" viewBox="0 0 100 100">
+            <svg width="100%" height="100%" viewBox="0 0 100 100" className={styles.radialSvg}>
                 <circle
                     cx="50"
                     cy="50"
@@ -39,8 +101,8 @@ const RadialProgress = ({ percentage, label }: { percentage: number, label: stri
                     transition={{ duration: 2, ease: "easeOut" }}
                 />
             </svg>
-            <div className="absolute flex flex-col items-center">
-                <span className="text-4xl font-black">{percentage}%</span>
+            <div className={styles.radialContent}>
+                <span className={styles.radialPercentage}>{percentage}%</span>
             </div>
             <span className={styles.radialLabel}>{label}</span>
         </div>
@@ -48,54 +110,26 @@ const RadialProgress = ({ percentage, label }: { percentage: number, label: stri
 };
 
 export default function WelcomePage() {
+    // 1. Core Auth Hooks
     const { user, signInWithGoogle, signOut, isLoading: authLoading } = useAuth();
-    const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
-    const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+    // 2. Local State
+    const [isDarkMode, setIsDarkMode] = useState(true);
     const [userSession, setUserSession] = useState<any>(null);
     const [isDetermining, setIsDetermining] = useState(true);
     const [config, setConfig] = useState<any>(null);
-    const [missionIndex, setMissionIndex] = useState(0);
-    const [tagIndex, setTagIndex] = useState(0);
+    const [activeMission, setActiveMission] = useState(0);
+    const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+    const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-    const tags = ["[ LAYER_01_COORDINATION ]", "[ SPRAY & PLAY ]"];
-
-    const missions = [
-        "The first high-frequency P2P settlement layer for brand amplification.",
-        "Earn 50% more on your tokens just for being social. Complete missions to skip the queue and get paid faster.",
-        "The first non-custodial coordination layer for token incubation and community distribution."
+    const missionStatements = [
+        "Turn Belief into Profit.",
+        "The Future of Community Rewards.",
+        "Turn $1000 into $1500 in 24 hours.",
+        "Direct payouts. Pure profit."
     ];
 
-    useEffect(() => {
-        const missionInterval = setInterval(() => {
-            setMissionIndex((prev) => (prev + 1) % missions.length);
-        }, 10000); // 10 seconds
-
-        const tagInterval = setInterval(() => {
-            setTagIndex((prev) => (prev + 1) % tags.length);
-        }, 30000); // 30 seconds
-
-        return () => {
-            clearInterval(missionInterval);
-            clearInterval(tagInterval);
-        };
-    }, [missions.length, tags.length]);
-
-    // Initial session check from localStorage to prevent flicker
-    useEffect(() => {
-        const cached = localStorage.getItem('user_session');
-        if (cached) {
-            try {
-                setUserSession(JSON.parse(cached));
-            } catch (e) {
-                console.error("Failed to parse cached session");
-            }
-        }
-        // If no user in Supabase yet, we can stop determining early
-        if (!authLoading && !user) {
-            setIsDetermining(false);
-        }
-    }, [authLoading, user]);
-
+    // 3. Effects: Config & Session Sync
     useEffect(() => {
         fetch('/api/config')
             .then(res => res.json())
@@ -104,9 +138,17 @@ export default function WelcomePage() {
     }, []);
 
     useEffect(() => {
+        const cached = localStorage.getItem('user_session');
+        if (cached) {
+            try { setUserSession(JSON.parse(cached)); }
+            catch (e) { console.error("Failed to parse cached session"); }
+        }
+        if (!authLoading && !user) setIsDetermining(false);
+    }, [authLoading, user]);
+
+    useEffect(() => {
         if (user && !userSession) {
             setIsDetermining(true);
-            // Check if user exists in DB
             fetch(`/api/user/sync?supabaseId=${user.id}`)
                 .then(res => res.json())
                 .then(data => {
@@ -114,7 +156,6 @@ export default function WelcomePage() {
                         setUserSession(data.user);
                         localStorage.setItem('user_session', JSON.stringify(data.user));
                     } else if (user) {
-                        // User exists in Supabase but not in DB yet (signing in)
                         setIsOnboardingOpen(true);
                     }
                 })
@@ -127,23 +168,21 @@ export default function WelcomePage() {
         }
     }, [user, authLoading, userSession]);
 
-    const getTargetDate = () => {
-        if (config?.deploymentDate) {
-            return new Date(config.deploymentDate);
-        }
-        return null;
-    };
+    // 4. UI Rotation Effect
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setActiveMission(prev => (prev + 1) % missionStatements.length);
+        }, 4000);
+        return () => clearInterval(timer);
+    }, [missionStatements.length]);
 
+    // 5. Handlers
     const handleEnlist = async () => {
         if (!user) {
             setIsAuthenticating(true);
-            try {
-                await signInWithGoogle();
-            } catch (err) {
-                console.error("Login failed:", err);
-            } finally {
-                setIsAuthenticating(false);
-            }
+            try { await signInWithGoogle(); }
+            catch (err) { console.error("Login failed:", err); }
+            finally { setIsAuthenticating(false); }
             return;
         }
         setIsOnboardingOpen(true);
@@ -161,180 +200,228 @@ export default function WelcomePage() {
         localStorage.removeItem('user_session');
     };
 
+    // 6. Early Returns
     if (userSession) {
         return <WaitlistDashboard userSession={userSession} onLogout={handleLogout} />;
     }
 
+    const targetDate = config?.deploymentDate ? new Date(config.deploymentDate) : null;
+    const platformName = config?.platformName || "TRENCHES";
+
     return (
-        <main className={`${styles.container} scroll-container`}>
-            {/* HER0 SECTION */}
-            <section className="scroll-section">
-                <nav className={styles.navbar}>
-                    <Logo platformName={config?.platformName} />
-                    <div className={styles.statusBadge}>
-                        <span className="status-pulse" />
-                        NETWORK_ACTIVE
-                    </div>
-                </nav>
+        <div className={styles.v6Container} data-theme={isDarkMode ? 'dark' : 'light'}>
+            <header className={styles.v6Meta}>
+                <Logo platformName={platformName} />
 
-                <div className={styles.hero}>
-                    <div className="neon-tag" style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <AnimatePresence mode="wait">
-                            <motion.span
-                                key={tagIndex}
-                                initial={{ opacity: 0, x: -10 }}
+                <div className={styles.v6MetaRight}>
+                    <AnimatePresence mode="wait">
+                        {authLoading || isDetermining ? (
+                            <motion.div
+                                key="loader"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className={styles.headerSkeleton}
+                                aria-hidden="true"
+                            />
+                        ) : (
+                            <motion.div
+                                key="status"
+                                initial={{ opacity: 0, x: 10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 10 }}
-                                transition={{ duration: 0.8 }}
+                                className={styles.statusBadge}
                             >
-                                {tags[tagIndex]}
-                            </motion.span>
-                        </AnimatePresence>
-                    </div>
-                    <motion.h1
-                        className="zenith-h1"
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                        Where Tokens<br />Earn Belief
-                    </motion.h1>
+                                <span className={styles.statusPulse} />
+                                System Online
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                    <div style={{ margin: '2rem 0', minHeight: '3.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <button
+                        className={styles.themeToggle}
+                        onClick={() => setIsDarkMode(!isDarkMode)}
+                        aria-label="Toggle Theme"
+                    >
+                        {isDarkMode ? <Sun size={14} strokeWidth={1.5} /> : <Moon size={14} strokeWidth={1.5} />}
+                    </button>
+
+                    <button className={styles.v6MetaCTA} onClick={handleEnlist} disabled={isAuthenticating}>
+                        <GoogleIcon /> {isAuthenticating ? "..." : "Get Started"}
+                    </button>
+                </div>
+            </header>
+
+            <main className={styles.v6Main}>
+                {/* 1. HERO NARRATIVE */}
+                <section className={`${styles.v6Section} ${styles.v6Hero}`} aria-label="Hero Narrative">
+                    <div className={styles.v6TagSection}>
+                        <span className={styles.v6Tag}>[ Protocol Activated ]</span>
+                    </div>
+
+                    <CountdownTimer targetDate={targetDate} />
+
+                    <div className="h-[200px] flex items-center justify-center">
                         <AnimatePresence mode="wait">
-                            <motion.p
-                                key={missionIndex}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 1 }}
-                                style={{ margin: 0 }}
+                            <motion.h1
+                                key={activeMission}
+                                className={styles.v6H1}
+                                initial={{ opacity: 0, y: 10, filter: "blur(10px)" }}
+                                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                                exit={{ opacity: 0, y: -10, filter: "blur(10px)" }}
+                                transition={{ duration: 0.6, ease: "easeOut" }}
                             >
-                                {missions[missionIndex]}
-                            </motion.p>
+                                {missionStatements[activeMission].split(' ').map((word, i) => (
+                                    <React.Fragment key={i}>
+                                        {word}
+                                        {i === 1 && <br />}
+                                        {' '}
+                                    </React.Fragment>
+                                ))}
+                            </motion.h1>
                         </AnimatePresence>
                     </div>
 
-                    <TacticalButton
-                        onClick={handleEnlist}
-                        disabled={isAuthenticating || authLoading}
+                    <motion.p
+                        className={styles.v6P}
+                        {...fadeUp}
+                        transition={{ delay: 0.2 }}
                     >
-                        {isAuthenticating || authLoading ? "AUTHENTICATING..." : "JOIN THE WAITLIST"}
-                    </TacticalButton>
-                </div>
-            </section>
+                        Put $1000 in, get $1500 out in 24 hours. Start with as low as $5.<br />
+                        No complicated trading. Just direct payouts backed by the community.
+                    </motion.p>
 
-            <section className="scroll-section">
-                <div className="flex justify-center w-full">
-                    {getTargetDate() && (
-                        <CountdownTimer targetDate={getTargetDate()!} />
-                    )}
-                </div>
-            </section>
+                    <motion.button
+                        className={styles.v6CTA}
+                        whileHover={{ y: -2, boxShadow: "0 0 50px var(--accent-glow)" }}
+                        whileTap={{ scale: 0.95 }}
+                        {...fadeUp}
+                        transition={{ delay: 0.4 }}
+                        onClick={handleEnlist}
+                        disabled={isAuthenticating}
+                    >
+                        <GoogleIcon /> {isAuthenticating ? "..." : "Join waitlist"}
+                    </motion.button>
 
-            <section className={`${styles.section} scroll-section`}>
-                <div className={styles.sectionHeader}>
-                    <h2>Why the Trenches?</h2>
-                    <p>Engineered for hyper-visibility and pre-market growth.</p>
-                </div>
-
-                <div className={styles.featureGrid}>
-                    {[
-                        { num: "01", title: "Pre-Market Incubation", icon: <Cpu />, desc: "Build a massive, verified holder base before the token even hits the open market." },
-                        { num: "02", title: "Hyper-Visibility", icon: <ActivityIcon />, desc: "Force social engagement. No post = no payout. Direct belief coordination." },
-                        { num: "03", title: "Community CTOs", icon: <Shield />, desc: "Revive 'dead' tokens by restructuring distribution through verified belief." }
-                    ].map((feature, i) => (
-                        <motion.div
-                            key={i}
-                            className={styles.featureCard}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: i * 0.1 }}
-                        >
-                            <span className={styles.cardNumber}>{feature.num}</span>
-                            <div className={styles.featureIcon}>{feature.icon}</div>
-                            <h3>{feature.title}</h3>
-                            <p>{feature.desc}</p>
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
-
-            <section className={`${styles.section} scroll-section`}>
-                <div className={styles.sectionHeader}>
-                    <h2>Three-Step Cycle</h2>
-                    <p>A simple three-step cycle to solidify community conviction.</p>
-                </div>
-
-                <div className={styles.featureGrid}>
-                    {[
-                        { num: "01", title: "Spray", icon: <Zap />, desc: "Choose your entry in project tokens to begin the incubation cycle." },
-                        { num: "02", title: "Play", icon: <Activity />, desc: "Complete mandatory social tasks and verify peer activity in real-time." },
-                        { num: "03", title: "Earn", icon: <Shield />, desc: "Receive a 50% ROI paid in tokens directly from other participants." }
-                    ].map((step, i) => (
-                        <motion.div
-                            key={i}
-                            className={styles.featureCard}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: i * 0.1 }}
-                        >
-                            <span className={styles.cardNumber}>{step.num}</span>
-                            <div className={styles.featureIcon}>{step.icon}</div>
-                            <h3>{step.title}</h3>
-                            <p>{step.desc}</p>
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
-
-            <section className={`${styles.section} ${styles.mechanicSection} scroll-section`}>
-                <div className={styles.mechanicContainer}>
-                    <div className={styles.mechanicContent}>
-                        <div className={styles.pillBadge} style={{ marginBottom: '2rem', width: 'fit-content' }}>
-                            <Shield size={14} /> SAFETY_NET_ENABLED
+                    {/* [UI] Partner Trust Strip */}
+                    <motion.div
+                        className={styles.v6TrustStrip}
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                    >
+                        <span className={styles.v6TrustLabel}>Enterprise Infrastructure //</span>
+                        <div className={styles.v6TrustLogos}>
+                            {['Solana', 'Base', 'Google Cloud', 'HyperEVM', 'AnyWallet'].map(partner => (
+                                <span key={partner} className={styles.v6TrustLogo}>{partner}</span>
+                            ))}
                         </div>
-                        <h2>The Game<br />Never Stops.</h2>
-                        <p>
-                            The project backs the game with a dedicated allocation of supply.
-                            This ensures the P2P settlement window continues to scale even if
-                            organic user participation slows down.
-                        </p>
-                        <div className={styles.badgeList}>
-                            <div className={styles.pillBadge}>
-                                <Activity size={12} /> MOMENTUM_STABLE
+                    </motion.div>
+                </section>
+
+                {/* 2. THE WHY */}
+                <section className={styles.v6Section} aria-label="Project Objectives">
+                    <div className={styles.sectionHeader}>
+                        <span className={styles.v6Tag}>The Objective</span>
+                        <h2>Better<br />by Design.</h2>
+                    </div>
+                    <div className={styles.featureGrid}>
+                        {[
+                            { num: "01", title: "Get Early Access", icon: <Cpu strokeWidth={1.5} />, desc: "Join projects before they go viral. Secure your spot at the best price before everyone else." },
+                            { num: "02", title: "Help Projects Grow", icon: <Activity strokeWidth={1.5} />, desc: "Share a post, verify others, and get paid for your support. Your activity moves you forward." },
+                            { num: "03", title: "Rebuild Trust", icon: <Shield strokeWidth={1.5} />, desc: "Bring projects back to life by working together with your community to rebuild market value." }
+                        ].map((feature, i) => (
+                            <motion.div
+                                key={i}
+                                className={styles.featureCard}
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, margin: "-10%" }}
+                                transition={{ delay: i * 0.1, ...springConfig }}
+                            >
+                                <span className={styles.cardNumber}>{feature.num}</span>
+                                <div className={styles.featureIcon}>{feature.icon}</div>
+                                <h3>{feature.title}</h3>
+                                <p>{feature.desc}</p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* 3. THE CYCLE */}
+                <section className={styles.v6Section} aria-label="The Coordination Cycle">
+                    <div className={styles.sectionHeader}>
+                        <span className={styles.v6Tag}>The Mechanism</span>
+                        <h2>Three-Step<br />Cycle.</h2>
+                    </div>
+                    <div className={styles.featureGrid}>
+                        {[
+                            { num: "01", title: "Spray", icon: <Zap strokeWidth={1.5} />, desc: "Put your tokens into the project fund with as low as $5 to start your 24h timer." },
+                            { num: "02", title: "Play", icon: <Activity strokeWidth={1.5} />, desc: "Help the project grow on social media to verify your spot and stay in the game." },
+                            { num: "03", title: "Collect", icon: <Shield strokeWidth={1.5} />, desc: "Collect your 50% Profit sent instantly to your account when the timer hits zero." }
+                        ].map((step, i) => (
+                            <motion.div
+                                key={i}
+                                className={styles.featureCard}
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, margin: "-10%" }}
+                                transition={{ delay: i * 0.1, ...springConfig }}
+                            >
+                                <span className={styles.cardNumber}>{step.num}</span>
+                                <div className={styles.featureIcon}>{step.icon}</div>
+                                <h3>{step.title}</h3>
+                                <p>{step.desc}</p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* 4. THE GAME */}
+                <section className={styles.v6Section} aria-label="Platform Sustainability">
+                    <div className={styles.mechanicContainer}>
+                        <div className={styles.mechanicContent}>
+                            <div className={styles.v6TagSection}>
+                                <span className={styles.v6Tag}>Profit Protected</span>
+                            </div>
+                            <h2 className={styles.v6H1} style={{ fontSize: '5rem', letterSpacing: '-3px' }}>The Game Never Stops.</h2>
+                            <p className={styles.v6P} style={{ margin: '0 0 4rem 0' }}>
+                                Every project sets aside a dedicated reward fund.
+                                This ensures the community payouts continue fairly even if
+                                new users slow down.
+                            </p>
+                            <div className={styles.statusBadge} style={{ width: 'fit-content' }}>
+                                <span className={styles.statusPulse} />
+                                Payouts Flowing
                             </div>
                         </div>
+                        <div className={styles.mechanicMetrics}>
+                            <RadialProgress percentage={config?.reservePercentage || 15} label="Rewards Ready to Pay Out" />
+                        </div>
                     </div>
-                    <div className={styles.mechanicMetrics}>
-                        <RadialProgress percentage={15} label="RESERVE_ALLOCATED" />
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <footer className={`${styles.footer} scroll-section`}>
-                <div className={styles.footerGrid}>
-                    <Logo />
-                    <div className={styles.footerLinks}>
-                        <a href={config?.twitterUrl || "#"} target="_blank" rel="noopener noreferrer">X (TWITTER)</a>
-                        <a href={config?.telegramUrl || "#"} target="_blank" rel="noopener noreferrer">TELEGRAM</a>
-                        <a href={config?.docsUrl || "#"} target="_blank" rel="noopener noreferrer">DOCS</a>
+                {/* 5. FOOTER (V5 Parity) */}
+                <footer className={styles.v5Footer}>
+                    <div className={styles.v5FooterContent}>
+                        <div className={styles.v5FooterLinks}>
+                            <a href={config?.docsUrl || "#"} className={styles.v5FooterLink}>Documentation</a>
+                            <a href={config?.twitterUrl || "#"} className={styles.v5FooterLink}>X (Twitter)</a>
+                            <a href={config?.telegramUrl || "#"} className={styles.v5FooterLink}>Telegram</a>
+                            <a href="#" className={styles.v5FooterLink}>Terms</a>
+                        </div>
+                        <div className={styles.v5FooterRight}>
+                            <span className={styles.v5FooterTagline}>POWERED BY BELIEF // SPRAY & PLAY</span>
+                            <span className={styles.v5FooterCopyright}>© 2026 {platformName} Network. All rights reserved.</span>
+                        </div>
                     </div>
-                </div>
-                <div className={styles.footerBottom}>
-                    <div>© 2026 {config?.platformName || "TRENCHES"} NETWORK</div>
-                    <div>CORE_STABLE_V1.0.4</div>
-                    <div className={styles.poweredBy}>POWERED_BY_BELIEF</div>
-                </div>
-            </footer>
+                </footer>
+            </main>
 
             <OnboardingModal
                 isOpen={isOnboardingOpen}
                 onClose={() => setIsOnboardingOpen(false)}
                 onComplete={handleOnboardingComplete}
             />
-        </main>
+        </div>
     );
 }

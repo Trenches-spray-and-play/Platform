@@ -13,9 +13,9 @@ export default function MinimalVariation() {
     const [hasInteracted, setHasInteracted] = React.useState(false);
 
     const tiers = {
-        'RAPID': { duration: '24 HOURS', min: 5, cap: 1000, desc: 'Entry Level' },
-        'MID': { duration: '7 DAYS', min: 100, cap: 10000, desc: 'Strategic Depth' },
-        'DEEP': { duration: '30 DAYS', min: 1000, cap: 100000, desc: 'Institutional' }
+        'RAPID': { duration: '24 HOURS', min: 5, cap: 1000, desc: 'Entry Level', multiplier: 1.1 },
+        'MID': { duration: '7 DAYS', min: 100, cap: 10000, desc: 'Strategic Depth', multiplier: 1.5 },
+        'DEEP': { duration: '30 DAYS', min: 1000, cap: 100000, desc: 'Institutional', multiplier: 2.0 }
     };
 
     const sections = [
@@ -86,9 +86,9 @@ export default function MinimalVariation() {
                             <div
                                 className={`${styles.v5CalcValue} ${styles.accentZEN}`}
                                 aria-live="polite"
-                                aria-label={`Your payout: $${(depositAmount * 1.5).toLocaleString()}`}
+                                aria-label={`Your payout: $${(depositAmount * (tiers as any)[selectedTier].multiplier).toLocaleString()}`}
                             >
-                                ${(depositAmount * 1.5).toLocaleString()}
+                                ${(depositAmount * (tiers as any)[selectedTier].multiplier).toLocaleString()}
                             </div>
                         </div>
                     </div>

@@ -8,185 +8,179 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
+    z-index: var(--z-modal);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 2rem;
 }
 
 .modal {
-    background: #050505;
-    border: 1px solid #1a1a1a;
-    width: 90%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    width: 100%;
     max-width: 480px;
-    padding: 2.5rem;
+    padding: 3.5rem 3rem;
     position: relative;
-    box-shadow: 0 0 50px rgba(0, 255, 0, 0.05);
-    border-radius: 8px;
+    box-shadow: 0 0 50px var(--accent-glow);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
 @media (max-width: 480px) {
-    .modal {
-        padding: 1.5rem;
-        width: 95%;
+    .overlay {
+        padding: 1rem;
     }
 
-    .stepIndicator {
-        margin-bottom: 1.5rem;
+    .modal {
+        padding: 2.5rem 1.5rem;
+        width: 100%;
     }
 
     .title {
-        font-size: 1rem;
-        margin-bottom: 0.75rem;
+        font-size: 2.5rem !important;
+        letter-spacing: -1px !important;
     }
 
     .desc,
     .descText {
-        font-size: 0.85rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .missionGrid {
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .missionButton {
-        padding: 1rem;
+        font-size: 0.9rem !important;
     }
 }
 
 .closeBtn {
     position: absolute;
-    top: 1rem;
+    top: 1.5rem;
     right: 1.5rem;
     background: none;
     border: none;
-    color: #444;
-    font-size: 1.5rem;
+    color: var(--text-secondary);
     cursor: pointer;
     line-height: 1;
-    transition: color 0.2s;
+    transition: all 0.2s;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .closeBtn:hover {
-    color: #fff;
+    color: var(--text-primary);
+    transform: rotate(90deg);
 }
 
 /* Step Indicator */
 .stepIndicator {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.stepActive,
+.stepDone,
+.stepInactive {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.4rem 0.8rem;
+    letter-spacing: 1px;
 }
 
 .stepActive {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid #00ff00;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #00ff00;
-    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid var(--accent-zenith);
+    color: var(--accent-zenith);
+    background: rgba(0, 255, 102, 0.05);
 }
 
 .stepDone {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid #00ff00;
+    background: var(--accent-zenith);
+    color: #000;
+    border: 1px solid var(--accent-zenith);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #00ff00;
-    color: #000;
+    padding: 0.4rem 0.6rem;
 }
 
 .stepInactive {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #444;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    opacity: 0.5;
 }
 
 .stepLine {
-    width: 40px;
-    height: 2px;
-    background: #333;
+    width: 20px;
+    height: 1px;
+    background: var(--border-subtle);
 }
 
 .content {
-    text-align: center;
+    text-align: left;
+}
+
+.v6Tag {
+    font-size: 0.6rem;
+    font-weight: 950;
+    letter-spacing: 4px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: block;
 }
 
 .title {
     font-family: 'Inter', sans-serif;
-    letter-spacing: 0.15rem;
-    font-size: 1.25rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
-    color: #fff;
-    text-transform: uppercase;
-}
-
-.desc {
-    font-size: 0.9rem;
-    color: #888;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-}
-
-.descText {
-    font-size: 0.9rem;
-    color: #888;
-    line-height: 1.6;
+    letter-spacing: -3px;
+    font-size: 3.5rem;
+    line-height: 0.9;
+    font-weight: 900;
     margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.desc,
+.descText {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 2.5rem;
 }
 
 /* Mission Grid */
 .missionGrid {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
 }
 
 .missionButton {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid #222;
-    padding: 1.25rem 1.5rem;
+    gap: 1.5rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 1.5rem;
     text-decoration: none;
-    transition: all 0.2s;
-    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .missionButton:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: #444;
+    border-color: var(--text-primary);
+    transform: translateX(4px);
 }
 
 .missionButton.completed {
-    border-color: #00ff00;
-    background: rgba(0, 255, 0, 0.05);
+    border-color: var(--accent-zenith);
+    background: rgba(0, 255, 102, 0.02);
 }
 
 .missionIcon {
     font-size: 1.25rem;
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -197,84 +191,89 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.25rem;
+    gap: 0.1rem;
 }
 
 .missionText {
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.05rem;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .missionSuccess {
-    color: #00ff00;
-    font-size: 0.75rem;
-    font-weight: 600;
+    color: var(--accent-zenith);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
 /* Next Button */
 .nextBtn {
-    background: none;
-    border: 1px solid #333;
-    color: #666;
+    background: var(--text-primary);
+    color: var(--bg-main);
+    border: none;
     width: 100%;
-    padding: 1rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.05rem;
+    padding: 1.25rem;
+    font-size: 0.75rem;
+    font-weight: 950;
+    letter-spacing: 2px;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.2s;
-    border-radius: 6px;
+    transition: all 0.2s ease;
 }
 
 .nextBtn:hover:not(:disabled) {
-    border-color: #00ff00;
-    color: #00ff00;
-    background: rgba(0, 255, 0, 0.05);
+    transform: translateY(-2px);
+    opacity: 0.9;
 }
 
 .nextBtn:disabled {
-    opacity: 0.5;
+    opacity: 0.2;
     cursor: not-allowed;
+    background: var(--border-subtle);
+    color: var(--text-secondary);
 }
 
 /* Share Box */
 .shareBox {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
 }
 
 .shareBtn {
     display: block;
-    background: #fff;
+    background: var(--accent-zenith);
     color: #000;
     text-decoration: none;
     padding: 1.25rem;
-    font-size: 0.9rem;
-    font-weight: 800;
+    font-size: 0.8rem;
+    font-weight: 950;
     text-align: center;
-    border-radius: 8px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .shareBtn:hover {
-    background: #00ff00;
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(0, 255, 0, 0.3);
+    box-shadow: 0 0 30px var(--accent-glow);
 }
 
 .shareComplete {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
+    gap: 1rem;
     padding: 1.25rem;
-    background: rgba(0, 255, 0, 0.1);
-    border: 1px solid #00ff00;
-    border-radius: 8px;
-    color: #00ff00;
-    font-weight: 700;
-    font-size: 0.9rem;
+    background: rgba(0, 255, 102, 0.05);
+    border: 1px solid var(--accent-zenith);
+    color: var(--accent-zenith);
+    font-weight: 900;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /* Finalizing State */
@@ -282,17 +281,24 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
     padding: 2rem;
-    color: #888;
-    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /* Skip Hint */
 .skipHint {
-    color: #555;
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.6rem;
+    margin-top: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.5;
+    text-align: center;
 }
 
 /* Error Toast */
@@ -300,26 +306,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
-    background: rgba(255, 68, 68, 0.1);
-    border: 1px solid rgba(255, 68, 68, 0.3);
-    padding: 0.75rem 1rem;
-    margin-bottom: 1.5rem;
+    background: rgba(255, 68, 68, 0.05);
+    border: 1px solid rgba(255, 68, 68, 0.2);
+    padding: 1rem;
+    margin-bottom: 2rem;
     color: #ff6666;
-    font-size: 0.8rem;
-    border-radius: 6px;
-    animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
 }
 
 /* Loading State */
@@ -327,10 +321,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
     padding: 3rem;
-    color: #666;
-    font-size: 0.85rem;
+    color: var(--text-secondary);
 }
 
 /* Spinner Animation */
@@ -342,7 +335,21 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
+}
+
+/* Theme Persistence Support */
+:global([data-theme='light']) .overlay {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+:global([data-theme='light']) .modal {
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.05);
+}
+
+:global([data-theme='light']) .nextBtn:disabled {
+    background: #f0f0f0;
 }

@@ -40,7 +40,7 @@ export default function TacticalButton({
         // 2. Audio Feedback
         if (audioRef.current) {
             audioRef.current.currentTime = 0;
-            audioRef.current.play().catch(e => console.log('Audio disabled by browser policy'));
+            audioRef.current.play().catch(() => console.log('Audio disabled by browser policy'));
         }
 
         // 3. Execution
