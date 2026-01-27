@@ -14,13 +14,13 @@ import { GoogleIcon } from "@/components/GoogleIcon";
  * [UI] Standardized Animation Presets
  * Purpose: Codifies the "Institutional Elite" motion standard.
  */
-const springConfig = { type: "spring", stiffness: 300, damping: 30, mass: 1 };
+const springConfig = { type: "spring", stiffness: 300, damping: 30, mass: 1 } as const;
 
 const fadeUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
     transition: { ...springConfig, duration: 0.6 }
-};
+} as const;
 
 /**
  * [UI] Countdown Timer
