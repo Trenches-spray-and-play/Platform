@@ -32,8 +32,14 @@ export async function updateSession(request: NextRequest) {
         },
     });
 
-    // Refresh session if expired
-    await supabase.auth.getUser();
+    // Refresh session if expired - this is crucial for maintaining the session
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (user) {
+        console.log('[Middleware] Session found for:', user.email);
+    } else if (error) {
+        console.log('[Middleware] No valid session:', error.message);
+    }
 
     return supabaseResponse;
 }

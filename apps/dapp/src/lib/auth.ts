@@ -16,11 +16,18 @@ export interface AuthUser {
  */
 export async function getSession(): Promise<AuthUser | null> {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+    if (error) {
+        console.log('[getSession] getUser error:', error.message);
+    }
 
     if (!user) {
+        console.log('[getSession] No user found');
         return null;
     }
+    
+    console.log('[getSession] User found:', user.email)
 
     // Find or create user in our database
     let dbUser = await prisma.user.findUnique({

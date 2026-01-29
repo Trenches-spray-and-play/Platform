@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db';
 import { isAdminEmail } from '@/lib/admin-auth';
 
@@ -9,30 +10,35 @@ export async function GET(request: Request) {
         const code = searchParams.get('code');
         const next = searchParams.get('next') ?? '/sample-v2/dashboard-v2';
 
-        console.log('Auth callback triggered:', { code: code?.slice(0, 10) + '...', next, origin });
+        console.log('[Auth Callback] Triggered:', { code: code?.slice(0, 10) + '...', next, origin });
 
         // Check if this is an admin login flow
         const isAdminFlow = next === '/admin' || next.startsWith('/admin');
 
         if (!code) {
-            console.error('No code provided in callback');
+            console.error('[Auth Callback] No code provided');
             const errorRedirect = isAdminFlow ? '/admin/login' : '/login';
             return NextResponse.redirect(`${origin}${errorRedirect}?error=auth_failed`);
         }
 
         const supabase = await createClient();
-        console.log('Supabase client created');
+        console.log('[Auth Callback] Supabase client created');
 
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-        console.log('Exchange result:', { hasUser: !!data.user, error: error?.message });
+        console.log('[Auth Callback] Exchange result:', { hasUser: !!data.user, error: error?.message, hasSession: !!data.session });
 
         if (error || !data.user) {
-            console.error('Exchange error:', error);
+            console.error('[Auth Callback] Exchange error:', error);
             const errorRedirect = isAdminFlow ? '/admin/login' : '/login';
             return NextResponse.redirect(`${origin}${errorRedirect}?error=auth_failed`);
         }
 
-        console.log('User authenticated:', data.user.email);
+        console.log('[Auth Callback] User authenticated:', data.user.email);
+        
+        // Debug: Check what cookies are set after exchange
+        const cookieStore = await cookies();
+        const allCookies = cookieStore.getAll();
+        console.log('[Auth Callback] Cookies after exchange:', allCookies.map(c => c.name));
 
         // Handle admin login flow
         if (isAdminFlow) {
@@ -70,7 +76,16 @@ export async function GET(request: Request) {
             }
 
             console.log('Existing user - redirecting to dashboard');
-            return NextResponse.redirect(`${origin}${next}`);
+            // Create redirect response and ensure cookies are preserved
+            const redirectResponse = NextResponse.redirect(`${origin}${next}`);
+            
+            // Copy all cookies to the redirect response to ensure session persists
+            const finalCookieStore = await cookies();
+            finalCookieStore.getAll().forEach((cookie) => {
+                redirectResponse.cookies.set(cookie.name, cookie.value);
+            });
+            
+            return redirectResponse;
         } catch (dbError: any) {
             console.error('Database error:', dbError);
             // If DB fails, still redirect to dashboard - user is authenticated

@@ -80,6 +80,14 @@ const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build' || proc
 
 if (process.env.NODE_ENV === 'production' && !isBuildPhase) {
   if (!config.hyperevmRpcUrl) {
+    console.error('CRITICAL: HYPEREVM_RPC_URL is missing in production environment');
     throw new Error('HYPEREVM_RPC_URL is required in production');
+  }
+}
+
+// Runtime check for Supabase vars (non-blocking but logged)
+if (typeof window !== 'undefined') {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
+    console.warn('AUTH_WARNING: NEXT_PUBLIC_SUPABASE_URL is not configured correctly');
   }
 }
