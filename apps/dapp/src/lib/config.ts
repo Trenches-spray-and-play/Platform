@@ -75,7 +75,10 @@ export const config = {
 } as const;
 
 // Validate required environment variables
-if (process.env.NODE_ENV === 'production') {
+// Skip validation during build phase to allow static generation
+const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build' || process.env.CI === 'true';
+
+if (process.env.NODE_ENV === 'production' && !isBuildPhase) {
   if (!config.hyperevmRpcUrl) {
     throw new Error('HYPEREVM_RPC_URL is required in production');
   }

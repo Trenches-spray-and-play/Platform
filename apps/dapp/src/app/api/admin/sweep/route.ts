@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { requireAdminAuth } from '@/lib/admin-auth';
 import {
     sweepChain,
