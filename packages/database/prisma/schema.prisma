@@ -18,17 +18,18 @@ model User {
   walletEvm        String?          // EVM compatible wallet (ETH/Base/Arbitrum/HyperEVM)
   walletSol        String?          // Solana wallet
   beliefScore      Int              @default(0)
+  boostPoints      Int              @default(0)  // BP wallet balance for manual boost allocation
   balance          Decimal          @default(0) @db.Decimal(18, 2) // USD-normalized balance
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   
   // Referral system
-  referralCode           String?          @unique    // Unique 8-char code for sharing
-  referredById           String?                     // Who referred this user
-  referrer               User?            @relation("Referrals", fields: [referredById], references: [id])
-  referrals              User[]           @relation("Referrals")
-  referralRewardClaimed  Boolean          @default(false) // Prevents duplicate reward
-  telegramHandle         String?                     // Telegram username
+  referralCode     String?          @unique    // Unique 8-char code for sharing
+  referredById     String?                     // Who referred this user
+  referrer         User?            @relation("Referrals", fields: [referredById], references: [id])
+  referrals        User[]           @relation("Referrals")
+  telegramHandle   String?                     // Telegram username
+  referralRewardClaimed Boolean    @default(false)  // Track if referral reward has been claimed
   
   // Relations
   deposits         Deposit[]
@@ -42,9 +43,8 @@ model User {
   campaignWaitlists CampaignWaitlist[]
   userRaids        UserRaid[]
   contentSubmissions UserContentSubmission[]
+  reorgIncidents   ReorgIncident[]
   withdrawalAddresses WithdrawalAddress[]
-  
-  // Migration flag for Address Book
   addressBookMigrated Boolean @default(false)
 }
 
@@ -94,6 +94,8 @@ model Participant {
   status           String
   joinedAt         DateTime  @default(now())
   boostPoints      Int       @default(0)
+  autoBoostEnabled Boolean   @default(false)     // Toggle for auto-boost on this position
+  autoBoostPaused  Boolean   @default(false)     // Auto-pauses when timer reaches zero
   entryAmount      Int       @default(0)
   expectedPayoutAt DateTime?                     // Calculated payout time (joinedAt + duration - BP reduction)
   expiresAt        DateTime?
@@ -173,8 +175,6 @@ model PostSubmission {
   updatedAt    DateTime     @updatedAt
   user         User         @relation(fields: [userId], references: [id])
   validations  Validation[]
-
-  @@unique([userId, contentType])
 }
 
 model Validation {
@@ -225,19 +225,16 @@ model Deposit {
   blockNumber      BigInt
   confirmations    Int            @default(0)
   confirmedAt      DateTime?
-  sweepBatchId     String?
-  sweepTxHash      String?
-  sweptAt          DateTime?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  
-  // Reorg protection fields
-  blockHash           String?              // Block hash where tx was first seen
-  confirmingAt        DateTime?            // When CONFIRMING status reached
-  safeAt              DateTime?            // When SAFE status reached (credit applied)
-  creditedToBalance   Boolean   @default(false)  // Track if credit was applied
-  reorgDetectedAt     DateTime?            // When reorg was detected
-  
+  sweepBatchId       String?
+  sweepTxHash        String?
+  sweptAt            DateTime?
+  creditedToBalance  Boolean      @default(false)
+  reorgDetectedAt    DateTime?
+  confirmingAt       DateTime?
+  safeAt             DateTime?
+  blockHash          String?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
   depositAddress   DepositAddress @relation(fields: [depositAddressId], references: [id])
   sweepBatch       SweepBatch?    @relation(fields: [sweepBatchId], references: [id])
   user             User           @relation(fields: [userId], references: [id])
@@ -278,13 +275,13 @@ enum TrenchLevel {
 }
 
 enum DepositStatus {
-  PENDING      // Initial detection, awaiting confirmations
-  CONFIRMING   // Has required confirmations, in safety window
-  SAFE         // Fully safe, credit applied
-  CONFIRMED    // Legacy - kept for backwards compatibility
-  REORGED      // Transaction was reorged out, credit reversed
-  SWEPT        // Funds moved to vault
-  FAILED       // Other failure conditions
+  PENDING
+  CONFIRMING
+  SAFE
+  REORGED
+  CONFIRMED
+  SWEPT
+  FAILED
 }
 
 enum SweepStatus {
@@ -292,34 +289,6 @@ enum SweepStatus {
   EXECUTING
   COMPLETED
   FAILED
-}
-
-// Tracks reorg incidents for deposits that were reversed or need review
-model ReorgIncident {
-  id          String   @id @default(cuid())
-  depositId   String
-  userId      String
-  amount      Decimal  @db.Decimal(18, 2)
-  status      String   // REVERSED, REQUIRES_REVIEW
-  reason      String?
-  detectedAt  DateTime
-  resolvedAt  DateTime?
-  resolvedBy  String?  // Admin who resolved
-  
-  deposit     Deposit  @relation(fields: [depositId], references: [id])
-  
-  @@index([status])
-  @@index([userId])
-}
-
-// Tracks reorg detection metrics by chain
-model ReorgMetric {
-  id        String   @id @default(cuid())
-  chain     String
-  type      String   // detected, reversed, review, check_failure
-  date      DateTime @default(now())
-  
-  @@index([chain, date])
 }
 
 enum PayoutStatus {
@@ -406,21 +375,6 @@ model CampaignWaitlist {
   @@index([campaignId, hasDeposited])
 }
 
-// Tracks all config changes for audit trail and rollback
-model ConfigAuditLog {
-  id         String   @id @default(cuid())
-  configType String   // 'campaign' | 'platform'
-  configId   String   // ID of the config being changed
-  field      String   // Which field changed
-  oldValue   String?  // Previous value (JSON string)
-  newValue   String?  // New value (JSON string)
-  changedBy  String   // Admin who made the change
-  changedAt  DateTime @default(now())
-  
-  @@index([configId, changedAt])
-  @@index([configType, changedAt])
-}
-
 // Centralized Platform Configuration (singleton pattern)
 model PlatformConfig {
   id                      String   @id @default("default")
@@ -487,7 +441,7 @@ model UserContentSubmission {
   url               String                               // The social link submitted
   platform          String                               // X, TT, IG, YT
   viewCount         Int             @default(0)          // Verified view count
-  beliefAwarded     Decimal         @default(0) @db.Decimal(5, 2) // BP awarded (60 on approval)
+  beliefAwarded     Decimal         @default(0) @db.Decimal(5, 2) // Belief points given
   usdAwarded        Decimal?        @db.Decimal(10, 2)   // USD awarded (optional)
   status            String          @default("pending")  // pending, approved, rejected
   createdAt         DateTime        @default(now())
@@ -495,7 +449,6 @@ model UserContentSubmission {
 
   user              User            @relation(fields: [userId], references: [id])
   campaign          ContentCampaign @relation(fields: [campaignId], references: [id])
-  raid              Raid?                                // Auto-created raid on approval
 
   @@index([userId])
   @@index([campaignId])
@@ -504,16 +457,15 @@ model UserContentSubmission {
 
 // Raid Campaign - social amplification targets (rewards Boost Points)
 model Raid {
-  id                    String                  @id @default(uuid())
-  title                 String
-  platform              String                                     // X, TT, IG, YT
-  url                   String                                     // The social link to raid
-  reward                Int                     @default(5)        // BP reward (default 5)
-  isActive              Boolean                 @default(true)
-  createdAt             DateTime                @default(now())
-  expiresAt             DateTime?
-  contentSubmissionId   String?                 @unique            // Link to auto-created raid's source
-  contentSubmission     UserContentSubmission?  @relation(fields: [contentSubmissionId], references: [id])
+  id                  String    @id @default(uuid())
+  title               String
+  platform            String                                     // X, TT, IG, YT
+  url                 String                                     // The social link to raid
+  reward              Int       @default(50)                     // BP reward for raiding
+  isActive            Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  expiresAt           DateTime?
+  contentSubmissionId String?                                    // Optional link to content submission
 
   // Relations
   completions UserRaid[]
@@ -535,42 +487,91 @@ model UserRaid {
   @@index([raidId])
 }
 
-// ============== Address Book System ==============
+// Tracks blockchain reorganization incidents for security auditing
+model ReorgIncident {
+  id          String    @id @default(uuid())
+  depositId   String
+  userId      String
+  amount      Float
+  status      String    // DETECTED_BEFORE_CREDIT, DETECTED_AFTER_CREDIT, RESOLVED_CREDITED, RESOLVED_REVERSED, RESOLVED_DISMISSED
+  reason      String?
+  detectedAt  DateTime  @default(now())
+  resolvedAt  DateTime?
+  resolvedBy  String?
 
-enum AddressStatus {
-  PENDING   // Awaiting email confirm OR 24h delay
-  ACTIVE    // Ready to receive payouts
+  // Relations
+  deposit     Deposit   @relation(fields: [depositId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
 }
 
+// Tracks metrics for reorg protection system
+model ReorgMetric {
+  id          String   @id @default(uuid())
+  chain       String
+  type        String
+  date        DateTime @default(now())
+  totalDeposits       Int @default(0)
+  confirmingDeposits  Int @default(0)
+  safeDeposits        Int @default(0)
+  reorgIncidents      Int @default(0)
+  reversedCredits     Int @default(0)
+  avgConfirmationTime Float?
+  createdAt   DateTime @default(now())
+
+  @@index([chain])
+  @@index([type])
+  @@index([date])
+}
+
+// Enums for address book
 enum AddressChain {
-  EVM       // Ethereum/Base/Arbitrum/HyperEVM
+  EVM
   SOLANA
 }
 
+enum AddressStatus {
+  PENDING
+  ACTIVE
+  REMOVED
+}
+
+// Address Book model for user payout addresses
 model WithdrawalAddress {
-  id                String        @id @default(cuid())
-  userId            String
-  user              User          @relation(fields: [userId], references: [id])
-  
-  address           String
-  chain             AddressChain
-  label             String?       // User-defined name (e.g., "Ledger")
-  status            AddressStatus @default(PENDING)
-  isPrimary         Boolean       @default(false) // One per chain
-  
-  // Email confirmation
-  emailConfirmed    Boolean       @default(false)
-  confirmationToken String?       @unique
-  tokenExpiresAt    DateTime?     // 7 days from creation
-  
-  // 24h activation delay
-  activatesAt       DateTime?     // Set on email confirm (+24h)
-  activatedAt       DateTime?
-  
-  createdAt         DateTime      @default(now())
-  
-  @@unique([userId, address, chain])
-  @@index([userId, chain, isPrimary])
-  @@index([confirmationToken])
-  @@index([status, emailConfirmed, activatesAt])
+  id          String        @id @default(uuid())
+  userId      String
+  address     String
+  chain       AddressChain
+  label       String?
+  status      AddressStatus @default(PENDING)
+  emailConfirmed Boolean   @default(false)
+  confirmationToken String? @unique
+  tokenExpiresAt DateTime?
+  confirmedAt DateTime?
+  activatesAt DateTime?
+  activatedAt DateTime?
+  isPrimary   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Config Audit Log for tracking configuration changes
+model ConfigAuditLog {
+  id          String   @id @default(uuid())
+  configType  String
+  configId    String
+  field       String
+  oldValue    String?
+  newValue    String?
+  changedBy   String
+  changedAt   DateTime @default(now())
+
+  @@index([configType])
+  @@index([configId])
+  @@index([changedAt])
 }

@@ -357,7 +357,6 @@ export async function runSafeDepositReorgChecks(): Promise<{
  */
 let reorgCheckInterval: NodeJS.Timeout | null = null;
 let lastCheckAt: Date | null = null;
-let lastCheckResult: { confirming: number; safe: number; reorgs: number } | null = null;
 
 export function startReorgChecker(): void {
     if (reorgCheckInterval) return;
@@ -370,11 +369,6 @@ export function startReorgChecker(): void {
             const safeResult = await runSafeDepositReorgChecks();
 
             lastCheckAt = new Date();
-            lastCheckResult = {
-                confirming: confirmingResult.checked,
-                safe: safeResult.checked,
-                reorgs: confirmingResult.reorgsDetected + safeResult.reorgsDetected,
-            };
 
             if (confirmingResult.reorgsDetected > 0 || safeResult.reorgsDetected > 0) {
                 console.log(`Reorg check: ${confirmingResult.reorgsDetected} in CONFIRMING, ${safeResult.reorgsDetected} in SAFE`);
