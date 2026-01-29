@@ -74,6 +74,8 @@ function LoginContent() {
             console.error('Sign in error:', err);
             const errorMsg = err.message || err.error_description || err.error_msg || 'AUTHENTICATION_FAILED';
             setError(errorMsg.toUpperCase().replace(/\s/g, '_'));
+            // Log raw error for debugging
+            console.log('Raw login error:', JSON.stringify(err));
         }
     };
 

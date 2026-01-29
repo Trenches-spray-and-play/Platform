@@ -25,10 +25,18 @@ export async function GET(request: Request) {
         console.log('[Auth Callback] Supabase client created');
 
         // Exchange the code for a session
+        console.log('[Auth Callback] Code received, exchanging for session...');
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-        console.log('[Auth Callback] Exchange result:', { 
-            hasUser: !!data.user, 
-            error: error?.message, 
+
+        if (error) {
+            console.error('[Auth Callback] Code exchange failed:', error.message);
+        } else if (data.user) {
+            console.log('[Auth Callback] Session exchanged successfully for', data.user.email);
+        }
+
+        console.log('[Auth Callback] Exchange result:', {
+            hasUser: !!data.user,
+            error: error?.message,
             hasSession: !!data.session,
             userEmail: data.user?.email
         });
@@ -40,7 +48,7 @@ export async function GET(request: Request) {
         }
 
         console.log('[Auth Callback] User authenticated:', data.user.email);
-        
+
         // Debug: Check what cookies are set after exchange
         const cookieStore = await cookies();
         const allCookies = cookieStore.getAll();
@@ -83,16 +91,16 @@ export async function GET(request: Request) {
             }
 
             console.log('[Auth Callback] Existing user - redirecting to dashboard');
-            
+
             // Create redirect response and ensure cookies are preserved
             const redirectResponse = NextResponse.redirect(`${origin}${next}`);
-            
+
             // Copy all cookies to the redirect response to ensure session persists
             const finalCookieStore = await cookies();
             finalCookieStore.getAll().forEach((cookie) => {
                 redirectResponse.cookies.set(cookie.name, cookie.value);
             });
-            
+
             console.log('[Auth Callback] Redirecting with cookies:', finalCookieStore.getAll().map(c => c.name));
             return redirectResponse;
         } catch (dbError: any) {

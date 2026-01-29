@@ -2,6 +2,8 @@ import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { rateLimit, addRateLimitHeaders } from '@/lib/rate-limit';
 
+export const dynamic = 'force-dynamic';
+
 // Public read-only endpoint for platform config
 export async function GET(request: Request) {
     // Apply rate limiting - general rate (60 requests per minute)

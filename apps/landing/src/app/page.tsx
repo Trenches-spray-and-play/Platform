@@ -65,6 +65,7 @@ export default function WelcomePage() {
 
     useEffect(() => {
         const cached = localStorage.getItem('user_session');
+        console.log('WelcomePage: Mount cached session:', cached ? 'YES' : 'NO');
         if (cached) {
             try { setUserSession(JSON.parse(cached)); }
             catch (e) { console.error("Failed to parse cached session"); }
