@@ -146,14 +146,21 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
 
+    console.log('SYNC_POST: Started', {
+        hasAuthUser: !!authUser,
+        authError: authError?.message
+    });
+
     if (authError || !authUser) {
-        const response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const response = NextResponse.json({ error: 'Unauthorized', debug: authError?.message }, { status: 401 });
         return addRateLimitHeaders(response, rateLimitResult);
     }
 
     try {
         const body = await request.json();
         const { handle, email, walletSol, walletEvm, referredByCode, verificationLink } = body;
+
+        console.log('SYNC_POST: Processing body', { handle, email });
 
         // ============ INPUT VALIDATION ============
         const errors: string[] = [];
@@ -356,10 +363,18 @@ export async function POST(request: Request) {
             where: { referredById: user.id }
         });
 
+        // Sanitize for JSON (convert Decimals to numbers)
+        const sanitizedUser = JSON.parse(JSON.stringify(user, (key, value) => {
+            if (value && value.toString && value.constructor && value.constructor.name === 'Decimal') {
+                return parseFloat(value.toString());
+            }
+            return value;
+        }));
+
         const response = NextResponse.json({
             success: true,
             user: {
-                ...user,
+                ...sanitizedUser,
                 position,
                 boostPoints,
                 joinedAt,
