@@ -99,7 +99,8 @@ export async function validateReferralCode(code: string): Promise<{
 
 /**
  * Apply a referral during or after registration
- * Links the new user to the referrer and awards points
+ * Links the new user to the referrer - NO IMMEDIATE REWARD
+ * Reward is triggered on first deposit via awardReferralReward()
  */
 export async function applyReferral(
     userId: string,
@@ -121,26 +122,80 @@ export async function applyReferral(
             return { success: false, error: 'User already has a referrer' };
         }
 
-        // Link user to referrer and award points to referrer
-        await prisma.$transaction([
-            // Update the referred user
-            prisma.user.update({
-                where: { id: userId },
-                data: { referredById: referrerId },
-            }),
-            // Award points to the referrer
-            prisma.user.update({
-                where: { id: referrerId },
-                data: {
-                    beliefScore: { increment: REFERRAL_BELIEF_REWARD },
-                },
-            }),
-        ]);
+        // Link user to referrer (NO reward yet - that happens on first deposit)
+        await prisma.user.update({
+            where: { id: userId },
+            data: { referredById: referrerId },
+        });
 
         return { success: true };
     } catch (error) {
         console.error('Error applying referral:', error);
         return { success: false, error: 'Failed to apply referral' };
+    }
+}
+
+/**
+ * Award referral reward when user makes first deposit
+ * Called from deposit-monitor.service.ts on confirmed deposit
+ */
+const MIN_REFERRAL_DEPOSIT_USD = 5; // Minimum deposit to trigger reward
+
+export async function awardReferralReward(userId: string, depositAmountUsd: number): Promise<{
+    success: boolean;
+    referrerId?: string;
+    reward?: { belief: number; boost: number };
+    error?: string;
+}> {
+    try {
+        // Check minimum deposit
+        if (depositAmountUsd < MIN_REFERRAL_DEPOSIT_USD) {
+            return { success: false, error: `Deposit below $${MIN_REFERRAL_DEPOSIT_USD} minimum` };
+        }
+
+        // Get user with referrer info
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                referredById: true,
+                referralRewardClaimed: true,
+            },
+        });
+
+        // No referrer or already claimed
+        if (!user?.referredById) {
+            return { success: false, error: 'User has no referrer' };
+        }
+        if (user.referralRewardClaimed) {
+            return { success: false, error: 'Referral reward already claimed' };
+        }
+
+        // Award both Belief and Boost to referrer
+        await prisma.$transaction([
+            prisma.user.update({
+                where: { id: user.referredById },
+                data: {
+                    beliefScore: { increment: REFERRAL_BELIEF_REWARD },
+                    // Note: boostPoints would go here if we add that field
+                },
+            }),
+            // Mark reward as claimed to prevent duplicates
+            prisma.user.update({
+                where: { id: userId },
+                data: { referralRewardClaimed: true },
+            }),
+        ]);
+
+        console.log(`Awarded referral reward: ${REFERRAL_BELIEF_REWARD} Belief to ${user.referredById} for referring ${userId}`);
+
+        return {
+            success: true,
+            referrerId: user.referredById,
+            reward: { belief: REFERRAL_BELIEF_REWARD, boost: REFERRAL_BOOST_REWARD },
+        };
+    } catch (error) {
+        console.error('Error awarding referral reward:', error);
+        return { success: false, error: 'Failed to award referral reward' };
     }
 }
 

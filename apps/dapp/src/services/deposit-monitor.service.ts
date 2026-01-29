@@ -21,6 +21,7 @@ import {
     getConfirmationThreshold,
     getSupportedChains
 } from './deposit-address.service';
+import { awardReferralReward } from './referral.service';
 
 // ERC20 Transfer event ABI
 const ERC20_ABI = parseAbi([
@@ -207,14 +208,25 @@ async function getUsdValue(asset: string, amount: bigint, chain: Chain): Promise
 }
 
 /**
- * Update confirmation count for a deposit
+ * Update confirmation count for a deposit using state machine
+ * 
+ * State transitions:
+ * PENDING → CONFIRMING: When confirmations >= threshold
+ * CONFIRMING → SAFE: When confirmations >= threshold + safetyMargin (credit applied here)
  */
 async function updateDepositConfirmations(depositId: string, chain: Chain): Promise<void> {
     const deposit = await prisma.deposit.findUnique({
         where: { id: depositId },
     });
 
-    if (!deposit || deposit.status !== 'PENDING') return;
+    if (!deposit) return;
+
+    // Only process PENDING and CONFIRMING deposits
+    if (deposit.status !== 'PENDING' && deposit.status !== 'CONFIRMING') return;
+
+    const threshold = getConfirmationThreshold(chain);
+    const safetyMargin = config.reorgProtection.safetyMarginBlocks[chain] || 0;
+    const totalRequired = threshold + safetyMargin;
 
     if (chain === 'solana') {
         // Handle Solana separately
@@ -222,26 +234,55 @@ async function updateDepositConfirmations(depositId: string, chain: Chain): Prom
 
         try {
             const status = await solanaState.connection.getSignatureStatus(deposit.txHash);
-            const threshold = getConfirmationThreshold('solana');
+            const confirmations = status.value?.confirmations || 0;
+            const isFinalized = status.value?.confirmationStatus === 'finalized';
 
-            if (status.value?.confirmationStatus === 'finalized' ||
-                (status.value?.confirmations && status.value.confirmations >= threshold)) {
-                await prisma.deposit.update({
-                    where: { id: depositId },
-                    data: {
-                        status: 'CONFIRMED',
-                        confirmations: status.value?.confirmations || threshold,
-                        confirmedAt: new Date(),
-                    },
-                });
+            // State machine for Solana
+            switch (deposit.status) {
+                case 'PENDING':
+                    if (isFinalized || confirmations >= threshold) {
+                        // Get block info for reorg detection
+                        const tx = await solanaState.connection.getParsedTransaction(deposit.txHash);
+                        const blockHash = tx?.transaction.message.recentBlockhash || null;
 
-                console.log(`✅ Solana deposit ${depositId} confirmed`);
-                await creditUserEntry(deposit);
-            } else if (status.value?.confirmations) {
-                await prisma.deposit.update({
-                    where: { id: depositId },
-                    data: { confirmations: status.value.confirmations },
-                });
+                        await prisma.deposit.update({
+                            where: { id: depositId },
+                            data: {
+                                status: 'CONFIRMING',
+                                confirmations,
+                                confirmingAt: new Date(),
+                                blockHash,
+                            },
+                        });
+                        console.log(`⏳ Solana deposit ${depositId} CONFIRMING (${confirmations}/${totalRequired})`);
+                    } else if (confirmations > 0) {
+                        await prisma.deposit.update({
+                            where: { id: depositId },
+                            data: { confirmations },
+                        });
+                    }
+                    break;
+
+                case 'CONFIRMING':
+                    if (isFinalized || confirmations >= totalRequired) {
+                        await prisma.deposit.update({
+                            where: { id: depositId },
+                            data: {
+                                status: 'SAFE',
+                                confirmations,
+                                safeAt: new Date(),
+                                creditedToBalance: true,
+                            },
+                        });
+                        console.log(`✅ Solana deposit ${depositId} SAFE - crediting user`);
+                        await creditUserEntry(deposit);
+                    } else {
+                        await prisma.deposit.update({
+                            where: { id: depositId },
+                            data: { confirmations },
+                        });
+                    }
+                    break;
             }
         } catch (error) {
             console.error(`Error updating Solana deposit ${depositId}:`, error);
@@ -255,27 +296,53 @@ async function updateDepositConfirmations(depositId: string, chain: Chain): Prom
 
     const currentBlock = await state.client.getBlockNumber();
     const confirmations = Number(currentBlock - deposit.blockNumber);
-    const threshold = getConfirmationThreshold(chain);
 
-    if (confirmations >= threshold) {
-        // Finality reached - credit user
-        await prisma.deposit.update({
-            where: { id: depositId },
-            data: {
-                status: 'CONFIRMED',
-                confirmations,
-                confirmedAt: new Date(),
-            },
-        });
+    // State machine for EVM
+    switch (deposit.status) {
+        case 'PENDING':
+            if (confirmations >= threshold) {
+                // Get block hash for reorg detection
+                const block = await state.client.getBlock({ blockNumber: deposit.blockNumber });
+                const blockHash = block?.hash || null;
 
-        console.log(`✅ Deposit ${depositId} confirmed after ${confirmations} blocks`);
-        await creditUserEntry(deposit);
-    } else {
-        // Update confirmation count
-        await prisma.deposit.update({
-            where: { id: depositId },
-            data: { confirmations },
-        });
+                await prisma.deposit.update({
+                    where: { id: depositId },
+                    data: {
+                        status: 'CONFIRMING',
+                        confirmations,
+                        confirmingAt: new Date(),
+                        blockHash,
+                    },
+                });
+                console.log(`⏳ Deposit ${depositId} CONFIRMING (${confirmations}/${totalRequired})`);
+            } else {
+                await prisma.deposit.update({
+                    where: { id: depositId },
+                    data: { confirmations },
+                });
+            }
+            break;
+
+        case 'CONFIRMING':
+            if (confirmations >= totalRequired) {
+                await prisma.deposit.update({
+                    where: { id: depositId },
+                    data: {
+                        status: 'SAFE',
+                        confirmations,
+                        safeAt: new Date(),
+                        creditedToBalance: true,
+                    },
+                });
+                console.log(`✅ Deposit ${depositId} SAFE after ${confirmations} blocks - crediting user`);
+                await creditUserEntry(deposit);
+            } else {
+                await prisma.deposit.update({
+                    where: { id: depositId },
+                    data: { confirmations },
+                });
+            }
+            break;
     }
 }
 
@@ -333,6 +400,18 @@ async function creditUserEntry(deposit: {
             });
 
             console.log(`Updated waitlist entry ${entry.id} for campaign ${entry.campaignId}`);
+        }
+
+        // 🎁 Award referral reward on first deposit (deposit-gated)
+        // This only awards if user has a referrer and hasn't claimed yet
+        try {
+            const referralResult = await awardReferralReward(deposit.userId, amountUsd);
+            if (referralResult.success) {
+                console.log(`Awarded referral reward to ${referralResult.referrerId} for ${deposit.userId}'s first deposit`);
+            }
+        } catch (referralError) {
+            // Don't fail the deposit for referral errors
+            console.error(`Referral reward error for ${deposit.userId}:`, referralError);
         }
 
         // Note: User can use their balance to spray into trenches via the spray API

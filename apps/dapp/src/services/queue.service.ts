@@ -164,7 +164,8 @@ export function calculatePaymentAmount(
 }
 
 /**
- * Add boost points to a participant (e.g., from social tasks)
+ * @deprecated Use applyBoostToParticipant instead. This function adds BP directly to participant
+ * without checking user wallet. Kept for backward compatibility.
  */
 export async function addBoostPoints(
     userId: string,
@@ -184,6 +185,84 @@ export async function addBoostPoints(
             },
         },
     });
+}
+
+/**
+ * Apply boost points from user wallet to a specific participant position
+ * Uses atomic transaction to prevent race conditions
+ */
+export async function applyBoostToParticipant(
+    userId: string,
+    participantId: string,
+    points: number
+): Promise<{ success: boolean; error?: string; newTimer?: Date }> {
+    if (points <= 0) {
+        return { success: false, error: 'Points must be positive' };
+    }
+
+    try {
+        // Use transaction for atomicity
+        const result = await prisma.$transaction(async (tx) => {
+            // 1. Verify user has enough BP
+            const user = await tx.user.findUnique({
+                where: { id: userId },
+                select: { boostPoints: true },
+            });
+
+            if (!user || user.boostPoints < points) {
+                throw new Error('Insufficient boost points');
+            }
+
+            // 2. Verify participant exists and belongs to user
+            const participant = await tx.participant.findFirst({
+                where: {
+                    id: participantId,
+                    userId,
+                },
+            });
+
+            if (!participant) {
+                throw new Error('Position not found');
+            }
+
+            if (participant.status !== 'active') {
+                throw new Error('Cannot boost inactive position');
+            }
+
+            // 3. Atomically deduct from user and add to participant
+            await tx.user.update({
+                where: { id: userId },
+                data: { boostPoints: { decrement: points } },
+            });
+
+            const updated = await tx.participant.update({
+                where: { id: participantId },
+                data: { boostPoints: { increment: points } },
+            });
+
+            return updated;
+        });
+
+        // 4. Recalculate payout time (outside transaction)
+        const { recalculatePayoutTime } = await import('./payout-time.service');
+        await recalculatePayoutTime(participantId);
+
+        // 5. Get updated payout time
+        const finalParticipant = await prisma.participant.findUnique({
+            where: { id: participantId },
+            select: { expectedPayoutAt: true },
+        });
+
+        return {
+            success: true,
+            newTimer: finalParticipant?.expectedPayoutAt ?? undefined,
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to apply boost',
+        };
+    }
 }
 
 /**

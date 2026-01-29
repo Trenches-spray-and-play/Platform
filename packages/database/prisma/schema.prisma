@@ -23,11 +23,12 @@ model User {
   updatedAt        DateTime         @updatedAt
   
   // Referral system
-  referralCode     String?          @unique    // Unique 8-char code for sharing
-  referredById     String?                     // Who referred this user
-  referrer         User?            @relation("Referrals", fields: [referredById], references: [id])
-  referrals        User[]           @relation("Referrals")
-  telegramHandle   String?                     // Telegram username
+  referralCode           String?          @unique    // Unique 8-char code for sharing
+  referredById           String?                     // Who referred this user
+  referrer               User?            @relation("Referrals", fields: [referredById], references: [id])
+  referrals              User[]           @relation("Referrals")
+  referralRewardClaimed  Boolean          @default(false) // Prevents duplicate reward
+  telegramHandle         String?                     // Telegram username
   
   // Relations
   deposits         Deposit[]
@@ -41,6 +42,10 @@ model User {
   campaignWaitlists CampaignWaitlist[]
   userRaids        UserRaid[]
   contentSubmissions UserContentSubmission[]
+  withdrawalAddresses WithdrawalAddress[]
+  
+  // Migration flag for Address Book
+  addressBookMigrated Boolean @default(false)
 }
 
 model Trench {
@@ -49,7 +54,7 @@ model Trench {
   level        TrenchLevel
   entrySize    Int
   usdEntry     Int
-  durationHours Int          @default(24)  // Baseline wait time in hours (Rapid=24, Mid=72, Deep=168)
+  durationHours Int          @default(24)  // Baseline wait time: RAPID=24h (1d), MID=168h (7d), DEEP=720h (30d)
   cadence      String
   reserves     String
   active       Boolean       @default(true)
@@ -225,9 +230,18 @@ model Deposit {
   sweptAt          DateTime?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+  
+  // Reorg protection fields
+  blockHash           String?              // Block hash where tx was first seen
+  confirmingAt        DateTime?            // When CONFIRMING status reached
+  safeAt              DateTime?            // When SAFE status reached (credit applied)
+  creditedToBalance   Boolean   @default(false)  // Track if credit was applied
+  reorgDetectedAt     DateTime?            // When reorg was detected
+  
   depositAddress   DepositAddress @relation(fields: [depositAddressId], references: [id])
   sweepBatch       SweepBatch?    @relation(fields: [sweepBatchId], references: [id])
   user             User           @relation(fields: [userId], references: [id])
+  reorgIncidents   ReorgIncident[]
 
   @@index([userId])
   @@index([status])
@@ -264,10 +278,13 @@ enum TrenchLevel {
 }
 
 enum DepositStatus {
-  PENDING
-  CONFIRMED
-  SWEPT
-  FAILED
+  PENDING      // Initial detection, awaiting confirmations
+  CONFIRMING   // Has required confirmations, in safety window
+  SAFE         // Fully safe, credit applied
+  CONFIRMED    // Legacy - kept for backwards compatibility
+  REORGED      // Transaction was reorged out, credit reversed
+  SWEPT        // Funds moved to vault
+  FAILED       // Other failure conditions
 }
 
 enum SweepStatus {
@@ -275,6 +292,34 @@ enum SweepStatus {
   EXECUTING
   COMPLETED
   FAILED
+}
+
+// Tracks reorg incidents for deposits that were reversed or need review
+model ReorgIncident {
+  id          String   @id @default(cuid())
+  depositId   String
+  userId      String
+  amount      Decimal  @db.Decimal(18, 2)
+  status      String   // REVERSED, REQUIRES_REVIEW
+  reason      String?
+  detectedAt  DateTime
+  resolvedAt  DateTime?
+  resolvedBy  String?  // Admin who resolved
+  
+  deposit     Deposit  @relation(fields: [depositId], references: [id])
+  
+  @@index([status])
+  @@index([userId])
+}
+
+// Tracks reorg detection metrics by chain
+model ReorgMetric {
+  id        String   @id @default(cuid())
+  chain     String
+  type      String   // detected, reversed, review, check_failure
+  date      DateTime @default(now())
+  
+  @@index([chain, date])
 }
 
 enum PayoutStatus {
@@ -359,6 +404,21 @@ model CampaignWaitlist {
   
   @@unique([campaignId, userId])
   @@index([campaignId, hasDeposited])
+}
+
+// Tracks all config changes for audit trail and rollback
+model ConfigAuditLog {
+  id         String   @id @default(cuid())
+  configType String   // 'campaign' | 'platform'
+  configId   String   // ID of the config being changed
+  field      String   // Which field changed
+  oldValue   String?  // Previous value (JSON string)
+  newValue   String?  // New value (JSON string)
+  changedBy  String   // Admin who made the change
+  changedAt  DateTime @default(now())
+  
+  @@index([configId, changedAt])
+  @@index([configType, changedAt])
 }
 
 // Centralized Platform Configuration (singleton pattern)
@@ -473,4 +533,44 @@ model UserRaid {
   @@unique([userId, raidId])
   @@index([userId])
   @@index([raidId])
+}
+
+// ============== Address Book System ==============
+
+enum AddressStatus {
+  PENDING   // Awaiting email confirm OR 24h delay
+  ACTIVE    // Ready to receive payouts
+}
+
+enum AddressChain {
+  EVM       // Ethereum/Base/Arbitrum/HyperEVM
+  SOLANA
+}
+
+model WithdrawalAddress {
+  id                String        @id @default(cuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id])
+  
+  address           String
+  chain             AddressChain
+  label             String?       // User-defined name (e.g., "Ledger")
+  status            AddressStatus @default(PENDING)
+  isPrimary         Boolean       @default(false) // One per chain
+  
+  // Email confirmation
+  emailConfirmed    Boolean       @default(false)
+  confirmationToken String?       @unique
+  tokenExpiresAt    DateTime?     // 7 days from creation
+  
+  // 24h activation delay
+  activatesAt       DateTime?     // Set on email confirm (+24h)
+  activatedAt       DateTime?
+  
+  createdAt         DateTime      @default(now())
+  
+  @@unique([userId, address, chain])
+  @@index([userId, chain, isPrimary])
+  @@index([confirmationToken])
+  @@index([status, emailConfirmed, activatesAt])
 }
