@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react";
 import styles from './WaitlistDashboard.module.css';
-import CountdownTimer from './CountdownTimer';
-import Logo from './Logo';
-import TacticalButton from './TacticalButton';
+import { Logo, TacticalButton, XIcon, TelegramIcon, CountdownTimer } from '@trenches/ui';
 import { Share2 } from 'lucide-react';
 
 interface PlatformConfig {
@@ -106,9 +104,13 @@ export default function WaitlistDashboard({ userSession, onLogout }: WaitlistDas
                     </TacticalButton>
 
                     {onLogout && (
-                        <button className={styles.logoutBtn} onClick={onLogout} aria-label="Logout">
+                        <TacticalButton
+                            variant="primary"
+                            className={styles.logoutBtn}
+                            onClick={onLogout}
+                        >
                             [ Logout ]
-                        </button>
+                        </TacticalButton>
                     )}
                 </div>
             </div>
@@ -135,8 +137,12 @@ export default function WaitlistDashboard({ userSession, onLogout }: WaitlistDas
 
             <footer className={styles.footer}>
                 <div className={styles.footerLinks}>
-                    <a href={config?.twitterUrl || "#"} target="_blank" rel="https://x.com/trenches121000" className={styles.footerLink}>𝕏 TWITTER</a>
-                    <a href={config?.telegramUrl || "#"} target="_blank" rel="https://t.me/playTrenches" className={styles.footerLink}>TELEGRAM</a>
+                    <a href={config?.twitterUrl || "#"} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+                        <XIcon size={12} /> TWITTER
+                    </a>
+                    <a href={config?.telegramUrl || "#"} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+                        <TelegramIcon size={12} /> TELEGRAM
+                    </a>
                     <a href={config?.docsUrl || "#"} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>DOCS</a>
                 </div>
                 <p className={styles.footerText}>

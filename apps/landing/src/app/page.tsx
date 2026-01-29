@@ -3,12 +3,18 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./page.module.css";
-import { Shield, Zap, Cpu, Activity, Sun, Moon, X } from "lucide-react";
-import Logo from "@/components/Logo";
+import { Shield, Zap, Cpu, Activity, Sun, Moon, X, ChevronRight } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import OnboardingModal from "@/components/OnboardingModal";
 import WaitlistDashboard from "@/components/WaitlistDashboard";
-import { GoogleIcon } from "@/components/GoogleIcon";
+import {
+    Logo,
+    useTheme,
+    TacticalButton,
+    GoogleIcon,
+    CountdownTimer,
+    RadialProgress
+} from "@trenches/ui";
 
 /**
  * [UI] Standardized Animation Presets
@@ -26,113 +32,21 @@ const fadeUp = {
  * [UI] Countdown Timer
  * Purpose: Re-introduces launch-critical transparency with Super Scale aesthetic.
  */
-const CountdownTimer = ({ targetDate }: { targetDate: Date | null }) => {
-    const [timeLeft, setTimeLeft] = useState<{ days: number, hours: number, minutes: number, seconds: number } | null>(null);
-
-    useEffect(() => {
-        if (!targetDate) return;
-
-        const timer = setInterval(() => {
-            const now = new Date().getTime();
-            const distance = targetDate.getTime() - now;
-
-            if (distance < 0) {
-                clearInterval(timer);
-                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-                return;
-            }
-
-            setTimeLeft({
-                days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-                hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-                minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-                seconds: Math.floor((distance % (1000 * 60)) / 1000)
-            });
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, [targetDate]);
-
-    if (!timeLeft) return null;
-
-    return (
-        <div className={styles.v6Timer} aria-label="Launch Countdown">
-            <div className={styles.v6TimerUnits}>
-                {Object.entries(timeLeft).map(([unit, val]) => (
-                    <div key={unit} className={styles.v6TimerUnit}>
-                        <span className={styles.v6TimerVal}>{val.toString().padStart(2, '0')}</span>
-                    </div>
-                ))}
-            </div>
-            <div className={styles.v6TimerGlobalLabel}>(24h Cycle)</div>
-        </div>
-    );
-};
-
-/**
- * [UI] Radial Progress
- * Purpose: Dynamic data-binding for platform metrics.
- */
-const RadialProgress = ({ percentage, label }: { percentage: number, label: string }) => {
-    const strokeDasharray = 2 * Math.PI * 45;
-    const strokeDashoffset = strokeDasharray * ((100 - percentage) / 100);
-
-    return (
-        <div className={styles.radialWrapper}>
-            <svg width="100%" height="100%" viewBox="0 0 100 100" className={styles.radialSvg}>
-                <circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="transparent"
-                    stroke="rgba(255,255,255,0.05)"
-                    strokeWidth="8"
-                />
-                <motion.circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="transparent"
-                    stroke="var(--accent-zenith)"
-                    strokeWidth="8"
-                    strokeDasharray={strokeDasharray}
-                    initial={{ strokeDashoffset: strokeDasharray }}
-                    animate={{ strokeDashoffset }}
-                    transition={{ duration: 2, ease: "easeOut" }}
-                />
-            </svg>
-            <div className={styles.radialContent}>
-                <span className={styles.radialPercentage}>{percentage}%</span>
-            </div>
-            <span className={styles.radialLabel}>{label}</span>
-        </div>
-    );
-};
 
 export default function WelcomePage() {
     // 1. Core Auth Hooks
     const { user, signInWithGoogle, signOut, isLoading: authLoading } = useAuth();
 
-    // 2. Local State
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    // 2. Universal Theme Hook
+    const { isDarkMode, toggleTheme } = useTheme();
+
+    // 3. Local State
     const [userSession, setUserSession] = useState<any>(null);
     const [isDetermining, setIsDetermining] = useState(true);
     const [config, setConfig] = useState<any>(null);
     const [activeMission, setActiveMission] = useState(0);
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
     const [isAuthenticating, setIsAuthenticating] = useState(false);
-
-    // 0. Theme Persistence
-    useEffect(() => {
-        const saved = localStorage.getItem('landing_theme');
-        if (saved) setIsDarkMode(saved === 'dark');
-    }, []);
-
-    const toggleTheme = () => {
-        const newMode = !isDarkMode;
-        setIsDarkMode(newMode);
-        localStorage.setItem('landing_theme', newMode ? 'dark' : 'light');
-    };
 
     const missionStatements = [
         "Turn Belief into Profit.",
@@ -215,7 +129,7 @@ export default function WelcomePage() {
     // 6. Early Returns
     if (userSession) {
         return (
-            <div className={styles.v6Container} data-theme={isDarkMode ? 'dark' : 'light'}>
+            <>
                 <WaitlistDashboard userSession={userSession} onLogout={handleLogout} />
 
                 {/* Dashboard-level Theme Toggle for UX parity */}
@@ -227,7 +141,7 @@ export default function WelcomePage() {
                 >
                     {isDarkMode ? <Sun size={14} strokeWidth={1.5} /> : <Moon size={14} strokeWidth={1.5} />}
                 </button>
-            </div>
+            </>
         );
     }
 
@@ -235,7 +149,7 @@ export default function WelcomePage() {
     const platformName = config?.platformName || "TRENCHES";
 
     return (
-        <div className={styles.v6Container} data-theme={isDarkMode ? 'dark' : 'light'}>
+        <>
             <header className={styles.v6Meta}>
                 <Logo platformName={platformName} />
 
@@ -271,9 +185,14 @@ export default function WelcomePage() {
                         {isDarkMode ? <Sun size={14} strokeWidth={1.5} /> : <Moon size={14} strokeWidth={1.5} />}
                     </button>
 
-                    <button className={styles.v6MetaCTA} onClick={handleEnlist} disabled={isAuthenticating}>
+                    <TacticalButton
+                        variant="primary"
+                        className={styles.v6MetaCTA}
+                        onClick={handleEnlist}
+                        disabled={isAuthenticating}
+                    >
                         <GoogleIcon /> {isAuthenticating ? "..." : "Get Started"}
-                    </button>
+                    </TacticalButton>
                 </div>
             </header>
 
@@ -316,17 +235,14 @@ export default function WelcomePage() {
                         No complicated trading. Just direct payouts backed by the community.
                     </motion.p>
 
-                    <motion.button
+                    <TacticalButton
+                        variant="hybrid"
                         className={styles.v6CTA}
-                        whileHover={{ y: -2, boxShadow: "0 0 50px var(--accent-glow)" }}
-                        whileTap={{ scale: 0.95 }}
-                        {...fadeUp}
-                        transition={{ delay: 0.4 }}
                         onClick={handleEnlist}
                         disabled={isAuthenticating}
                     >
                         <GoogleIcon /> {isAuthenticating ? "..." : "Join waitlist"}
-                    </motion.button>
+                    </TacticalButton>
 
                     {/* [UI] Partner Trust Strip */}
                     <motion.div
@@ -448,6 +364,6 @@ export default function WelcomePage() {
                 onClose={() => setIsOnboardingOpen(false)}
                 onComplete={handleOnboardingComplete}
             />
-        </div>
+        </>
     );
 }

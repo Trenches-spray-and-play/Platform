@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import styles from "./lab.module.css";
-import { ArrowRight, Sparkles, BookOpen, ShieldCheck, Heart, Zap } from "lucide-react";
+import { ArrowRight, Sparkles, BookOpen, ShieldCheck, Heart, Zap, Video, Layers } from "lucide-react";
 
 export default function BrandingLabHub() {
     const variations = [
@@ -44,6 +44,23 @@ export default function BrandingLabHub() {
         }
     ];
 
+    const demos = [
+        {
+            id: "viral-videos",
+            title: "Viral Video Concepts",
+            desc: "High-energy video previews for TikTok/Reels/X (Newbie + Crypto Native versions)",
+            icon: <Video size={24} />,
+            color: "#FF3366"
+        },
+        {
+            id: "demo-suite",
+            title: "Component Demo Suite",
+            desc: "Interactive showcase of UI components and animations",
+            icon: <Layers size={24} />,
+            color: "#8B5CF6"
+        }
+    ];
+
     return (
         <main className={styles.hubContainer}>
             <header className={styles.hubHeader}>
@@ -60,6 +77,26 @@ export default function BrandingLabHub() {
                         <div className={styles.cardContent}>
                             <h2>{v.title}</h2>
                             <p>{v.desc}</p>
+                        </div>
+                        <ArrowRight className={styles.cardArrow} size={20} />
+                    </Link>
+                ))}
+            </div>
+
+            <header className={styles.hubHeader} style={{ marginTop: '4rem' }}>
+                <h1>Marketing Campaign Demos</h1>
+                <p>Interactive demos for walkthrough campaigns and viral content.</p>
+            </header>
+
+            <div className={styles.hubGrid}>
+                {demos.map((d) => (
+                    <Link key={d.id} href={`/branding-lab/${d.id}`} className={styles.hubCard}>
+                        <div className={styles.cardIcon} style={{ color: d.color }}>
+                            {d.icon}
+                        </div>
+                        <div className={styles.cardContent}>
+                            <h2>{d.title}</h2>
+                            <p>{d.desc}</p>
                         </div>
                         <ArrowRight className={styles.cardArrow} size={20} />
                     </Link>

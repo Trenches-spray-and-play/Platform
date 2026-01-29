@@ -2,7 +2,7 @@
 
 import React from "react";
 import styles from "../lab.module.css";
-import Logo from "@/components/Logo";
+import { Logo } from "@trenches/ui";
 import { motion } from "framer-motion";
 import { ArrowDown, Info, ArrowRight, Sun, Moon } from "lucide-react";
 
@@ -13,9 +13,9 @@ export default function MinimalVariation() {
     const [hasInteracted, setHasInteracted] = React.useState(false);
 
     const tiers = {
-        'RAPID': { duration: '24 HOURS', min: 5, cap: 1000, desc: 'Entry Level', multiplier: 1.1 },
+        'RAPID': { duration: '24 HOURS', min: 5, cap: 1000, desc: 'Entry Level', multiplier: 1.5 },
         'MID': { duration: '7 DAYS', min: 100, cap: 10000, desc: 'Strategic Depth', multiplier: 1.5 },
-        'DEEP': { duration: '30 DAYS', min: 1000, cap: 100000, desc: 'Institutional', multiplier: 2.0 }
+        'DEEP': { duration: '30 DAYS', min: 1000, cap: 100000, desc: 'Institutional', multiplier: 1.5 }
     };
 
     const sections = [

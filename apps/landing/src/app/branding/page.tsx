@@ -2,7 +2,7 @@
 
 import React from "react";
 import styles from "./branding.module.css";
-import Logo from "@/components/Logo";
+import { Logo } from "@trenches/ui";
 import { Download, Copy, ExternalLink, ChevronLeft, ChevronRight, Shield, Zap, TrendingUp, Wallet, Clock, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 

@@ -1,0 +1,922 @@
+/* ===================== BASE CONTAINER ===================== */
+.container {
+  min-height: 100vh;
+  background: #060606;
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ===================== HEADER ===================== */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 2rem;
+  background: rgba(6, 6, 6, 0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  font-size: 0.9rem;
+}
+
+.logoMark {
+  width: 36px;
+  height: 36px;
+  background: #00FF66;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.2rem;
+  border-radius: 8px;
+}
+
+.nav a {
+  color: #888;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.nav a:hover {
+  color: #fff;
+}
+
+/* ===================== MAIN CONTENT ===================== */
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 100px 2rem 4rem;
+}
+
+.intro {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.intro h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -2px;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #fff 0%, #888 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.intro p {
+  color: #888;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ===================== VIDEO SELECTOR ===================== */
+.selector {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.tab {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.25rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  min-width: 240px;
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.tab.active {
+  background: rgba(0, 255, 102, 0.1);
+  border-color: #00FF66;
+}
+
+.tabTitle {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.tabSubtitle {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.tab.active .tabSubtitle {
+  color: #00FF66;
+}
+
+/* ===================== PLAYER CONTAINER ===================== */
+.playerContainer {
+  display: grid;
+  grid-template-columns: 375px 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+/* ===================== PHONE FRAME ===================== */
+.phoneFrame {
+  background: #111;
+  border-radius: 40px;
+  padding: 12px;
+  box-shadow: 
+    0 0 0 2px #333,
+    0 25px 80px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.phoneNotch {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 28px;
+  background: #000;
+  border-radius: 0 0 20px 20px;
+  z-index: 10;
+}
+
+/* ===================== VIDEO PLAYER ===================== */
+.videoPlayer {
+  width: 100%;
+  aspect-ratio: 9/16;
+  background: #000;
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+}
+
+.videoContent {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===================== VIDEO FRAMES ===================== */
+.videoFrame {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.frameContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* ===================== MONEY BACKGROUND ===================== */
+.moneyBackground {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.3;
+}
+
+.floatingBill {
+  position: absolute;
+  color: #00FF66;
+  opacity: 0.6;
+}
+
+/* ===================== GIVEAWAY BADGE ===================== */
+.giveawayBadge {
+  background: linear-gradient(135deg, #00FF66 0%, #00CC52 100%);
+  color: #000;
+  padding: 0.75rem 1.5rem;
+  border-radius: 100px;
+  font-weight: 900;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ===================== FRAME TYPOGRAPHY ===================== */
+.frameTitle {
+  font-size: 2.2rem;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 1rem;
+}
+
+.highlightGreen {
+  color: #00FF66;
+}
+
+.frameSubtitle {
+  color: #888;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ===================== PROJECT GRID ===================== */
+.projectGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.projectCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.projectIcon {
+  color: #00FF66;
+  margin-bottom: 0.25rem;
+}
+
+.projectAmount {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.projectLabel {
+  font-size: 0.6rem;
+  color: #666;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* ===================== ROI CARD ===================== */
+.roiCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.roiHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #00FF66;
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.roiMath {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.roiInput, .roiOutput {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.roiLabel {
+  font-size: 0.6rem;
+  color: #666;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.roiAmount {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.roiAmountHighlight {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #00FF66;
+}
+
+.roiArrow {
+  color: #00FF66;
+}
+
+.roiBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(0, 255, 102, 0.1);
+  color: #00FF66;
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.frameCaption {
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 1rem;
+}
+
+/* ===================== TIER CARDS ===================== */
+.tierTitle {
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
+}
+
+.tierGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.tierCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: left;
+}
+
+.tierHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.tierTime {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.tierRange {
+  font-size: 0.75rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.tierPayout {
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.speedCaption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #888;
+  font-size: 0.8rem;
+  margin-top: 1.5rem;
+}
+
+/* ===================== CTA FRAME ===================== */
+.ctaLogo {
+  margin-bottom: 1.5rem;
+}
+
+.logoMarkWhite {
+  width: 80px;
+  height: 80px;
+  background: #000;
+  color: #00FF66;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 2.5rem;
+  border-radius: 20px;
+}
+
+.ctaTitle {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #000;
+  letter-spacing: -1px;
+  margin-bottom: 0.5rem;
+}
+
+.ctaSubtitle {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.ctaButton {
+  background: #000;
+  color: #00FF66;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 100px;
+  font-weight: 900;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.ctaUrgency {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 1rem;
+}
+
+/* ===================== CRYPTO VIDEO STYLES ===================== */
+.redAlert {
+  color: #fff;
+  margin-bottom: 1rem;
+}
+
+.redTitle {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 2px;
+}
+
+.pulseLine {
+  width: 200px;
+  height: 4px;
+  background: #fff;
+  margin-top: 2rem;
+  transform-origin: center;
+}
+
+.problemGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.problemCard {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.problemIcon {
+  color: #DC2626;
+  margin-bottom: 0.5rem;
+}
+
+.problemText {
+  font-weight: 900;
+  font-size: 1rem;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.problemSub {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 0.25rem;
+}
+
+.victimCounter {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(220, 38, 38, 0.2);
+  border-radius: 8px;
+  font-weight: 700;
+  color: #DC2626;
+  font-size: 0.85rem;
+}
+
+.solutionBanner {
+  background: #00FF66;
+  color: #000;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.solutionTag {
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+}
+
+.giveawayMontage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.montageItem {
+  background: rgba(0, 255, 102, 0.15);
+  border: 1px solid rgba(0, 255, 102, 0.3);
+  color: #00FF66;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.settlementCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid #00FF66;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.settlementLabel {
+  font-size: 0.7rem;
+  color: #00FF66;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+.settlementMath {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.settlementIn {
+  color: #fff;
+}
+
+.settlementArrow {
+  color: #00FF66;
+}
+
+.settlementOut {
+  color: #00FF66;
+}
+
+.cashSound {
+  margin-top: 1rem;
+  color: #FFD700;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.directPay {
+  text-align: center;
+}
+
+.directPayLine {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #fff;
+  margin: 0.25rem 0;
+}
+
+.finalCTA {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #000;
+  letter-spacing: 2px;
+}
+
+.url {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: rgba(0, 0, 0, 0.7);
+  letter-spacing: 1px;
+}
+
+/* ===================== PROGRESS BAR ===================== */
+.progressBar {
+  position: absolute;
+  bottom: 60px;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+
+.progressSegment {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  transition: background 0.3s;
+}
+
+.progressSegment.active {
+  background: #00FF66;
+}
+
+.progressSegment.completed {
+  background: rgba(0, 255, 102, 0.5);
+}
+
+/* ===================== CONTROLS ===================== */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #111;
+  border-radius: 0 0 28px 28px;
+  margin-top: 4px;
+}
+
+.controlBtn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.controlBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.controlInfo {
+  text-align: center;
+}
+
+.controlInfo span:first-child {
+  display: block;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.controlInfo span:last-child {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+/* ===================== SCRIPT PANEL ===================== */
+.scriptPanel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
+}
+
+.scriptPanel h3 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+.scriptContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.scriptSection {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.scriptSection:last-child {
+  border-bottom: none;
+}
+
+.scriptTime {
+  font-size: 0.7rem;
+  color: #00FF66;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.scriptSection h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0.5rem 0;
+}
+
+.scriptSection p {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0.35rem 0;
+  line-height: 1.5;
+}
+
+.scriptSection p strong {
+  color: #fff;
+}
+
+/* ===================== FEATURES ===================== */
+.features {
+  margin-top: 4rem;
+}
+
+.features h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.featureCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: border-color 0.2s;
+}
+
+.featureCard:hover {
+  border-color: rgba(0, 255, 102, 0.3);
+}
+
+.featureIcon {
+  color: #00FF66;
+  margin-bottom: 1rem;
+}
+
+.featureCard h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.featureCard p {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* ===================== TECH NOTES ===================== */
+.techNotes {
+  margin-top: 4rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
+}
+
+.techNotes h3 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
+
+.codeBlock {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.codeBlock pre {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: #00FF66;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.techSpecs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.spec {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.spec strong {
+  color: #00FF66;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 1024px) {
+  .playerContainer {
+    grid-template-columns: 1fr;
+  }
+  
+  .phoneFrame {
+    max-width: 375px;
+    margin: 0 auto;
+  }
+  
+  .scriptPanel {
+    max-width: 375px;
+    margin: 0 auto;
+  }
+  
+  .featureGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .intro h1 {
+    font-size: 2rem;
+  }
+  
+  .selector {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tab {
+    width: 100%;
+    max-width: 320px;
+  }
+  
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .techSpecs {
+    grid-template-columns: 1fr;
+  }
+  
+  .main {
+    padding: 100px 1rem 2rem;
+  }
+}

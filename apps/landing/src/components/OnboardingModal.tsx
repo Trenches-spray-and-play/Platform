@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import styles from './OnboardingModal.module.css';
 import { Check, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TacticalButton, XIcon } from '@trenches/ui';
 
 interface PlatformConfig {
     telegramUrl: string;
@@ -289,13 +290,14 @@ export default function OnboardingModal({ isOpen, onClose, onComplete }: Onboard
                                         </a>
                                     </div>
 
-                                    <button
+                                    <TacticalButton
+                                        variant="primary"
                                         className={styles.nextBtn}
                                         onClick={handleContinue}
                                         disabled={!canContinue}
                                     >
                                         {canContinue ? 'CONTINUE' : 'Complete Next Steps to continue'}
-                                    </button>
+                                    </TacticalButton>
                                 </>
                             )}
                         </motion.div>
@@ -316,15 +318,16 @@ export default function OnboardingModal({ isOpen, onClose, onComplete }: Onboard
 
                             <div className={styles.shareBox}>
                                 {!shareConfirmed && !isSyncing ? (
-                                    <a
-                                        href={`https://x.com/intent/tweet?text=${tweetText}`}
+                                    <TacticalButton
+                                        variant="primary"
                                         className={styles.shareBtn}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={handleShareClick}
+                                        onClick={() => {
+                                            window.open(`https://x.com/intent/tweet?text=${tweetText}`, '_blank');
+                                            handleShareClick();
+                                        }}
                                     >
-                                        𝕏 Confirm your spot
-                                    </a>
+                                        <XIcon size={14} /> Confirm your spot
+                                    </TacticalButton>
                                 ) : (
                                     <div className={styles.shareComplete}>
                                         <Check size={20} color="var(--accent-zenith)" />
