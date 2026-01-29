@@ -8,12 +8,20 @@ import { NextResponse, type NextRequest } from 'next/server';
  * Note: This is kept local to each app due to Next.js type version constraints in monorepos.
  */
 export async function updateSession(request: NextRequest) {
+    const requestPath = request.nextUrl.pathname;
+    console.log(`[Middleware] Processing: ${requestPath}`);
+    
     let supabaseResponse = NextResponse.next({
         request,
     });
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
+    
+    // Log auth-related cookies
+    const allCookies = request.cookies.getAll();
+    const authCookies = allCookies.filter(c => c.name.includes('auth') || c.name.includes('supabase'));
+    console.log(`[Middleware] Auth cookies:`, authCookies.map(c => c.name));
 
     const supabase = createServerClient(supabaseUrl, supabaseKey, {
         cookies: {
@@ -21,6 +29,7 @@ export async function updateSession(request: NextRequest) {
                 return request.cookies.getAll();
             },
             setAll(cookiesToSet) {
+                console.log(`[Middleware] Setting ${cookiesToSet.length} cookies`);
                 cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
                 supabaseResponse = NextResponse.next({
                     request,
@@ -36,7 +45,7 @@ export async function updateSession(request: NextRequest) {
     const { data: { user }, error } = await supabase.auth.getUser();
     
     if (user) {
-        console.log('[Middleware] Session found for:', user.email);
+        console.log('[Middleware] Session valid for:', user.email);
     } else if (error) {
         console.log('[Middleware] No valid session:', error.message);
     }

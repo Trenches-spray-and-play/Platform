@@ -9,10 +9,9 @@ export async function GET(request: Request) {
     try {
         console.log('[API /user] Request received');
         
-        // Debug: Log cookies from the request
+        // Debug: Log all cookies from the request
         const cookieHeader = request.headers.get('cookie');
-        const authCookies = cookieHeader?.split(';').filter(c => c.trim().includes('auth') || c.trim().includes('supabase'));
-        console.log('[API /user] Auth cookies in request:', authCookies?.map(c => c.split('=')[0].trim()));
+        console.log('[API /user] All cookies:', cookieHeader?.slice(0, 500));
         
         const session = await getSession();
         console.log('[API /user] Session result:', { hasSession: !!session, userId: session?.id });
