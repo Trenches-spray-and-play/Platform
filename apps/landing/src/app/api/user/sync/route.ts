@@ -36,7 +36,7 @@ function isValidTwitterUrl(url: string): boolean {
     try {
         const parsed = new URL(url);
         return (parsed.hostname === 'twitter.com' || parsed.hostname === 'x.com') &&
-               (parsed.pathname.includes('/status/') || parsed.pathname.includes('/i/'));
+            (parsed.pathname.includes('/status/') || parsed.pathname.includes('/i/'));
     } catch {
         return false;
     }
@@ -389,7 +389,8 @@ export async function POST(request: Request) {
         }
 
         const response = NextResponse.json({
-            error: 'An unexpected error occurred. Please try again later.'
+            error: `An unexpected error occurred: ${error.message || 'Unknown error'}`,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         }, { status: 500 });
         return addRateLimitHeaders(response, rateLimitResult);
     }
