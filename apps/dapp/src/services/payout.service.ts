@@ -2,6 +2,9 @@ import { prisma } from '@/lib/db';
 import { ethers } from 'ethers';
 import { getRpcUrl, isSolana } from '@/lib/rpc';
 import { executeSolanaPayout } from './solana-payout.service';
+import { acquireLock, releaseLock } from '@trenches/utils';
+import { getPayoutAddress } from './address-book.service';
+import { payoutConfig } from '@/lib/payout-config';
 
 /**
  * Payout Service
@@ -341,6 +344,45 @@ export async function executePayout(payoutId: string) {
 }
 
 /**
+ * Execute payout with retry logic and exponential backoff
+ */
+async function executePayoutWithRetry(
+    payoutId: string,
+    maxRetries: number
+): Promise<{ success: boolean; txHash?: string | undefined }> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            // Check if payout was already processed (idempotency)
+            const existing = await prisma.payout.findUnique({
+                where: { id: payoutId },
+            });
+
+            if (existing && (existing.status === 'EXECUTING' || existing.status === 'CONFIRMED')) {
+                console.log(`Payout ${payoutId} already ${existing.status}, skipping`);
+                return { success: true, txHash: existing.txHash || undefined };
+            }
+
+            return await executePayout(payoutId);
+        } catch (error) {
+            lastError = error instanceof Error ? error : new Error('Unknown error');
+            console.warn(`Payout ${payoutId} attempt ${attempt + 1}/${maxRetries + 1} failed: ${lastError.message}`);
+
+            if (attempt < maxRetries) {
+                // Exponential backoff: 1s, 2s, 4s...
+                const backoffMs = 1000 * Math.pow(2, attempt);
+                await new Promise(resolve => setTimeout(resolve, backoffMs));
+            }
+        }
+    }
+
+    // All retries exhausted
+    throw lastError;
+}
+
+
+/**
  * Process time-based payouts - Protocol-V1
  * Creates payouts for participants whose expectedPayoutAt has passed
  */
@@ -386,8 +428,12 @@ export async function processTimeBasedPayouts(limit: number = 10): Promise<{
                 continue;
             }
 
-            // Determine wallet address (prefer EVM, fallback to SOL)
-            const toAddress = participant.user.walletEvm || participant.user.walletSol;
+            // Determine wallet address using Address Book (with legacy fallback)
+            // Prefer EVM chain, fallback to Solana if EVM not available
+            let toAddress = await getPayoutAddress(participant.userId, 'EVM');
+            if (!toAddress) {
+                toAddress = await getPayoutAddress(participant.userId, 'SOLANA');
+            }
             if (!toAddress) {
                 errors.push(`Participant ${participant.id}: No wallet address configured`);
                 continue;
@@ -437,68 +483,99 @@ export async function processTimeBasedPayouts(limit: number = 10): Promise<{
  * Respects campaign pause state and configurable interval
  * 
  * Protocol-V1: Now also triggers time-based payout creation first
+ * 
+ * IMPORTANT: Uses distributed lock to prevent race conditions.
+ * Only one instance can process the queue at a time.
  */
+
+const PAYOUT_LOCK_KEY = 'payout_queue_processing';
+const PAYOUT_LOCK_TTL_MS = 60 * 1000; // 60 seconds - short to avoid starvation on crash
+
 export async function processPayoutQueue(limit: number = 10): Promise<{
     paused?: boolean;
+    skipped?: boolean;
     results?: Array<{ payoutId: string; success: boolean; txHash?: string; error?: string }>;
     intervalSeconds?: number;
     timeBasedCreated?: number;
 }> {
-    // Get active campaign to check pause state
-    const campaign = await getActiveCampaignToken();
-
-    // Check if campaign is paused
-    if (campaign && 'isPaused' in campaign && campaign.isPaused) {
-        console.log('Payout processing paused by admin');
-        return { paused: true, results: [] };
+    // Acquire distributed lock to prevent race conditions
+    const lockAcquired = await acquireLock(PAYOUT_LOCK_KEY, PAYOUT_LOCK_TTL_MS);
+    if (!lockAcquired) {
+        console.log('Payout queue is already being processed by another instance. Skipping.');
+        return { skipped: true, results: [] };
     }
 
-    // Get configured interval (default 5 seconds)
-    const intervalSeconds = (campaign && 'payoutIntervalSeconds' in campaign)
-        ? (campaign.payoutIntervalSeconds as number) || 5
-        : 5;
+    try {
+        // 🔒 PHASE 1A: Freeze config at start of batch
+        // All payouts in this batch use these values - immune to mid-batch changes
+        const campaign = await getActiveCampaignToken();
 
-    // Protocol-V1: First, create payouts for participants with expired timers
-    const timeBasedResult = await processTimeBasedPayouts(limit);
+        // Snapshot critical config values for atomic batch processing
+        const batchConfig = {
+            manualPrice: campaign.manualPrice ? Number(campaign.manualPrice) : null,
+            roiMultiplier: campaign.roiMultiplier ? Number(campaign.roiMultiplier) : 1.5,
+            tokenAddress: campaign.tokenAddress,
+            tokenSymbol: campaign.tokenSymbol,
+            tokenDecimals: campaign.tokenDecimals,
+            chainId: campaign.chainId,
+            isPaused: 'isPaused' in campaign ? campaign.isPaused : false,
+            // Use payoutConfig.intervalSeconds (env-driven) for cron-based batches
+            payoutIntervalSeconds: payoutConfig.intervalSeconds,
+        };
 
-    const pendingPayouts = await getPendingPayouts(limit);
+        // Check if campaign is paused
+        if (batchConfig.isPaused) {
+            console.log('Payout processing paused by admin');
+            return { paused: true, results: [] };
+        }
 
-    const results = [];
-    for (let i = 0; i < pendingPayouts.length; i++) {
-        const payout = pendingPayouts[i];
-        try {
-            const result = await executePayout(payout.id);
-            results.push({ payoutId: payout.id, ...result });
+        // Protocol-V1: First, create payouts for participants with expired timers
+        // Note: Time-based payouts still use live config for creation
+        const timeBasedResult = await processTimeBasedPayouts(limit);
 
-            // Update participant with tx hash
-            if (result.txHash) {
-                await prisma.participant.updateMany({
-                    where: { id: payout.participantId },
-                    data: {
-                        status: 'paid',
-                        payoutTxHash: result.txHash,
-                    },
+        const pendingPayouts = await getPendingPayouts(limit);
+
+        const results = [];
+        for (let i = 0; i < pendingPayouts.length; i++) {
+            const payout = pendingPayouts[i];
+            try {
+                // Retry logic with exponential backoff
+                const result = await executePayoutWithRetry(payout.id, payoutConfig.maxRetries);
+                results.push({ payoutId: payout.id, ...result });
+
+                // Update participant with tx hash
+                if (result.txHash) {
+                    await prisma.participant.updateMany({
+                        where: { id: payout.participantId },
+                        data: {
+                            status: 'paid',
+                            payoutTxHash: result.txHash,
+                        },
+                    });
+                }
+            } catch (error) {
+                results.push({
+                    payoutId: payout.id,
+                    success: false,
+                    error: error instanceof Error ? error.message : 'Unknown error'
                 });
             }
-        } catch (error) {
-            results.push({
-                payoutId: payout.id,
-                success: false,
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
+
+            // Wait between payouts if not the last one (using env-driven interval)
+            if (i < pendingPayouts.length - 1 && batchConfig.payoutIntervalSeconds > 0) {
+                await new Promise(resolve => setTimeout(resolve, batchConfig.payoutIntervalSeconds * 1000));
+            }
         }
 
-        // Wait between payouts if not the last one
-        if (i < pendingPayouts.length - 1 && intervalSeconds > 0) {
-            await new Promise(resolve => setTimeout(resolve, intervalSeconds * 1000));
-        }
+        return {
+            results,
+            intervalSeconds: batchConfig.payoutIntervalSeconds,
+            timeBasedCreated: timeBasedResult.created,
+        };
+    } finally {
+        // Always release the lock when done
+        await releaseLock(PAYOUT_LOCK_KEY);
     }
-
-    return {
-        results,
-        intervalSeconds,
-        timeBasedCreated: timeBasedResult.created,
-    };
 }
 
 /**
