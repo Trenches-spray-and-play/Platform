@@ -30,7 +30,7 @@ interface OnboardingModalProps {
     onComplete: (userData: UserData) => void;
 }
 
-const CONFIRM_DELAY = 10000; // 10 seconds in ms
+const CONFIRM_DELAY = 2000; // Reduced to 2 seconds for better UX (was 10s)
 
 export default function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModalProps) {
     const [step, setStep] = useState(1);
@@ -169,10 +169,16 @@ export default function OnboardingModal({ isOpen, onClose, onComplete }: Onboard
             const data = await res.json();
 
             if (res.ok && data.success && data.user) {
+                console.log('Registration finalized successfully:', data.user.handle);
                 localStorage.removeItem(STORAGE_KEY);
                 localStorage.removeItem('referralCode');
                 onComplete(data.user);
             } else {
+                console.error('Finalization failed:', {
+                    status: res.status,
+                    error: data.error,
+                    details: data.details
+                });
                 if (data.details && Array.isArray(data.details)) {
                     setError(data.details.join(' '));
                 } else {

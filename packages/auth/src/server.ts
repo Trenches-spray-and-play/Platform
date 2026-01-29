@@ -14,20 +14,24 @@ export async function createClient() {
     return createServerClient(supabaseUrl, supabaseKey, {
         cookies: {
             async get(name: string) {
-                return cookieStore.get(name)?.value;
+                const value = cookieStore.get(name)?.value;
+                console.log(`[Supabase Cookie] Get: ${name}=${value ? 'exists' : 'not found'}`);
+                return value;
             },
             async set(name: string, value: string, options: CookieOptions) {
                 try {
+                    console.log(`[Supabase Cookie] Set: ${name}, path: ${options.path}, httpOnly: ${options.httpOnly}`);
                     cookieStore.set({ name, value, ...options });
-                } catch {
-                    // Ignore - called from Server Component
+                } catch (error) {
+                    console.error(`[Supabase Cookie] Set error for ${name}:`, error);
                 }
             },
             async remove(name: string, options: CookieOptions) {
                 try {
+                    console.log(`[Supabase Cookie] Remove: ${name}`);
                     cookieStore.set({ name, value: '', ...options });
-                } catch {
-                    // Ignore - called from Server Component
+                } catch (error) {
+                    console.error(`[Supabase Cookie] Remove error for ${name}:`, error);
                 }
             },
         },
