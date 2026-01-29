@@ -15,6 +15,6 @@ export const config = {
          * - public files (public folder)
          * - api/webhook routes (external webhooks)
          */
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|api/webhook).*)',
+        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|api/webhook|api/cron).*)',
     ],
 };
