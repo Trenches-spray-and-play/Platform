@@ -44,6 +44,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [supabase.auth]);
 
     const signInWithGoogle = async () => {
+        console.log('AuthProvider: Initiating Google Sign In...', {
+            redirectTo: `${window.location.origin}/auth/callback`
+        });
+
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
@@ -54,12 +58,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 },
             },
         });
-        
+
         if (error) {
-            console.error('Supabase OAuth error:', error);
+            console.error('AuthProvider: Supabase OAuth error:', error);
             throw error;
         }
-        
+
+        console.log('AuthProvider: OAuth URL generated:', data.url);
+
         // The OAuth provider should redirect, but if no URL returned, something is wrong
         if (!data.url) {
             throw new Error('No OAuth URL returned. Check if Google provider is enabled in Supabase.');

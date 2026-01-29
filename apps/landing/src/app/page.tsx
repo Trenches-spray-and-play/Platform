@@ -75,9 +75,11 @@ export default function WelcomePage() {
     useEffect(() => {
         if (user && !userSession) {
             setIsDetermining(true);
+            console.log('Syncing user session for:', user.id);
             fetch(`/api/user/sync?supabaseId=${user.id}`)
                 .then(res => res.json())
                 .then(data => {
+                    console.log('Sync result:', { exists: data.exists, hasUser: !!data.user });
                     if (data.exists && data.user) {
                         setUserSession(data.user);
                         localStorage.setItem('user_session', JSON.stringify(data.user));
@@ -115,6 +117,7 @@ export default function WelcomePage() {
     };
 
     const handleOnboardingComplete = (userData: any) => {
+        console.log('Onboarding complete received:', userData);
         setUserSession(userData);
         localStorage.setItem('user_session', JSON.stringify(userData));
         setIsOnboardingOpen(false);

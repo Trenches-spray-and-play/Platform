@@ -26,6 +26,7 @@ interface WaitlistDashboardProps {
 }
 
 export default function WaitlistDashboard({ userSession, onLogout }: WaitlistDashboardProps) {
+    console.log('WaitlistDashboard: Rendering with session', userSession?.handle);
     const [config, setConfig] = useState<PlatformConfig | null>(null);
     const [copied, setCopied] = useState(false);
 

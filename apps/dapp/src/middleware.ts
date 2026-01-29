@@ -16,6 +16,6 @@ export const config = {
          * - api/webhook routes (external webhooks)
          * - auth/callback (OAuth callbacks)
          */
-        '/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$|api/webhook|api/cron|auth/callback).*)',
+        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|api/webhook|api/cron|auth/callback).*)',
     ],
 };
