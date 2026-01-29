@@ -23,11 +23,14 @@ export async function createClient() {
             async set(name: string, value: string, options: CookieOptions) {
                 try {
                     if (name.includes('auth')) {
-                        console.log(`[Supabase Cookie] Set: ${name}, path: ${options.path}, httpOnly: ${options.httpOnly}, maxAge: ${options.maxAge}`);
+                        console.log(`[Supabase Cookie] Set attempt: ${name}, path: ${options.path}, httpOnly: ${options.httpOnly}, secure: ${options.secure}, sameSite: ${options.sameSite}, maxAge: ${options.maxAge}`);
                     }
                     cookieStore.set({ name, value, ...options });
-                } catch (error) {
-                    console.error(`[Supabase Cookie] Set error for ${name}:`, error);
+                    if (name.includes('auth')) {
+                        console.log(`[Supabase Cookie] Set success: ${name}`);
+                    }
+                } catch (error: any) {
+                    console.error(`[Supabase Cookie] Set FAILED for ${name}:`, error?.message || error);
                 }
             },
             async remove(name: string, options: CookieOptions) {
