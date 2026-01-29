@@ -15,7 +15,10 @@
       "Bash(git commit:*)",
       "Bash(vercel --prod:*)",
       "Bash(npx vercel --prod)",
-      "Bash(vercel --version:*)"
+      "Bash(vercel --version:*)",
+      "Bash(gh api:*)",
+      "Bash(npx vercel:*)",
+      "Bash(./apps/dapp/node_modules/.bin/vercel:*)"
     ]
   }
 }

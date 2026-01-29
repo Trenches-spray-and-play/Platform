@@ -44,12 +44,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [supabase.auth]);
 
     const signInWithGoogle = async () => {
-        await supabase.auth.signInWithOAuth({
+        const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: `${window.location.origin}/auth/callback`,
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                },
             },
         });
+        
+        if (error) {
+            console.error('Supabase OAuth error:', error);
+            throw error;
+        }
+        
+        // The OAuth provider should redirect, but if no URL returned, something is wrong
+        if (!data.url) {
+            throw new Error('No OAuth URL returned. Check if Google provider is enabled in Supabase.');
+        }
     };
 
     const signInWithEmail = async (email: string, password: string) => {
