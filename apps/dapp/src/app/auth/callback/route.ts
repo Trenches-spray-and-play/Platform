@@ -92,17 +92,8 @@ export async function GET(request: Request) {
 
             console.log('[Auth Callback] Existing user - redirecting to dashboard');
 
-            // Create redirect response and ensure cookies are preserved
-            const redirectResponse = NextResponse.redirect(`${origin}${next}`);
-
-            // Copy all cookies to the redirect response to ensure session persists
-            const finalCookieStore = await cookies();
-            finalCookieStore.getAll().forEach((cookie) => {
-                redirectResponse.cookies.set(cookie.name, cookie.value);
-            });
-
-            console.log('[Auth Callback] Redirecting with cookies:', finalCookieStore.getAll().map(c => c.name));
-            return redirectResponse;
+            // Simple redirect - cookies are handled by Supabase SSR
+            return NextResponse.redirect(`${origin}${next}`);
         } catch (dbError: any) {
             console.error('[Auth Callback] Database error:', dbError);
             // If DB fails, still redirect to dashboard - user is authenticated with Supabase
