@@ -65,7 +65,7 @@ export async function GET() {
                 referralCode: user.referralCode,
                 beliefScore: user.beliefScore,
                 balance: Number(user.balance) || 0, // USD-normalized balance
-                boostPoints: participantStats._sum.boostPoints || 0,
+                boostPoints: user.boostPoints || 0, // BP wallet balance (Issue 14 fix)
                 stats: {
                     sprays: participantStats._count._all || 0,
                     exits: exitedCount,

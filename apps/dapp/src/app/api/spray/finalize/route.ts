@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { calculatePayoutTime, getBpToMinutesRate } from '@/services/payout-time.service';
+import { rateLimit } from '@/lib/rate-limit';
 
 /**
  * POST /api/spray/finalize - Finalize spray entry after task completion
@@ -12,6 +13,9 @@ import { calculatePayoutTime, getBpToMinutesRate } from '@/services/payout-time.
  */
 export async function POST(request: Request) {
     try {
+        const { limited, response } = await rateLimit(request, 'spray');
+        if (limited) return response;
+
         const session = await getSession();
         if (!session) {
             return NextResponse.json(

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { freezeAndMigratePayouts } from '@/services/payout.service';
 import { requireAdminAuth } from '@/lib/admin-auth';
+import { logConfigChanges } from '@/services/config-audit.service';
+import { validateCampaignConfig } from '@/services/config-validation.service';
 
 // Chain options
 export const CHAIN_OPTIONS = [
@@ -105,6 +107,16 @@ export async function POST(request: Request) {
             );
         }
 
+        // 🔍 Validate input values before saving
+        const validation = validateCampaignConfig(body);
+        if (!validation.valid) {
+            return NextResponse.json({
+                success: false,
+                error: 'Invalid configuration values',
+                validationErrors: validation.errors,
+            }, { status: 400 });
+        }
+
         const campaign = await prisma.campaignConfig.create({
             data: {
                 name,
@@ -158,6 +170,37 @@ export async function PUT(request: Request) {
                 { success: false, error: 'Campaign id is required' },
                 { status: 400 }
             );
+        }
+
+        // 🔒 PHASE 1B: Block critical updates during active payout processing
+        const criticalFields = ['manualPrice', 'roiMultiplier', 'tokenAddress', 'tokenDecimals', 'chainId'];
+        const isCriticalUpdate = criticalFields.some(field => field in rawUpdates);
+
+        if (isCriticalUpdate) {
+            // Check if there are active payouts
+            const activePayoutCount = await prisma.payout.count({
+                where: { status: { in: ['EXECUTING', 'PENDING'] } }
+            });
+
+            if (activePayoutCount > 0) {
+                return NextResponse.json({
+                    success: false,
+                    error: 'Cannot update price/ROI while payouts are processing',
+                    suggestion: 'Pause payouts first, then make changes',
+                    activePayouts: activePayoutCount,
+                    lockedFields: criticalFields.filter(f => f in rawUpdates),
+                }, { status: 409 });
+            }
+        }
+
+        // 🔍 PHASE 2D: Validate input values before saving
+        const validation = validateCampaignConfig(rawUpdates);
+        if (!validation.valid) {
+            return NextResponse.json({
+                success: false,
+                error: 'Invalid configuration values',
+                validationErrors: validation.errors,
+            }, { status: 400 });
         }
 
         // Sanitize updates - only allow valid campaign fields
@@ -216,6 +259,23 @@ export async function PUT(request: Request) {
             where: { id },
             data: updates,
         });
+
+        // 📝 Log config changes for audit trail
+        try {
+            const oldCampaign = await prisma.campaignConfig.findUnique({ where: { id } });
+            if (oldCampaign) {
+                await logConfigChanges({
+                    configType: 'campaign',
+                    configId: id,
+                    oldConfig: rawUpdates, // What was sent
+                    newConfig: updates,    // What was applied
+                    changedBy: auth.admin?.email || 'admin',
+                });
+            }
+        } catch (auditError) {
+            console.error('Failed to log config change:', auditError);
+            // Don't fail the update for audit logging errors
+        }
 
         // If token or chain changed, migrate pending payouts
         if (updates.tokenAddress || updates.chainId) {

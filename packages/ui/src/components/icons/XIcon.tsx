@@ -1,0 +1,19 @@
+import React from "react";
+
+export const XIcon = ({ size = 16, className = "" }: { size?: number | string, className?: string }) => (
+    <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+    >
+        <path
+            d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.932zm-1.292 19.489h2.039L6.486 3.236H4.298l13.311 17.406z"
+            fill="currentColor"
+        />
+    </svg>
+);
+
+export default XIcon;

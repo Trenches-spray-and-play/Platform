@@ -1,0 +1,42 @@
+.radialWrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.radialSvg {
+    transform: rotate(-90deg);
+}
+
+.radialContent {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.radialPercentage {
+    font-size: 1.5rem;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+}
+
+:global([data-theme='light']) .radialPercentage {
+    color: #000;
+}
+
+.radialLabel {
+    margin-top: 1.5rem;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.4;
+    text-align: center;
+    white-space: nowrap;
+}

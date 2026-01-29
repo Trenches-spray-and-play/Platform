@@ -11,3 +11,9 @@ export {
     type RateLimitType,
     type RateLimitResult,
 } from './rate-limit';
+
+// Distributed locking
+export {
+    acquireLock,
+    releaseLock,
+} from './distributed-lock';

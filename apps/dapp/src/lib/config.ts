@@ -47,6 +47,31 @@ export const config = {
     hyperevm: 1,
     solana: 32,
   } as const,
+
+  // Reorg protection configuration
+  reorgProtection: {
+    // Safety margin beyond standard confirmations (blocks)
+    safetyMarginBlocks: {
+      ethereum: 12,   // 12 + 12 = 24 total (~5 min)
+      base: 25,       // 50 + 25 = 75 total (~2 min)
+      arbitrum: 25,
+      hyperevm: 20,   // 1 + 20 = 21 total (~20 seconds, matches Solana)
+      solana: 16,     // 32 + 16 = 48 slots (~20 sec)
+    } as const,
+
+    // How often to check for reorgs (ms)
+    reorgCheckIntervalMs: 30000, // 30 seconds
+
+    // Maximum reorg depth to check (blocks)
+    maxReorgDepth: 100,
+  },
+
+  // Alerting configuration
+  alerts: {
+    telegramBotToken: process.env.TELEGRAM_BOT_TOKEN || '',
+    telegramChatId: process.env.TELEGRAM_ADMIN_CHAT_ID || '',
+    alertCooldownMs: 5 * 60 * 1000, // 5 minutes per deposit
+  },
 } as const;
 
 // Validate required environment variables

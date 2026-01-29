@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { clearBeliefTiersCache, DEFAULT_BELIEF_TIERS } from '@/services/enforcement.service';
 import { clearBpRateCache } from '@/services/payout-time.service';
 import { requireAdminAuth } from '@/lib/admin-auth';
+import { validatePlatformConfig } from '@/services/config-validation.service';
 
 // GET: Fetch current platform config
 export async function GET() {
@@ -59,6 +60,16 @@ export async function PUT(request: Request) {
             bpToMinutesRate,
             updatedBy
         } = body;
+
+        // 🔍 Validate input values before saving
+        const validation = validatePlatformConfig(body);
+        if (!validation.valid) {
+            return NextResponse.json({
+                success: false,
+                error: 'Invalid configuration values',
+                validationErrors: validation.errors,
+            }, { status: 400 });
+        }
 
         const config = await prisma.platformConfig.upsert({
             where: { id: 'default' },

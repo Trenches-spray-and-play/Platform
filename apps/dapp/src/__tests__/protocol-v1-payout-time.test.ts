@@ -83,27 +83,27 @@ describe('Protocol-V1: Time-Based Payout System', () => {
             expect(result.getTime()).toBe(expected.getTime());
         });
 
-        it('should handle MID trench (72h baseline)', () => {
+        it('should handle MID trench (168h baseline)', () => {
             const joinedAt = new Date('2026-01-24T12:00:00Z');
-            const durationHours = 72; // MID
-            const boostPoints = 0;
-            const bpRate = 1;
-
-            const result = calculatePayoutTime(joinedAt, durationHours, boostPoints, bpRate);
-
-            const expected = new Date('2026-01-27T12:00:00Z'); // 3 days later
-            expect(result.getTime()).toBe(expected.getTime());
-        });
-
-        it('should handle DEEP trench (168h baseline)', () => {
-            const joinedAt = new Date('2026-01-24T12:00:00Z');
-            const durationHours = 168; // DEEP (7 days)
+            const durationHours = 168; // MID (7 days)
             const boostPoints = 0;
             const bpRate = 1;
 
             const result = calculatePayoutTime(joinedAt, durationHours, boostPoints, bpRate);
 
             const expected = new Date('2026-01-31T12:00:00Z'); // 7 days later
+            expect(result.getTime()).toBe(expected.getTime());
+        });
+
+        it('should handle DEEP trench (720h baseline)', () => {
+            const joinedAt = new Date('2026-01-24T12:00:00Z');
+            const durationHours = 720; // DEEP (30 days)
+            const boostPoints = 0;
+            const bpRate = 1;
+
+            const result = calculatePayoutTime(joinedAt, durationHours, boostPoints, bpRate);
+
+            const expected = new Date('2026-02-23T12:00:00Z'); // 30 days later
             expect(result.getTime()).toBe(expected.getTime());
         });
     });

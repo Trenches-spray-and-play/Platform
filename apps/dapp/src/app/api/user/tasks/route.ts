@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { POINTS } from '@/constants/points';
-import { recalculatePayoutTime } from '@/services/payout-time.service';
+import { rateLimit } from '@/lib/rate-limit';
 
 /**
  * GET /api/user/tasks - Get current user's completed tasks
@@ -10,6 +10,9 @@ import { recalculatePayoutTime } from '@/services/payout-time.service';
  */
 export async function GET(request: Request) {
     try {
+        const { limited, response } = await rateLimit(request, 'tasks');
+        if (limited) return response;
+
         const session = await getSession();
         if (!session) {
             return NextResponse.json(
@@ -62,6 +65,9 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
     try {
+        const { limited, response } = await rateLimit(request, 'tasks');
+        if (limited) return response;
+
         const session = await getSession();
         if (!session) {
             return NextResponse.json(
@@ -118,26 +124,29 @@ export async function POST(request: Request) {
         // Calculate BP reward: admin override or default 10 BP
         const bpReward = task.reward > 0 ? task.reward : POINTS.TASK_REWARD;
 
-        // Award boost points to user's active participant records
-        const updatedParticipants = await prisma.participant.updateMany({
-            where: { userId: session.id, status: 'active' },
+        // Add BP to user's wallet (new manual boost system)
+        await prisma.user.update({
+            where: { id: session.id },
             data: { boostPoints: { increment: bpReward } },
         });
 
-        // Recalculate payout time for all affected participants
-        if (updatedParticipants.count > 0) {
-            const participants = await prisma.participant.findMany({
-                where: { userId: session.id, status: 'active' },
-                select: { id: true }
-            });
-            await Promise.all(participants.map(p => recalculatePayoutTime(p.id)));
-        }
+        // Process auto-boost for positions with auto-boost enabled
+        const { processAutoBoost } = await import('@/services/auto-boost.service');
+        const autoBoostResult = await processAutoBoost(session.id, bpReward);
+
+        // Get updated wallet balance for response
+        const user = await prisma.user.findUnique({
+            where: { id: session.id },
+            select: { boostPoints: true },
+        });
 
         return NextResponse.json({
             success: true,
             data: {
                 completedAt: completion.completedAt,
                 rewardAwarded: bpReward,
+                walletBalance: user?.boostPoints ?? 0,
+                autoBoostDistributed: autoBoostResult.distributed,
             },
         });
     } catch (error) {

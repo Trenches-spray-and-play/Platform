@@ -1,3 +1,8 @@
+@import "@trenches/ui/styles/tokens.css";
+@import "@trenches/ui/styles/shims.css";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&display=swap');
+
 :root {
   /* Core Colors - Zenith Obsidian Palette */
   --bg-color: #020202;
@@ -58,9 +63,9 @@
   --spacing-xl: 28px;
 
   /* Typography */
-  --font-header: 'Plus Jakarta Sans', sans-serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'Space Mono', 'JetBrains Mono', monospace;
+  --font-header: 'Inter', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
   /* Borders */
   --radius-sm: 4px;

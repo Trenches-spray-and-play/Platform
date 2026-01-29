@@ -1,74 +1,49 @@
-.container {
+.v6Timer {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+}
+
+.v6TimerUnits {
+    display: flex;
     gap: 1rem;
-    padding: 1.5rem;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--border-color, #333);
-    border-radius: 4px;
-    font-family: 'Courier New', Courier, monospace;
 }
 
-.label {
-    font-size: 0.8rem;
-    letter-spacing: 0.2rem;
-    color: var(--text-dim, #888);
-    margin: 0;
-    text-transform: uppercase;
-}
-
-.timerGrid {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.timeBox {
+.v6TimerUnit {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 60px;
 }
 
-.value {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: var(--accent-color, #00ff00);
-    text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+.v6TimerVal {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 5rem;
+    font-weight: 900;
+    letter-spacing: -4px;
     line-height: 1;
+    color: var(--text-primary);
 }
 
-.unit {
-    font-size: 0.6rem;
-    color: var(--text-dim, #666);
-    margin-top: 0.25rem;
-}
-
-.divider {
-    font-size: 2rem;
-    color: var(--text-dim, #444);
-    font-weight: bold;
-    padding-bottom: 1rem;
-}
-
-/* Compact version for dashboard */
-.compactContainer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    font-family: 'Courier New', Courier, monospace;
-}
-
-.compactLabel {
+.v6TimerGlobalLabel {
     font-size: 0.7rem;
-    color: var(--text-dim, #888);
-    letter-spacing: 0.05rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.4;
 }
 
-.compactValue {
-    font-size: 1.1rem;
-    color: var(--accent-color, #00ff00);
-    font-weight: bold;
+.simpleTimer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent-zenith);
+}
+
+@media (max-width: 768px) {
+    .v6TimerVal {
+        font-size: 3rem;
+        letter-spacing: -2px;
+    }
 }

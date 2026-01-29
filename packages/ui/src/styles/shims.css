@@ -1,0 +1,22 @@
+:root {
+    /* Branding Shims: Mapping legacy variables to V6 Universal Constants */
+
+    /* Colors */
+    --background: var(--bg-main);
+    --foreground: var(--text-primary);
+    --accent-color: var(--accent-zenith);
+    --bg-color: var(--bg-main);
+    --bg-accent: var(--bg-surface);
+    --border-color: var(--border-subtle);
+
+    /* Layout */
+    --header-height: 80px;
+    --gutter: 2rem;
+}
+
+@media (max-width: 768px) {
+    :root {
+        --gutter: 1.25rem;
+        --header-height: 64px;
+    }
+}

@@ -1,0 +1,57 @@
+:root {
+    /* Institutional Design Tokens - V6 Zenith-Elite */
+    --text-primary: #ffffff;
+    --text-primary-rgb: 255, 255, 255;
+    --text-secondary: #A1A1AA;
+    --bg-main: #060606;
+    --bg-main-rgb: 6, 6, 6;
+    --bg-surface: #0E0E10;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --accent-zenith: #00FF66;
+    --accent-glow: rgba(0, 255, 102, 0.15);
+
+    /* Standardized Breakpoints */
+    --mobile: 768px;
+    --tablet: 1024px;
+
+    /* Standardized Z-Index Layers */
+    --z-base: 0;
+    --z-surface: 10;
+    --z-header: 1000;
+    --z-modal: 2000;
+    --z-toast: 3000;
+
+    /* Standardized Typography Scale (Super Scale) */
+    --h1-desktop: 8.5rem;
+    --h1-mobile: 3.5rem;
+    --h2-desktop: 6.5rem;
+    --h2-mobile: 2.5rem;
+
+    /* Animation Physics */
+    --spring-stiff: 300;
+    --spring-damp: 30;
+    --spring-mass: 1;
+
+    /* Base Layout Constants */
+    --safe-area-bottom: env(safe-area-inset-bottom);
+}
+
+body {
+    background: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.4s ease, color 0.4s ease;
+    padding-bottom: var(--safe-area-bottom);
+}
+
+[data-theme='light'] {
+    --text-primary: #000;
+    --text-primary-rgb: 0, 0, 0;
+    --text-secondary: #52525B;
+    --bg-main: #ffffff;
+    --bg-main-rgb: 255, 255, 255;
+    --bg-surface: #fcfcfc;
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --accent-glow: rgba(21, 128, 61, 0.15);
+}

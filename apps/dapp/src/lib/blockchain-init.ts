@@ -5,6 +5,7 @@
 
 import { startMonitoring, initializeBlockchain } from '@/services/blockchain.monitor';
 import { expirePendingTransactions } from '@/services/transaction.service';
+import { startReorgChecker } from '@/services/reorg-protection.service';
 
 let monitoringStarted = false;
 
@@ -18,7 +19,7 @@ export async function initializeBlockchainServices() {
 
   // Initialize blockchain connection
   const initialized = initializeBlockchain();
-  
+
   if (!initialized) {
     console.warn('Blockchain monitoring not started - HYPEREVM_RPC_URL not configured');
     return;
@@ -26,6 +27,10 @@ export async function initializeBlockchainServices() {
 
   // Start monitoring
   await startMonitoring();
+
+  // Start reorg protection background checker
+  startReorgChecker();
+
   monitoringStarted = true;
 
   // Expire old pending transactions on startup
