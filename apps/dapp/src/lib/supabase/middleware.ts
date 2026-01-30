@@ -10,14 +10,14 @@ import { NextResponse, type NextRequest } from 'next/server';
 export async function updateSession(request: NextRequest) {
     const requestPath = request.nextUrl.pathname;
     console.log(`[Middleware] Processing: ${requestPath}`);
-    
+
     let supabaseResponse = NextResponse.next({
         request,
     });
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
-    
+
     // Log auth-related cookies
     const allCookies = request.cookies.getAll();
     const authCookies = allCookies.filter(c => c.name.includes('auth') || c.name.includes('supabase'));
@@ -42,10 +42,10 @@ export async function updateSession(request: NextRequest) {
     });
 
     // Refresh session if expired - this is crucial for maintaining the session
-    const { data: { user, session }, error } = await supabase.auth.getUser();
-    
+    const { data: { user }, error } = await supabase.auth.getUser();
+
     if (user) {
-        console.log('[Middleware] Session valid for:', user.email, 'session exists:', !!session);
+        console.log('[Middleware] Session valid for:', user.email);
     } else if (error) {
         console.log('[Middleware] No valid session:', error.message);
     }
