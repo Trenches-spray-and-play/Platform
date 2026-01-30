@@ -297,7 +297,7 @@ export async function getUserDepositAddresses(userId: string): Promise<
  * Get deposit address by address string (for incoming deposit matching)
  */
 export async function getDepositAddressByAddress(address: string) {
-    return await prisma.depositAddress.findUnique({
+    return await prisma.depositAddress.findFirst({
         where: { address },
         include: { user: true },
     });
@@ -308,7 +308,7 @@ export async function getDepositAddressByAddress(address: string) {
  * Used for deriving private keys during sweep operations
  */
 export async function getDerivationIndex(address: string): Promise<number | null> {
-    const depositAddress = await prisma.depositAddress.findUnique({
+    const depositAddress = await prisma.depositAddress.findFirst({
         where: { address },
         select: { derivationIndex: true },
     });
