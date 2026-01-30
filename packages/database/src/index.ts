@@ -1,34 +1,26 @@
 import { PrismaClient } from '@prisma/client';
+import { getOptimizedDatabaseUrl, logDbConfig } from './utils';
 
 // Prevent multiple instances during development hot-reload
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
-// Connection pool configuration for serverless environments
-// Vercel has specific limits - adjust based on your database provider
-const getConnectionLimit = () => {
-  // Use environment variable or default to reasonable serverless limit
-  const limit = parseInt(process.env.DATABASE_CONNECTION_LIMIT || '5', 10);
-  return limit;
-};
+// Log configuration on startup
+logDbConfig();
 
+// Get optimized URL with connection parameters
+const optimizedUrl = getOptimizedDatabaseUrl();
+
+// Serverless-optimized Prisma client
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     datasources: {
       db: {
-        url: process.env.DATABASE_URL,
+        url: optimizedUrl,
       },
     },
   });
-
-// Configure connection pool at the global level to prevent exhaustion
-if (!globalForPrisma.prisma) {
-  // Log connection issues in production for debugging
-  if (process.env.NODE_ENV === 'production') {
-    console.log('[Prisma] Initializing with connection pooling...');
-  }
-}
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
