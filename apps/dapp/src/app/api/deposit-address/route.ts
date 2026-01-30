@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST /api/deposit-address - Create deposit addresses for all chains
+// POST /api/deposit-address - Create deposit addresses for one or all chains
 export async function POST(request: NextRequest) {
     // Apply rate limiting - 5 requests per minute
     const { limited, response: rateLimitResponse, rateLimitResult } = await rateLimit(request, 'depositAddress');
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { userId } = body;
+        const { userId, chain } = body;
 
         if (!userId) {
             return NextResponse.json(
@@ -96,11 +96,31 @@ export async function POST(request: NextRequest) {
         }
 
         const supportedChains = getSupportedChains();
+
+        // If specific chain requested, generate only that one
+        if (chain) {
+            if (!supportedChains.includes(chain as Chain)) {
+                return NextResponse.json(
+                    { error: `Unsupported chain: ${chain}. Supported: ${supportedChains.join(', ')}` },
+                    { status: 400 }
+                );
+            }
+
+            const result = await getDepositAddress(userId, chain as Chain);
+            return NextResponse.json({
+                success: true,
+                chain,
+                address: result.address,
+                isNew: result.isNew
+            });
+        }
+
+        // Backward compatibility: Create/return all addresses
         const addresses: Record<string, string> = {};
 
-        for (const chain of supportedChains) {
-            const result = await getDepositAddress(userId, chain);
-            addresses[chain] = result.address;
+        for (const c of supportedChains) {
+            const result = await getDepositAddress(userId, c);
+            addresses[c] = result.address;
         }
 
         return NextResponse.json({

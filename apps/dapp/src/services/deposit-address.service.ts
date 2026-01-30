@@ -12,10 +12,10 @@ import { prisma } from '@/lib/db';
 import { config } from '@/lib/config';
 
 // Supported chains
-export type Chain = 'ethereum' | 'base' | 'arbitrum' | 'hyperevm' | 'solana';
+export type Chain = 'ethereum' | 'base' | 'arbitrum' | 'hyperevm' | 'bsc' | 'solana';
 
 // EVM chains share the same derivation (coin type 60)
-const EVM_CHAINS: Chain[] = ['ethereum', 'base', 'arbitrum', 'hyperevm'];
+const EVM_CHAINS: Chain[] = ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc'];
 
 // Chain-specific coin types for BIP-44
 const COIN_TYPES: Record<Chain, number> = {
@@ -23,6 +23,7 @@ const COIN_TYPES: Record<Chain, number> = {
     base: 60,      // Uses ETH derivation
     arbitrum: 60,  // Uses ETH derivation
     hyperevm: 60,  // Uses ETH derivation
+    bsc: 60,       // Uses ETH derivation
     solana: 501,
 };
 
@@ -333,7 +334,7 @@ export function isValidAddress(chain: Chain, address: string): boolean {
  * Get all supported chains
  */
 export function getSupportedChains(): Chain[] {
-    return ['ethereum', 'base', 'arbitrum', 'hyperevm', 'solana'];
+    return ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc', 'solana'];
 }
 
 /**

@@ -20,8 +20,7 @@ interface LayoutProps {
 const navItems = [
   { path: "/sample-v2", label: "Campaigns", icon: "◆" },
   { path: "/sample-v2/dashboard-v2", label: "Dashboard", icon: "□" },
-  { path: "/sample-v2/deposit", label: "Deposit", icon: "↓" },
-  { path: "/sample-v2/wallet", label: "Wallets", icon: "◈" },
+  { path: "/sample-v2/portfolio", label: "Portfolio", icon: "◈" },
   { path: "/sample-v2/earn-v2", label: "Earn", icon: "▲" },
 ];
 
@@ -86,10 +85,15 @@ export default function Layout({ children }: LayoutProps) {
 
           <div className={styles.userSection}>
             {user ? (
-              <Link href="/sample-v2/dashboard-v2" className={styles.balanceChip}>
-                <span className={styles.balanceLabel}>BALANCE</span>
-                <span className={styles.balanceValue}>${parseFloat(user.balance || "0").toFixed(2)}</span>
-              </Link>
+              <>
+                <Link href="/sample-v2/deposit" className={styles.depositBtn}>
+                  + Deposit
+                </Link>
+                <Link href="/sample-v2/dashboard-v2" className={styles.balanceChip}>
+                  <span className={styles.balanceLabel}>BALANCE</span>
+                  <span className={styles.balanceValue}>${parseFloat(user.balance || "0").toFixed(2)}</span>
+                </Link>
+              </>
             ) : (
               <Link href="/login" className={styles.connectBtn}>Connect</Link>
             )}

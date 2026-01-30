@@ -9,14 +9,15 @@ import styles from './login.module.css';
 function LoadingState() {
     return (
         <div className={styles.loadingContainer}>
-            <svg width="64" height="64" viewBox="0 0 100 100" fill="none">
-                <rect x="20" y="20" width="60" height="8" rx="2" fill="#22c55e" />
-                <rect x="35" y="36" width="30" height="6" rx="2" fill="#22c55e" opacity="0.6" />
-                <rect x="44" y="48" width="12" height="32" rx="2" fill="#22c55e" opacity="0.4" />
-            </svg>
-            <div className={styles.scanner} />
+            <div className={styles.loadingLogo}>
+                <svg width="48" height="48" viewBox="0 0 100 100" fill="none">
+                    <rect x="20" y="20" width="60" height="8" rx="2" fill="#22c55e" />
+                    <rect x="35" y="36" width="30" height="6" rx="2" fill="#22c55e" opacity="0.6" />
+                    <rect x="44" y="48" width="12" height="32" rx="2" fill="#22c55e" opacity="0.4" />
+                </svg>
+            </div>
             <div className={styles.loadingText}>
-                INITIALIZING_PROTOCOL<span className={styles.loadingDots}></span>
+                Initializing<span className={styles.loadingDots}></span>
             </div>
         </div>
     );
@@ -31,8 +32,8 @@ function LoginContent() {
     useEffect(() => {
         if (urlError) {
             const errorMap: Record<string, string> = {
-                'auth_failed': 'AUTHENTICATION_FAILED',
-                'unauthorized': 'ACCESS_DENIED'
+                'auth_failed': 'Authentication failed. Please try again.',
+                'unauthorized': 'Access denied. Please contact support.'
             };
             setError(errorMap[urlError] || urlError);
         }
@@ -42,21 +43,17 @@ function LoginContent() {
     if (user) {
         return (
             <div className={styles.container}>
-                <div className={styles.card}>
-                    <div className={styles.logoSection}>
-                        <svg width="64" height="64" viewBox="0 0 100 100" fill="none" className={styles.logoSvg}>
-                            <rect x="20" y="20" width="60" height="8" rx="2" fill="currentColor" />
-                            <rect x="35" y="36" width="30" height="6" rx="2" fill="currentColor" opacity="0.6" />
-                            <rect x="44" y="48" width="12" height="32" rx="2" fill="currentColor" opacity="0.4" />
+                <div className={`${styles.card} ${styles.authenticatedCard}`}>
+                    <div className={styles.authenticatedIcon}>✓</div>
+                    <div className={styles.header}>
+                        <h1 className={styles.title}>Already Connected</h1>
+                        <p className={styles.subtitle}>You&apos;re signed in and ready to explore campaigns.</p>
+                    </div>
+                    <Link href="/sample-v2/dashboard-v2" className={styles.dashboardBtn}>
+                        Go to Dashboard
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                    </div>
-                    <div className={styles.terminalHeader}>
-                        <div className={styles.commandLine}>$ status</div>
-                        <h1 className={styles.title}>ALREADY_AUTHENTICATED</h1>
-                        <p className={styles.subtitle}>You are already logged in</p>
-                    </div>
-                    <Link href="/sample-v2/dashboard-v2" className={styles.googleButton}>
-                        GO_TO_DASHBOARD →
                     </Link>
                 </div>
             </div>
@@ -66,16 +63,10 @@ function LoginContent() {
     const handleSignIn = async () => {
         try {
             setError(null);
-            console.log('Starting Google sign in...');
-            console.log('Origin:', window.location.origin);
             await signInWithGoogle();
-            console.log('Sign in initiated successfully');
         } catch (err: any) {
-            console.error('Sign in error:', err);
-            const errorMsg = err.message || err.error_description || err.error_msg || 'AUTHENTICATION_FAILED';
-            setError(errorMsg.toUpperCase().replace(/\s/g, '_'));
-            // Log raw error for debugging
-            console.log('Raw login error:', JSON.stringify(err));
+            const errorMsg = err.message || 'Authentication failed';
+            setError(errorMsg);
         }
     };
 
@@ -86,41 +77,35 @@ function LoginContent() {
     return (
         <div className={styles.container}>
             <div className={styles.card}>
-                {/* Corner accents */}
-                <div className={`${styles.corner} ${styles.cornerTL}`} />
-                <div className={`${styles.corner} ${styles.cornerTR}`} />
-                <div className={`${styles.corner} ${styles.cornerBL}`} />
-                <div className={`${styles.corner} ${styles.cornerBR}`} />
-
                 {/* Logo Section */}
                 <div className={styles.logoSection}>
-                    <svg
-                        width="64"
-                        height="64"
-                        viewBox="0 0 100 100"
-                        fill="none"
-                        className={styles.logoSvg}
-                    >
-                        {/* T-Shape Logo - Top bar */}
-                        <rect x="20" y="20" width="60" height="8" rx="2" fill="currentColor" />
-                        {/* T-Shape Logo - Middle accent bar */}
-                        <rect x="35" y="36" width="30" height="6" rx="2" fill="currentColor" opacity="0.6" />
-                        {/* T-Shape Logo - Vertical stem */}
-                        <rect x="44" y="48" width="12" height="32" rx="2" fill="currentColor" opacity="0.4" />
-                    </svg>
-
+                    <div className={styles.logoWrapper}>
+                        <svg
+                            width="40"
+                            height="40"
+                            viewBox="0 0 100 100"
+                            fill="none"
+                            className={styles.logoSvg}
+                        >
+                            {/* T-Shape Logo - Top bar */}
+                            <rect x="20" y="20" width="60" height="8" rx="2" fill="currentColor" />
+                            {/* T-Shape Logo - Middle accent bar */}
+                            <rect x="35" y="36" width="30" height="6" rx="2" fill="currentColor" opacity="0.6" />
+                            {/* T-Shape Logo - Vertical stem */}
+                            <rect x="44" y="48" width="12" height="32" rx="2" fill="currentColor" opacity="0.4" />
+                        </svg>
+                    </div>
                     <div className={styles.protocolBadge}>
                         <span className={styles.statusDot} />
-                        PROTOCOL_V2.0_LIVE
+                        Protocol v2.0 Live
                     </div>
                 </div>
 
-                {/* Terminal Header */}
-                <div className={styles.terminalHeader}>
-                    <div className={styles.commandLine}>$ authenticate --method=oauth2</div>
-                    <h1 className={styles.title}>SECURE_ACCESS</h1>
+                {/* Header */}
+                <div className={styles.header}>
+                    <h1 className={styles.title}>Welcome to Trenches</h1>
                     <p className={styles.subtitle}>
-                        Enter the trenches. Deploy capital. Earn yield.
+                        Connect your account to start exploring campaigns and earning yields.
                     </p>
                 </div>
 
@@ -143,7 +128,7 @@ function LoginContent() {
                         Continue with Google
                     </button>
 
-                    <div className={styles.divider}>Or access via</div>
+                    <div className={styles.divider}>Features</div>
 
                     <div className={styles.features}>
                         <div className={styles.feature}>
@@ -152,7 +137,7 @@ function LoginContent() {
                         </div>
                         <div className={styles.feature}>
                             <span className={styles.featureIcon}>◆</span>
-                            <span>Military-grade encryption</span>
+                            <span>Secure, encrypted authentication</span>
                         </div>
                         <div className={styles.feature}>
                             <span className={styles.featureIcon}>◆</span>
@@ -160,13 +145,26 @@ function LoginContent() {
                         </div>
                     </div>
                 </div>
+
+                {/* Security Badges */}
+                <div className={styles.securityBadges}>
+                    <span className={styles.badge}>End-to-end encrypted</span>
+                    <span className={styles.badge}>No private keys stored</span>
+                    <span className={styles.badge}>SOC2 Compliant</span>
+                </div>
             </div>
 
-            {/* Footer Info */}
-            <div className={styles.footerInfo}>
-                <span className={styles.footerItem}>End-to-end encrypted</span>
-                <span className={styles.footerItem}>No private keys stored</span>
-                <span className={styles.footerItem}>SOC2 Compliant</span>
+            {/* Footer */}
+            <div className={styles.footer}>
+                <Link href="https://docs.playtrenches.xyz" target="_blank" rel="noopener noreferrer">
+                    Docs
+                </Link>
+                <Link href="https://x.com/traboraofficial" target="_blank" rel="noopener noreferrer">
+                    Twitter
+                </Link>
+                <Link href="https://t.me/trenchesprotocol" target="_blank" rel="noopener noreferrer">
+                    Telegram
+                </Link>
             </div>
         </div>
     );
@@ -179,4 +177,3 @@ export default function LoginPage() {
         </Suspense>
     );
 }
-

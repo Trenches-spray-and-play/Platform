@@ -1,3 +1,6 @@
+// Environment detection
+const isTestnet = process.env.USE_TESTNET === 'true';
+
 // Environment configuration
 export const config = {
   // Blockchain
@@ -27,6 +30,9 @@ export const config = {
     base: process.env.VAULT_ADDRESS_EVM || process.env.VAULT_ADDRESS_BASE || '',
     arbitrum: process.env.VAULT_ADDRESS_EVM || process.env.VAULT_ADDRESS_ARBITRUM || '',
     hyperevm: process.env.VAULT_ADDRESS_EVM || process.env.VAULT_ADDRESS_HYPEREVM || '',
+    bsc: isTestnet
+      ? process.env.VAULT_ADDRESS_BSC_TESTNET || ''
+      : process.env.VAULT_ADDRESS_BSC || process.env.VAULT_ADDRESS_EVM || '',
     solana: process.env.VAULT_ADDRESS_SOLANA || '',
   },
 
@@ -36,6 +42,9 @@ export const config = {
     base: process.env.BASE_RPC_URL || 'https://mainnet.base.org',
     arbitrum: process.env.ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc',
     hyperevm: process.env.HYPEREVM_RPC_URL || 'https://rpc.hyperliquid.xyz/evm',
+    bsc: isTestnet
+      ? process.env.BSC_TESTNET_RPC_URL || 'https://data-seed-prebsc-1-s1.binance.org:8545/'
+      : process.env.BSC_RPC_URL || 'https://bsc-dataseed.binance.org/',
     solana: process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com',
   },
 
@@ -45,6 +54,7 @@ export const config = {
     base: 50,
     arbitrum: 50,
     hyperevm: 1,
+    bsc: 15,
     solana: 32,
   } as const,
 
@@ -56,6 +66,7 @@ export const config = {
       base: 25,       // 50 + 25 = 75 total (~2 min)
       arbitrum: 25,
       hyperevm: 20,   // 1 + 20 = 21 total (~20 seconds, matches Solana)
+      bsc: 10,
       solana: 16,     // 32 + 16 = 48 slots (~20 sec)
     } as const,
 

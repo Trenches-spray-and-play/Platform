@@ -12,8 +12,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: "/sample-v2", label: "Campaigns", icon: "◆" },
   { path: "/sample-v2/dashboard-v2", label: "Dashboard", icon: "□" },
+  { path: "/sample-v2/portfolio", label: "Portfolio", icon: "◈" },
   { path: "/sample-v2/earn-v2", label: "Earn", icon: "▲" },
-  { path: "/sample-v2/deposit", label: "Deposit", icon: "↓" },
 ];
 
 export function MobileBottomNav() {

@@ -50,6 +50,11 @@ const TOKEN_ADDRESSES: Record<string, Record<string, string>> = {
         USDC: '0xb88339CB7199b77E23DB6E890353E22632Ba630f',
         ETH: 'native',
     },
+    bsc: {
+        BNB: 'native',
+        USDT: '0x55d398326f99059fF775485246999027B3197955',
+        USDC: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+    }
 };
 
 // Solana SPL token mint addresses
@@ -979,7 +984,7 @@ export function stopChainMonitoring(chain: Chain): void {
  * Start monitoring all supported chains
  */
 export async function startAllChainMonitoring(): Promise<void> {
-    const evmChains: Exclude<Chain, 'solana'>[] = ['ethereum', 'base', 'arbitrum', 'hyperevm'];
+    const evmChains: Exclude<Chain, 'solana'>[] = ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc'];
 
     for (const chain of evmChains) {
         await startChainMonitoring(chain);
@@ -994,7 +999,7 @@ export async function startAllChainMonitoring(): Promise<void> {
  */
 export function stopAllChainMonitoring(): void {
     // Stop EVM chains
-    const evmChains: Exclude<Chain, 'solana'>[] = ['ethereum', 'base', 'arbitrum', 'hyperevm'];
+    const evmChains: Exclude<Chain, 'solana'>[] = ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc'];
     for (const chain of evmChains) {
         stopChainMonitoring(chain);
     }
@@ -1008,7 +1013,7 @@ export function stopAllChainMonitoring(): void {
  */
 export async function updateAllPendingConfirmations(): Promise<void> {
     // Update EVM deposits
-    const evmChains: Exclude<Chain, 'solana'>[] = ['ethereum', 'base', 'arbitrum', 'hyperevm'];
+    const evmChains: Exclude<Chain, 'solana'>[] = ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc'];
     for (const chain of evmChains) {
         await updateEvmPendingConfirmations(chain);
     }

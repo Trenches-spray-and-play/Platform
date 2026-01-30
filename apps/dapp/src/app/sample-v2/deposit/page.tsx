@@ -3,10 +3,24 @@
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import styles from "./page.module.css";
+import { Chain, ChainSelector } from "./ChainSelector";
+import { GenerateButton } from "./GenerateButton";
+import { AddressDisplay } from "./AddressDisplay";
 
-interface DepositAddress {
-  chain: string;
-  address: string;
+// Status toast component
+function StatusToast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 3000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className={`${styles.statusToast} ${styles[type]}`}>
+      <span className={styles.statusIcon}>{type === 'success' ? '✓' : '✕'}</span>
+      <span className={styles.statusMessage}>{message}</span>
+      <button className={styles.statusClose} onClick={onClose}>×</button>
+    </div>
+  );
 }
 
 interface Deposit {
@@ -24,29 +38,19 @@ interface User {
   id: string;
 }
 
-const CHAIN_ICONS: Record<string, string> = {
-  ethereum: "◈",
-  base: "◆",
-  arbitrum: "△",
-  hyperevm: "◉",
-  solana: "◎",
-};
-
-const CHAIN_NAMES: Record<string, string> = {
-  ethereum: "Ethereum",
-  base: "Base",
-  arbitrum: "Arbitrum",
-  hyperevm: "HyperEVM",
-  solana: "Solana",
-};
+const SUPPORTED_CHAINS: Chain[] = ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc', 'solana'];
 
 export default function DepositPage() {
-  const [addresses, setAddresses] = useState<DepositAddress[]>([]);
+  const [step, setStep] = useState<'SELECT' | 'GENERATE' | 'DISPLAY'>('SELECT');
+  const [selectedChain, setSelectedChain] = useState<Chain | null>(null);
+  const [addresses, setAddresses] = useState<Record<string, string>>({}); // Cache: chain -> address
   const [deposits, setDeposits] = useState<Deposit[]>([]);
   const [user, setUser] = useState<User | null>(null);
 
-  const [generating, setGenerating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [status, setStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     fetchUser();
@@ -59,22 +63,30 @@ export default function DepositPage() {
         const data = await res.json();
         if (data.data) {
           setUser(data.data);
-          fetchData(data.data.id);
+          // Fetch initial addresses and history
+          fetchInitialData(data.data.id);
         }
       }
     } catch (error) {
       console.error("Failed to fetch user:", error);
-
     }
   };
 
-  const fetchData = async (userId: string) => {
+  const fetchInitialData = async (userId: string) => {
+    setIsLoading(true);
     try {
-      // Fetch deposit addresses
+      // Fetch all existing deposit addresses
       const addrRes = await fetch(`/api/deposit-address?userId=${userId}`);
       if (addrRes.ok) {
         const addrData = await addrRes.json();
-        if (addrData.addresses) setAddresses(addrData.addresses);
+        if (addrData.addresses) {
+          // Convert Array<{chain, address}> to Record<string, string>
+          const cache: Record<string, string> = {};
+          addrData.addresses.forEach((item: any) => {
+            cache[item.chain] = item.address;
+          });
+          setAddresses(cache);
+        }
       }
 
       // Fetch deposit history
@@ -84,34 +96,51 @@ export default function DepositPage() {
         if (depositsData.data) setDeposits(depositsData.data);
       }
     } catch (error) {
-      console.error("Failed to fetch deposit data:", error);
+      console.error("Failed to fetch initial data:", error);
+      setFetchError("Failed to load deposit data. Please refresh.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const generateAddresses = async () => {
-    if (!user?.id) return;
-    
-    setGenerating(true);
+  const handleChainSelect = (chain: Chain) => {
+    setSelectedChain(chain);
+    if (addresses[chain]) {
+      setStep('DISPLAY');
+    } else {
+      setStep('GENERATE');
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!user?.id || !selectedChain) return;
+
+    setIsLoading(true);
+    setFetchError(null);
     try {
       const res = await fetch("/api/deposit-address", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id }),
+        body: JSON.stringify({ userId: user.id, chain: selectedChain }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.addresses) {
-          const addrArray = Object.entries(data.addresses).map(([chain, address]) => ({
-            chain,
-            address: address as string,
-          }));
-          setAddresses(addrArray);
-        }
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        // Update cache and move to display
+        setAddresses(prev => ({ ...prev, [selectedChain]: data.address }));
+        setStep('DISPLAY');
+        setStatus({ message: `${selectedChain} address generated!`, type: 'success' });
+      } else {
+        const errorMsg = data.error || "Failed to generate address. Please try again.";
+        setFetchError(errorMsg);
+        setStatus({ message: errorMsg, type: 'error' });
       }
     } catch (error) {
-      console.error("Failed to generate addresses:", error);
+      console.error("Failed to generate address:", error);
+      setFetchError("Network error. Please check your connection.");
     } finally {
-      setGenerating(false);
+      setIsLoading(false);
     }
   };
 
@@ -138,71 +167,86 @@ export default function DepositPage() {
     <Layout>
       <div className={styles.page}>
         <div className={styles.container}>
+          {/* Status Toast */}
+          {status && (
+            <StatusToast
+              message={status.message}
+              type={status.type}
+              onClose={() => setStatus(null)}
+            />
+          )}
+
           {/* Header */}
           <div className={styles.header}>
             <h1>Deposit Funds</h1>
-            <p>Send crypto to your platform-assigned addresses to fund your account</p>
+            <p>Select a network to get your unique deposit address</p>
           </div>
 
-          {/* Info Alert */}
-          <div className={styles.alert}>
-            <div className={styles.alertIcon}>ℹ</div>
-            <div className={styles.alertContent}>
-              <strong>How Deposits Work</strong>
-              <p>
-                These are platform-controlled deposit addresses derived from our HD wallet. 
-                Send crypto here and your USD balance will be credited after confirmations. 
-                These addresses are unique to you and monitored 24/7.
-              </p>
-            </div>
-          </div>
-
-          {/* Deposit Addresses */}
+          {/* Main Deposit Flow */}
           <section className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2>Your Deposit Addresses</h2>
-              {addresses.length === 0 && (
-                <button 
-                  className={styles.generateBtn} 
-                  onClick={generateAddresses} 
-                  disabled={!user || generating}
-                >
-                  {generating ? "Generating..." : "Generate Addresses"}
-                </button>
+            <div className={styles.stepContainer}>
+              {step === 'SELECT' && (
+                <>
+                  <div className={styles.sectionHeader}>
+                    <h2>1. Select Network</h2>
+                    {isLoading && <span className={styles.loadingSpinner}></span>}
+                  </div>
+                  <ChainSelector
+                    chains={SUPPORTED_CHAINS}
+                    existingAddresses={Object.keys(addresses)}
+                    onSelect={handleChainSelect}
+                    selectedChain={selectedChain}
+                  />
+                </>
+              )}
+
+              {step === 'GENERATE' && selectedChain && (
+                <>
+                  <div className={styles.sectionHeader}>
+                    <button onClick={() => setStep('SELECT')} className={styles.backLink}>
+                      ← Back to Selection
+                    </button>
+                    <h2>2. Generate Address</h2>
+                  </div>
+                  <GenerateButton
+                    chain={selectedChain}
+                    onClick={handleGenerate}
+                    isLoading={isLoading}
+                  />
+                  {fetchError && <div className={styles.errorText}>{fetchError}</div>}
+                </>
+              )}
+
+              {step === 'DISPLAY' && selectedChain && addresses[selectedChain] && (
+                <>
+                  <div className={styles.sectionHeader}>
+                    <h2>3. Your Deposit Address</h2>
+                  </div>
+                  <AddressDisplay
+                    chain={selectedChain}
+                    address={addresses[selectedChain]}
+                    onBack={() => setStep('SELECT')}
+                    copiedAddress={copiedAddress}
+                    onCopy={copyToClipboard}
+                  />
+                </>
               )}
             </div>
-
-            {addresses.length === 0 ? (
-              <div className={styles.empty}>
-                <div className={styles.emptyIcon}>◈</div>
-                <h3>No Deposit Addresses Yet</h3>
-                <p>Click the button above to generate your unique deposit addresses for each chain.</p>
-              </div>
-            ) : (
-              <div className={styles.addressGrid}>
-                {addresses.map((addr) => (
-                  <div key={addr.chain} className={styles.addressCard}>
-                    <div className={styles.addressHeader}>
-                      <span className={styles.chainIcon}>{CHAIN_ICONS[addr.chain] || "◈"}</span>
-                      <span className={styles.chainName}>{CHAIN_NAMES[addr.chain] || addr.chain}</span>
-                    </div>
-                    <div className={styles.addressBox}>
-                      <code className={styles.address}>{addr.address}</code>
-                      <button
-                        className={styles.copyBtn}
-                        onClick={() => copyToClipboard(addr.address)}
-                      >
-                        {copiedAddress === addr.address ? "Copied!" : "Copy"}
-                      </button>
-                    </div>
-                    <div className={styles.addressNote}>
-                      Send only {CHAIN_NAMES[addr.chain] || addr.chain} assets to this address
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </section>
+
+          {/* Info Alert - Only shown in SELECT step to keep UI clean */}
+          {step === 'SELECT' && (
+            <div className={styles.alert}>
+              <div className={styles.alertIcon}>ℹ</div>
+              <div className={styles.alertContent}>
+                <strong>How Deposits Work</strong>
+                <p>
+                  Send crypto to your platform address. Your USD balance will be credited after network confirmations.
+                  Addresses are unique to your account and monitored 24/7.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Supported Assets */}
           <section className={styles.section}>
@@ -212,28 +256,21 @@ export default function DepositPage() {
                 <span className={styles.assetIcon}>◈</span>
                 <div>
                   <strong>ETH</strong>
-                  <span>Ethereum, Base, Arbitrum, HyperEVM</span>
+                  <span>Mainnet, Base, Arbitrum, HyperEVM</span>
                 </div>
               </div>
               <div className={styles.assetCard}>
                 <span className={styles.assetIcon}>$</span>
                 <div>
-                  <strong>USDC</strong>
-                  <span>All EVM chains & Solana</span>
-                </div>
-              </div>
-              <div className={styles.assetCard}>
-                <span className={styles.assetIcon}>$</span>
-                <div>
-                  <strong>USDT</strong>
-                  <span>All EVM chains & Solana</span>
+                  <strong>USDC / USDT</strong>
+                  <span>All supported EVM chains & Solana</span>
                 </div>
               </div>
               <div className={styles.assetCard}>
                 <span className={styles.assetIcon}>◎</span>
                 <div>
                   <strong>SOL</strong>
-                  <span>Solana native</span>
+                  <span>Solana Native</span>
                 </div>
               </div>
             </div>
@@ -241,14 +278,14 @@ export default function DepositPage() {
 
           {/* Deposit History */}
           <section className={styles.section}>
-            <h2>Deposit History</h2>
+            <h2>Recent Deposits</h2>
             {deposits.length === 0 ? (
               <div className={styles.emptyHistory}>
-                <p>No deposits yet. Send crypto to one of your addresses above.</p>
+                <p>No deposits detected yet. Fund your account to start spraying.</p>
               </div>
             ) : (
               <div className={styles.depositList}>
-                {deposits.map((deposit) => (
+                {deposits.slice(0, 10).map((deposit) => (
                   <div key={deposit.id} className={styles.depositItem}>
                     <div className={styles.depositInfo}>
                       <span className={styles.depositAsset}>{deposit.asset}</span>
