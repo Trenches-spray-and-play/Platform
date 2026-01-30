@@ -448,7 +448,7 @@ async function scanNativeTransfers(
             });
 
             // Get deposit address info to check cached balance
-            const depositAddress = await prisma.depositAddress.findUnique({
+            const depositAddress = await prisma.depositAddress.findFirst({
                 where: { address },
                 select: { id: true, userId: true, cachedBalance: true },
             });
@@ -468,7 +468,7 @@ async function scanNativeTransfers(
                 if (depositAmount < minThreshold) {
                     // Still update the known balance to track small amounts
                     await prisma.depositAddress.update({
-                        where: { address },
+                        where: { id: depositAddress.id },
                         data: {
                             cachedBalance: balance.toString(),
                             cachedBalanceAt: new Date(),
@@ -504,7 +504,7 @@ async function scanNativeTransfers(
 
                 // Update cached balance
                 await prisma.depositAddress.update({
-                    where: { address },
+                    where: { id: depositAddress.id },
                     data: {
                         cachedBalance: balance.toString(),
                         cachedBalanceAt: new Date(),
