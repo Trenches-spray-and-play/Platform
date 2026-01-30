@@ -353,11 +353,11 @@ export default function DashboardPage() {
             <div className={styles.headerStats}>
                 <div className={styles.userBrief}>
                     <div className={styles.userStat}>
-                        <span className={styles.statLabel}>BELIEF_SCORE</span>
+                        <span className={styles.statLabel} title="Your reputation rank based on community participation">BELIEF_SCORE (?)</span>
                         <span className={styles.statValue}>{(profile?.beliefScore || 0).toLocaleString()}</span>
                     </div>
                     <div className={styles.userStat}>
-                        <span className={styles.statLabel}>BOOST_POINT</span>
+                        <span className={styles.statLabel} title="Earned by validating others and completing tasks">BOOST_POINT (?)</span>
                         <span className={styles.statValue}>+{(profile?.boostPoints || 0).toLocaleString()}</span>
                     </div>
                 </div>

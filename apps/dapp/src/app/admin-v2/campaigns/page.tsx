@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import PageHeader from "../components/PageHeader";
 import DataTable from "../components/DataTable";
+import CampaignDetailModal from "../components/modals/CampaignDetailModal";
 import styles from "./page.module.css";
 
 interface Campaign {
@@ -40,6 +41,7 @@ export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -291,6 +293,12 @@ export default function CampaignsPage() {
           loading={loading}
           emptyMessage="No campaigns yet"
           emptySubtitle="Create your first campaign to get started"
+        />
+
+        {/* Campaign Detail Modal */}
+        <CampaignDetailModal
+          campaignId={selectedCampaignId}
+          onClose={() => setSelectedCampaignId(null)}
         />
 
         {/* Create/Edit Modal */}

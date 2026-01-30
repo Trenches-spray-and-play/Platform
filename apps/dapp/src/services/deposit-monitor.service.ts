@@ -139,7 +139,9 @@ async function getWatchedAddresses(chain: Chain): Promise<string[]> {
             where: { chain },
             select: { address: true },
         });
-        const addressList = addresses.map(a => a.address.toLowerCase());
+        const addressList = addresses.map(a =>
+            chain === 'solana' ? a.address : a.address.toLowerCase()
+        );
         watchedAddressesCache.set(chain, { addresses: addressList, timestamp: Date.now() });
         return addressList;
     } catch (error) {

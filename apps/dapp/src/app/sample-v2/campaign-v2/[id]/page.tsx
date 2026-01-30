@@ -395,7 +395,7 @@ export default function CampaignDetailPage() {
                         <span className={styles.toggleSwitch} />
                         <span className={styles.toggleLabel}>
                           ENABLE_AUTO_BOOST
-                          <small>Auto-reinvest profits on maturity</small>
+                          <small>Auto-reinvest rewards on maturity</small>
                         </span>
                       </label>
                     </div>

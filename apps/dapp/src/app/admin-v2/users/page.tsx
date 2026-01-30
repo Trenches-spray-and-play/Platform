@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 import PageHeader from "../components/PageHeader";
 import DataTable from "../components/DataTable";
+import UserDetailModal from "../components/modals/UserDetailModal";
 import styles from "./page.module.css";
 
 interface User {
@@ -70,11 +71,6 @@ export default function UsersPage() {
       month: "short",
       day: "numeric",
     });
-  };
-
-  const truncateWallet = (address?: string) => {
-    if (!address) return "Not set";
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
   const columns = [
@@ -164,101 +160,10 @@ export default function UsersPage() {
         />
 
         {/* User Detail Modal */}
-        {selectedUser && (
-          <div className={styles.modalOverlay} onClick={() => setSelectedUser(null)}>
-            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-              <div className={styles.modalHeader}>
-                <h2 className={styles.modalTitle}>User Details</h2>
-                <button className={styles.modalClose} onClick={() => setSelectedUser(null)}>
-                  ×
-                </button>
-              </div>
-
-              <div className={styles.modalContent}>
-                <div className={styles.profileHeader}>
-                  <div className={styles.avatar}>
-                    {selectedUser.handle.charAt(0).toUpperCase()}
-                  </div>
-                  <div className={styles.profileInfo}>
-                    <div className={styles.profileName}>@{selectedUser.handle}</div>
-                    <div className={styles.profileMeta}>
-                      Joined {formatDate(selectedUser.createdAt)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.statsGrid}>
-                  <div className={styles.statItem}>
-                    <div className={styles.statValue}>
-                      ${Number(selectedUser.balance || 0).toFixed(2)}
-                    </div>
-                    <div className={styles.statLabel}>Balance</div>
-                  </div>
-                  <div className={styles.statItem}>
-                    <div className={styles.statValue}>{selectedUser.beliefScore.toLocaleString()}</div>
-                    <div className={styles.statLabel}>Belief Score</div>
-                  </div>
-                  <div className={styles.statItem}>
-                    <div className={styles.statValue}>{selectedUser.boostPoints || 0}</div>
-                    <div className={styles.statLabel}>Boost Points</div>
-                  </div>
-                </div>
-
-                <div className={styles.detailsSection}>
-                  <h3 className={styles.detailsTitle}>Account Information</h3>
-                  <div className={styles.detailsList}>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Email</span>
-                      <span className={styles.detailValue}>
-                        {selectedUser.email || "Not provided"}
-                      </span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Referral Code</span>
-                      <span className={styles.detailValue}>
-                        {selectedUser.referralCode || "-"}
-                      </span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Campaign Positions</span>
-                      <span className={styles.detailValue}>
-                        {selectedUser._count.participants}
-                      </span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Waitlist Entries</span>
-                      <span className={styles.detailValue}>
-                        {selectedUser._count.campaignWaitlists}
-                      </span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Completed Tasks</span>
-                      <span className={styles.detailValue}>{selectedUser._count.userTasks}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.detailsSection}>
-                  <h3 className={styles.detailsTitle}>Wallet Addresses</h3>
-                  <div className={styles.detailsList}>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>EVM Wallet</span>
-                      <span className={styles.detailValue}>
-                        {truncateWallet(selectedUser.walletEvm)}
-                      </span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Solana Wallet</span>
-                      <span className={styles.detailValue}>
-                        {truncateWallet(selectedUser.walletSol)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <UserDetailModal
+          userId={selectedUser?.id || null}
+          onClose={() => setSelectedUser(null)}
+        />
       </div>
     </AdminLayout>
   );

@@ -152,8 +152,9 @@ export default function EarnPage() {
             <button
               className={`${styles.tab} ${activeTab === "raids" ? styles.active : ""}`}
               onClick={() => setActiveTab("raids")}
+              title="Coordinated social media posts to boost community engagement"
             >
-              Raids
+              Raids (?)
               <span className={styles.tabCount}>{raids.length}</span>
             </button>
             <button

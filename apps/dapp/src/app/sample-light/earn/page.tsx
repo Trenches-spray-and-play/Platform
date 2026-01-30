@@ -141,7 +141,7 @@ export default function EarnPage() {
                 <div className={styles.sectionHeader}>
                   <div>
                     <h2>Social Raids</h2>
-                    <p>Engage with community content to earn quick Boost Points</p>
+                    <p>Coordinated social media posts — engage with community content to earn quick Boost Points</p>
                   </div>
                   <span className={styles.badge}>{raids.length} active</span>
                 </div>

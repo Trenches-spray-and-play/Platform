@@ -102,9 +102,9 @@ export default function CampaignDetailPage() {
 
           {/* Header */}
           <div className={styles.header}>
-            <div className={`${styles.levelBadge} ${levelInfo.color}`}>
+            <div className={`${styles.levelBadge} ${levelInfo.color}`} title="Trench Level determines wait time: RAPID (1-3 days), MID (7-14 days), DEEP (30-60 days)">
               <span>{levelInfo.icon}</span>
-              <span>{levelInfo.label}</span>
+              <span>{levelInfo.label} (?)</span>
             </div>
             <h1 className={styles.title}>{campaign.name}</h1>
             <div className={styles.tokenInfo}>
