@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Agentation } from "agentation";
 import "./globals.css";
 import AppLayoutWrapper from "@/components/AppLayoutWrapper";
+import { Toaster } from 'react-hot-toast';
 
 import type { Viewport } from "next";
 
@@ -75,6 +76,17 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: '#1a1a1a',
+              color: '#fff',
+              border: '1px solid #333',
+              borderRadius: '12px'
+            }
+          }}
+        />
         <AppLayoutWrapper>
           {children}
         </AppLayoutWrapper>

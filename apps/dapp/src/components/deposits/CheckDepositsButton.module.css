@@ -1,0 +1,122 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 16px;
+}
+
+.button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    overflow: hidden;
+    min-height: 52px;
+}
+
+.button:disabled {
+    cursor: not-allowed;
+}
+
+/* States */
+.idle {
+    background: #00FF66;
+    color: #000;
+}
+
+.idle:hover {
+    background: #00e65b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 255, 102, 0.2);
+}
+
+.scanning {
+    background: #1a1a1a;
+    color: #fff;
+    border: 1px solid #333;
+}
+
+.finalizing {
+    background: #1a1a1a;
+    color: #fff;
+    border: 1px solid #00FF66;
+}
+
+.success {
+    background: #00CC52;
+    color: #fff;
+}
+
+.notFound {
+    background: #FFB800;
+    color: #000;
+}
+
+.error {
+    background: #FF4D4D;
+    color: #fff;
+}
+
+.rateLimited {
+    background: #222;
+    color: #666;
+    border: 1px solid #333;
+}
+
+/* Progress Bar Overlays */
+.progressOverlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.progressFill {
+    height: 100%;
+    background: #00FF66;
+    transition: width 0.3s ease-out;
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+}
+
+.rateLimited .spinner {
+    display: none;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.helperText {
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+.countdown {
+    font-family: monospace;
+    font-weight: bold;
+}

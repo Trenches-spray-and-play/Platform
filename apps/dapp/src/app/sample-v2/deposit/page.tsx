@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Layout from "../components/Layout";
 import styles from "./page.module.css";
 import QRCode from "qrcode";
+import { CheckDepositsButton } from "@/components/deposits/CheckDepositsButton";
 
 export type Chain = 'ethereum' | 'base' | 'arbitrum' | 'hyperevm' | 'bsc' | 'solana';
 export type Coin = 'USDC' | 'USDT' | 'ETH' | 'BNB' | 'SOL' | 'BLT' | 'HYPE';
@@ -22,19 +23,19 @@ const CHAIN_CONFIG: Record<Chain, { name: string; icon: string; color: string; n
 // White "B" directly on Solana green circular background
 function BLTLogo({ size = 32 }: { size?: number }) {
   return (
-    <div 
-      style={{ 
-        width: size, 
-        height: size, 
-        display: 'flex', 
-        alignItems: 'center', 
+    <div
+      style={{
+        width: size,
+        height: size,
+        display: 'flex',
+        alignItems: 'center',
         justifyContent: 'center',
         borderRadius: '50%',
         background: '#14F195',
         boxShadow: '0 2px 8px rgba(20, 241, 149, 0.3)'
       }}
     >
-      <span 
+      <span
         style={{
           fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
           fontSize: Math.round(size * 0.55),
@@ -52,46 +53,46 @@ function BLTLogo({ size = 32 }: { size?: number }) {
 
 // Coin configurations - each coin lists which chains support it
 const COIN_CONFIG: Record<Coin, { name: string; icon: string | React.ReactNode; color: string; supportedChains: Chain[] }> = {
-  USDC: { 
-    name: "USD Coin", 
-    icon: "$", 
-    color: "#2775CA", 
+  USDC: {
+    name: "USD Coin",
+    icon: "$",
+    color: "#2775CA",
     supportedChains: ['ethereum', 'base', 'arbitrum', 'bsc']
   },
-  USDT: { 
-    name: "Tether USD", 
-    icon: "₮", 
-    color: "#26A17B", 
+  USDT: {
+    name: "Tether USD",
+    icon: "₮",
+    color: "#26A17B",
     supportedChains: ['ethereum', 'base', 'arbitrum', 'bsc']
   },
-  ETH: { 
-    name: "Ethereum", 
-    icon: "◈", 
-    color: "#627EEA", 
+  ETH: {
+    name: "Ethereum",
+    icon: "◈",
+    color: "#627EEA",
     supportedChains: ['ethereum', 'base', 'arbitrum', 'hyperevm']
   },
-  BNB: { 
-    name: "BNB", 
-    icon: "⬡", 
-    color: "#F3BA2F", 
+  BNB: {
+    name: "BNB",
+    icon: "⬡",
+    color: "#F3BA2F",
     supportedChains: ['bsc']
   },
-  SOL: { 
-    name: "Solana", 
-    icon: "◎", 
-    color: "#14F195", 
+  SOL: {
+    name: "Solana",
+    icon: "◎",
+    color: "#14F195",
     supportedChains: ['solana']
   },
-  BLT: { 
-    name: "Believe Trust", 
+  BLT: {
+    name: "Believe Trust",
     icon: "BLT_LOGO", // Special marker, will be rendered as component
     color: "#14F195", // Same green as Solana
     supportedChains: ['hyperevm']
   },
-  HYPE: { 
-    name: "Hyperliquid", 
-    icon: "H", 
-    color: "#00D4AA", 
+  HYPE: {
+    name: "Hyperliquid",
+    icon: "H",
+    color: "#00D4AA",
     supportedChains: ['hyperevm']
   },
 };
@@ -151,7 +152,7 @@ export default function DepositPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [showDebug, setShowDebug] = useState(false);
-  
+
   const pullStartY = useRef<number | null>(null);
   const pageRef = useRef<HTMLDivElement>(null);
 
@@ -181,7 +182,7 @@ export default function DepositPage() {
     try {
       const res = await fetch(`/api/deposit-address?userId=${uid}`);
       if (!res.ok) throw new Error("Failed to load addresses");
-      
+
       const data = await res.json();
       const loadedAddresses = data.addresses || [];
 
@@ -215,7 +216,7 @@ export default function DepositPage() {
         } else {
           console.warn('[Deposit Page] No deposits array in response');
         }
-        
+
         // Store debug info
         setDebugInfo({
           userId: uid,
@@ -271,10 +272,10 @@ export default function DepositPage() {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (pullStartY.current === null) return;
-    
+
     const currentY = e.touches[0].clientY;
     const diff = currentY - pullStartY.current;
-    
+
     if (diff > 0 && diff < 100 && pageRef.current?.scrollTop === 0) {
       setIsRefreshing(true);
     }
@@ -363,7 +364,7 @@ export default function DepositPage() {
   const copyAddress = (chain: Chain, address: string) => {
     navigator.clipboard.writeText(address);
     showToast('Address copied to clipboard!', 'success');
-    
+
     // Haptic feedback
     if (navigator.vibrate) {
       navigator.vibrate(20);
@@ -384,18 +385,18 @@ export default function DepositPage() {
 
   const existingChains = SUPPORTED_CHAINS.filter(chain => addresses[chain]?.address);
   const selectedState = selectedChain ? addresses[selectedChain] : null;
-  
+
   // Get available chains for the selected coin
   const getAvailableChainsForCoin = (coin: Coin | null): Chain[] => {
     if (!coin) return [];
     return COIN_CONFIG[coin].supportedChains;
   };
-  
+
   const availableChains = getAvailableChainsForCoin(selectedCoin);
 
   return (
     <Layout>
-      <div 
+      <div
         ref={pageRef}
         className={styles.page}
         onTouchStart={handleTouchStart}
@@ -436,9 +437,9 @@ export default function DepositPage() {
                       <BLTLogo size={36} />
                     </span>
                   ) : (
-                    <span 
+                    <span
                       className={styles.chainIconWrapper}
-                      style={{ 
+                      style={{
                         color: COIN_CONFIG[selectedCoin].color,
                         background: `${COIN_CONFIG[selectedCoin].color}15`
                       }}
@@ -453,7 +454,7 @@ export default function DepositPage() {
                 </>
               ) : (
                 <>
-                  <span 
+                  <span
                     className={styles.chainIconWrapper}
                     style={{ color: '#888', background: 'rgba(255,255,255,0.05)' }}
                   >
@@ -481,9 +482,9 @@ export default function DepositPage() {
               >
                 {selectedChain ? (
                   <>
-                    <span 
+                    <span
                       className={styles.chainIconWrapper}
-                      style={{ 
+                      style={{
                         color: CHAIN_CONFIG[selectedChain].color,
                         background: `${CHAIN_CONFIG[selectedChain].color}15`
                       }}
@@ -497,7 +498,7 @@ export default function DepositPage() {
                   </>
                 ) : (
                   <>
-                    <span 
+                    <span
                       className={styles.chainIconWrapper}
                       style={{ color: '#888', background: 'rgba(255,255,255,0.05)' }}
                     >
@@ -519,9 +520,9 @@ export default function DepositPage() {
             <div className={styles.addressCard}>
               {/* Card Header */}
               <div className={styles.cardHeader}>
-                <span 
+                <span
                   className={styles.chainIconLarge}
-                  style={{ 
+                  style={{
                     color: CHAIN_CONFIG[selectedChain].color,
                     background: `${CHAIN_CONFIG[selectedChain].color}15`
                   }}
@@ -551,8 +552,8 @@ export default function DepositPage() {
                       <div className={styles.qrContainer}>
                         <div className={styles.qrWrapper}>
                           {selectedState.qrCode ? (
-                            <img 
-                              src={selectedState.qrCode} 
+                            <img
+                              src={selectedState.qrCode}
                               alt={`${CHAIN_CONFIG[selectedChain].name} QR Code`}
                               className={styles.qrImage}
                             />
@@ -590,11 +591,23 @@ export default function DepositPage() {
                       </a>
                     </div>
 
+                    {/* On-demand scan button */}
+                    {selectedChain && selectedState.address && (
+                      <CheckDepositsButton
+                        selectedChain={selectedChain}
+                        onDepositsFound={() => {
+                          if (uid) {
+                            loadDeposits(uid);
+                          }
+                        }}
+                      />
+                    )}
+
                     {/* Warning */}
                     <div className={styles.chainWarning}>
                       <span className={styles.warningIcon}>⚠️</span>
                       <p>
-                        Send only {selectedCoin} on {CHAIN_CONFIG[selectedChain].name} to this address. 
+                        Send only {selectedCoin} on {CHAIN_CONFIG[selectedChain].name} to this address.
                         Sending other assets or using the wrong network may result in permanent loss.
                       </p>
                     </div>
@@ -643,9 +656,9 @@ export default function DepositPage() {
                         <BLTLogo size={32} />
                       </span>
                     ) : (
-                      <span 
+                      <span
                         className={styles.chainIcon}
-                        style={{ 
+                        style={{
                           color: config.color,
                           background: `${config.color}15`
                         }}
@@ -663,7 +676,7 @@ export default function DepositPage() {
                 );
               })}
             </div>
-            
+
             {/* Available Networks for Selected Coin - Desktop */}
             {selectedCoin && (
               <>
@@ -682,9 +695,9 @@ export default function DepositPage() {
                         className={`${styles.chainOption} ${isSelected ? styles.selected : ''} ${state.address ? styles.hasAddress : ''} haptic`}
                         onClick={() => setSelectedChain(chain)}
                       >
-                        <span 
+                        <span
                           className={styles.chainIcon}
-                          style={{ 
+                          style={{
                             color: config.color,
                             background: `${config.color}15`
                           }}
@@ -741,7 +754,7 @@ export default function DepositPage() {
             <div className={styles.historySection}>
               <h3>⏳ Incoming Deposits</h3>
               <p className={styles.pendingSummary}>
-                {pendingSummary.count} deposit{pendingSummary.count > 1 ? 's' : ''} pending • 
+                {pendingSummary.count} deposit{pendingSummary.count > 1 ? 's' : ''} pending •
                 ${pendingSummary.amountUsd.toFixed(2)} will be credited soon
               </p>
               <div className={styles.depositList}>
@@ -758,14 +771,14 @@ export default function DepositPage() {
                     </div>
                     <div className={styles.progressSection}>
                       <div className={styles.progressBar}>
-                        <div 
-                          className={styles.progressFill} 
+                        <div
+                          className={styles.progressFill}
                           style={{ width: `${deposit.progress}%` }}
                         />
                       </div>
                       <span className={styles.progressText}>
-                        {deposit.progress >= 100 
-                          ? 'Finalizing...' 
+                        {deposit.progress >= 100
+                          ? 'Finalizing...'
                           : `${deposit.confirmations || 0}/${deposit.requiredConfirmations} confirms • ${formatTimeRemaining(deposit.estimatedSecondsRemaining)}`
                         }
                       </span>
@@ -810,7 +823,7 @@ export default function DepositPage() {
 
           {/* Debug Panel */}
           <div className={styles.debugPanel}>
-            <button 
+            <button
               className={styles.debugToggle}
               onClick={() => setShowDebug(!showDebug)}
             >
@@ -827,7 +840,7 @@ export default function DepositPage() {
                   <summary>Raw Response</summary>
                   <pre>{JSON.stringify(debugInfo.rawResponse, null, 2)}</pre>
                 </details>
-                <button 
+                <button
                   className={styles.refreshBtn}
                   onClick={() => userId && loadDeposits(userId)}
                 >
@@ -839,7 +852,7 @@ export default function DepositPage() {
         </div>
 
         {/* Bottom Sheet Overlay */}
-        <div 
+        <div
           className={`${styles.bottomSheetOverlay} ${(coinSheetOpen || chainSheetOpen) ? styles.visible : ''}`}
           onClick={() => {
             setCoinSheetOpen(false);
@@ -871,9 +884,9 @@ export default function DepositPage() {
                       <BLTLogo size={32} />
                     </span>
                   ) : (
-                    <span 
+                    <span
                       className={styles.chainIcon}
-                      style={{ 
+                      style={{
                         color: config.color,
                         background: `${config.color}15`
                       }}
@@ -915,9 +928,9 @@ export default function DepositPage() {
                       setChainSheetOpen(false);
                     }}
                   >
-                    <span 
+                    <span
                       className={styles.chainIcon}
-                      style={{ 
+                      style={{
                         color: config.color,
                         background: `${config.color}15`
                       }}
