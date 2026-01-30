@@ -34,6 +34,7 @@ const MIN_SWEEP_USD: Record<Chain, number> = {
     base: 10,
     arbitrum: 10,
     hyperevm: 5,
+    bsc: 10,
     solana: 5,
 };
 
@@ -65,6 +66,16 @@ const CHAIN_CONFIGS = {
             public: { http: [config.rpcUrls.hyperevm] },
         },
     },
+    bsc: {
+        id: process.env.USE_TESTNET === 'true' ? 97 : 56,
+        name: 'BSC',
+        network: 'bsc',
+        nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+        rpcUrls: {
+            default: { http: [config.rpcUrls.bsc] },
+            public: { http: [config.rpcUrls.bsc] },
+        },
+    },
 } as const;
 
 // Token addresses per chain (native = ETH/native token)
@@ -86,6 +97,11 @@ const TOKEN_ADDRESSES: Record<string, Record<string, string>> = {
     hyperevm: {
         ETH: 'native',
         BLT: config.bltContractAddress,
+    },
+    bsc: {
+        BNB: 'native',
+        USDT: '0x55d398326f99059fF775485246999027B3197955',
+        USDC: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
     },
 };
 
@@ -519,7 +535,7 @@ export async function sweepAllChains(): Promise<Record<Chain, {
 }>> {
     const results: Record<Chain, { success: boolean; depositCount: number }> = {} as any;
 
-    const evmChains: Chain[] = ['ethereum', 'base', 'arbitrum', 'hyperevm'];
+    const evmChains: Chain[] = ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc'];
 
     for (const chain of evmChains) {
         try {
@@ -662,6 +678,7 @@ export async function getPendingSweepAmounts(): Promise<Record<Chain, number>> {
         base: 0,
         arbitrum: 0,
         hyperevm: 0,
+        bsc: 0,
         solana: 0,
     };
 
