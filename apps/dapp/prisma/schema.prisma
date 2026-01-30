@@ -1,6 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
+  binaryTargets   = ["native", "debian-openssl-3.0.x", "linux-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -199,7 +200,7 @@ model DepositAddress {
   id              String    @id @default(uuid())
   userId          String
   chain           String
-  address         String
+  address         String    @unique
   derivationIndex Int
   createdAt       DateTime  @default(now())
   deposits        Deposit[]
@@ -576,4 +577,15 @@ model ConfigAuditLog {
   @@index([configType])
   @@index([configId])
   @@index([changedAt])
+}
+model DepositScanLog {
+  id          String   @id @default(uuid())
+  userId      String
+  chain       String   // 'all', 'ethereum', 'base', etc.
+  foundCount  Int      @default(0)
+  scannedAt   DateTime @default(now())
+  durationMs  Int      // How long scan took
+  error       String?  // If scan failed
+
+  @@index([userId, scannedAt])
 }

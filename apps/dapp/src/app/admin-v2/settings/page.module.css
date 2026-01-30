@@ -1,0 +1,121 @@
+/* ========================================
+   SETTINGS PAGE STYLES
+   ======================================== */
+
+.settingsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settingsCard {
+  background: var(--bg-card, rgba(26, 26, 29, 0.6));
+  border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-lg, 14px);
+  padding: 1.5rem;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary, #fafafa);
+  margin-bottom: 1rem;
+}
+
+.cardDescription {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #a1a1aa);
+  margin-bottom: 1.5rem;
+  margin-top: -0.5rem;
+}
+
+/* Belief Tiers */
+.tiersList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tierRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.tierInputs {
+  display: flex;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.tierInput {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.tierInput label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary, #a1a1aa);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tierInput input {
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-primary, #0a0a0b);
+  border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-primary, #fafafa);
+  font-size: 0.9375rem;
+}
+
+.tierInput input:focus {
+  outline: none;
+  border-color: var(--accent-primary, #22c55e);
+}
+
+.tierRemove {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary, #1a1a1d);
+  border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-sm, 6px);
+  color: var(--danger, #ef4444);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1px;
+}
+
+.tierRemove:hover:not(:disabled) {
+  background: var(--danger-light, rgba(239, 68, 68, 0.1));
+  border-color: var(--danger, #ef4444);
+}
+
+.tierRemove:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.addTierBtn {
+  padding: 0.625rem;
+  background: var(--bg-tertiary, #1a1a1d);
+  border: 1px dashed var(--border-primary, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-secondary, #a1a1aa);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addTierBtn:hover {
+  border-color: var(--accent-primary, #22c55e);
+  color: var(--accent-primary, #22c55e);
+}
