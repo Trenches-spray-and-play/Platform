@@ -8,6 +8,7 @@ export { RadialProgress } from './components/RadialProgress';
 export { ThemeProvider, useTheme } from './components/ThemeProvider';
 export { default as TacticalButton } from './components/TacticalButton';
 export { default as GoogleIcon } from './components/GoogleIcon';
+export { ComplianceDisclaimer } from './components/ComplianceDisclaimer';
 
 // Social Icons
 export { default as XIcon } from './components/icons/XIcon';
