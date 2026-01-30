@@ -32,9 +32,12 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        // Debug logging
+        console.log(`[Deposits API] GET requested for userId: "${userId}" (limit: ${limit})`);
+
         // Get all deposits for user
         const deposits = await prisma.deposit.findMany({
-            where: { userId },
+            where: { userId: userId || '' },
             orderBy: { createdAt: 'desc' },
             take: limit,
             include: {
@@ -44,18 +47,20 @@ export async function GET(request: NextRequest) {
             },
         });
 
+        console.log(`[Deposits API] Found ${deposits.length} total deposits in DB for user ${userId}`);
+
         // Separate pending/confirming from completed
-        const pendingDeposits = deposits.filter(d => 
+        const pendingDeposits = deposits.filter(d =>
             d.status === 'PENDING' || d.status === 'CONFIRMING'
         );
-        const completedDeposits = deposits.filter(d => 
+        const completedDeposits = deposits.filter(d =>
             d.status === 'SAFE' || d.status === 'CONFIRMED' || d.status === 'SWEPT'
         );
-        
-        // Debug logging
-        console.log(`[Deposits API] User ${userId}: ${deposits.length} total, ${pendingDeposits.length} pending, ${completedDeposits.length} completed`);
+
+        console.log(`[Deposits API] Filtered: ${pendingDeposits.length} pending, ${completedDeposits.length} completed`);
+
         if (deposits.length > 0) {
-            console.log(`[Deposits API] Statuses found:`, deposits.map(d => ({ status: d.status, asset: d.asset, amount: d.amount })));
+            console.log(`[Deposits API] Sample deposit: ID=${deposits[0].id}, status=${deposits[0].status}, asset=${deposits[0].asset}`);
         }
 
         // Calculate totals for completed deposits
@@ -76,10 +81,10 @@ export async function GET(request: NextRequest) {
             const chain = d.chain;
             const requirements = CONFIRMATION_REQUIREMENTS[chain] || { threshold: 12, total: 12 };
             const confirmations = d.confirmations || 0;
-            
+
             // Calculate progress percentage
             const progress = Math.min(100, Math.round((confirmations / requirements.total) * 100));
-            
+
             // Estimate time remaining (approximate block times in seconds)
             const blockTimes: Record<string, number> = {
                 ethereum: 12,
@@ -91,7 +96,7 @@ export async function GET(request: NextRequest) {
             };
             const remainingConfirmations = Math.max(0, requirements.total - confirmations);
             const estimatedSeconds = remainingConfirmations * (blockTimes[chain] || 12);
-            
+
             return {
                 ...d,
                 progress,
