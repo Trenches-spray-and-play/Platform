@@ -6,6 +6,17 @@ import { creditDeposits, FoundDeposit } from './deposit-credit.service';
 
 const SCAN_BLOCKS_COUNT = 100;
 const RATE_LIMIT_WINDOW_MS = 30000; // 30 seconds
+const CHAIN_SCAN_TIMEOUT_MS = 3000; // 3 seconds per chain
+
+/**
+ * Helper to wrap a promise with a timeout
+ */
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, chain: string): Promise<T> {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error(`TIMEOUT:${chain}`)), timeoutMs);
+    });
+    return Promise.race([promise, timeoutPromise]);
+}
 
 /**
  * Orchestrates an on-demand scan for deposits across multiple chains.
@@ -55,11 +66,12 @@ export async function scanForDeposits(userId: string, requestedChain: string = '
 
         chainsToScan.push(da.chain);
 
-        if (da.chain === 'solana') {
-            scanTasks.push(scanSolana(da.address));
-        } else {
-            scanTasks.push(scanEvmChain(da.chain, da.address, SCAN_BLOCKS_COUNT));
-        }
+        const scanPromise = da.chain === 'solana'
+            ? scanSolana(da.address)
+            : scanEvmChain(da.chain, da.address, SCAN_BLOCKS_COUNT);
+
+        // Wrap with timeout as requested in review
+        scanTasks.push(withTimeout(scanPromise, CHAIN_SCAN_TIMEOUT_MS, da.chain));
     }
 
     if (chainsToScan.length === 0) {
@@ -85,7 +97,7 @@ export async function scanForDeposits(userId: string, requestedChain: string = '
     });
 
     // 4. Process and credit all found deposits
-    let credited = [];
+    let credited: any[] = [];
     if (foundDeposits.length > 0) {
         credited = await creditDeposits(userId, foundDeposits);
     }
@@ -94,7 +106,7 @@ export async function scanForDeposits(userId: string, requestedChain: string = '
     const durationMs = Date.now() - startTime;
     console.log(`[DepositScanner] Scan complete in ${durationMs}ms. Found ${foundDeposits.length} deposits.`);
 
-    await prisma.depositScanLog.create({
+    await (prisma as any).depositScanLog.create({
         data: {
             userId,
             chain: requestedChain,
@@ -102,7 +114,7 @@ export async function scanForDeposits(userId: string, requestedChain: string = '
             durationMs,
             error: chainsFailed.length > 0 ? `Failed chains: ${chainsFailed.join(', ')}` : null,
         }
-    }).catch(err => console.error('[DepositScanner] Failed to log scan attempt:', err));
+    }).catch((err: any) => console.error('[DepositScanner] Failed to log scan attempt:', err));
 
     return {
         success: true,

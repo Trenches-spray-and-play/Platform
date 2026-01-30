@@ -22,6 +22,15 @@ export async function POST(request: NextRequest) {
         const body = await request.json().catch(() => ({}));
         const chain = body.chain || 'all';
 
+        // Security: Whitelist validation for chain parameter
+        const VALID_CHAINS = ['all', 'ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc', 'solana'];
+        if (!VALID_CHAINS.includes(chain)) {
+            return NextResponse.json(
+                { success: false, error: 'Invalid chain parameter', code: 'INVALID_CHAIN' },
+                { status: 400 }
+            );
+        }
+
         console.log(`[API Deposit Check] User ${userId} requested scan for chain: ${chain}`);
 
         // Scans all or specific chain in parallel

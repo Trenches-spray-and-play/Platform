@@ -122,7 +122,7 @@ export const CheckDepositsButton: React.FC<CheckDepositsButtonProps> = ({
             } else {
                 // NOT FOUND: Scan complete but empty
                 setStatus('notFound');
-                toast.info("No deposit found. Make sure your transaction is confirmed on-chain.");
+                toast("No deposit yet - try again soon", { icon: 'ℹ️' });
                 setTimeout(() => setStatus('idle'), 3000);
             }
 
@@ -144,8 +144,8 @@ export const CheckDepositsButton: React.FC<CheckDepositsButtonProps> = ({
             case 'scanning': return 'Scanning blocks...';
             case 'finalizing': return 'Finalizing...';
             case 'success': return `Found $${foundAmount.toFixed(2)}!`;
-            case 'notFound': return 'No deposit found';
-            case 'rateLimited': return `Wait ${retryAfter}s...`;
+            case 'notFound': return 'No deposit yet - try again soon';
+            case 'rateLimited': return `Check again in ${retryAfter}s`;
             case 'error': return 'Error - Try again';
             default: return "I've Sent the Payment";
         }
