@@ -52,7 +52,8 @@
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5",
-    "vercel": "^50.4.4"
+    "vercel": "^50.4.4",
+    "vitest": "^4.0.18"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
