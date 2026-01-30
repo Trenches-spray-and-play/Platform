@@ -6,6 +6,7 @@ import {
     applyReferral,
     getReferrals,
     generateReferralLink,
+    logReferralVisit,
 } from '@/services/referral.service';
 import { prisma } from '@/lib/db';
 
@@ -99,7 +100,7 @@ export async function POST(request: Request) {
 
     try {
         const body = await request.json();
-        const { code } = body;
+        const { code, utmSource, utmMedium, utmCampaign, logVisitOnly } = body;
 
         if (!code) {
             return NextResponse.json(
@@ -115,6 +116,25 @@ export async function POST(request: Request) {
                 { error: validation.error || 'Invalid referral code' },
                 { status: 400 }
             );
+        }
+
+        // Handle analytics visit logging only
+        if (logVisitOnly) {
+            const forwardedFor = request.headers.get('x-forwarded-for');
+            const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : '127.0.0.1';
+            const userAgent = request.headers.get('user-agent') || 'unknown';
+
+            await logReferralVisit({
+                code: code.toUpperCase(),
+                referrerId: validation.referrer.id,
+                ip,
+                userAgent,
+                utmSource,
+                utmMedium,
+                utmCampaign,
+            });
+
+            return NextResponse.json({ success: true, message: 'Visit logged' });
         }
 
         // Apply the referral

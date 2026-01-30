@@ -49,7 +49,7 @@ const scripts = {
         ]
     },
     newbie: {
-        title: "The 'Get Paid' Formula",
+        title: "The 'Join Waitlist' Formula",
         scenes: [
             {
                 text: "$10,000,000",
@@ -71,7 +71,7 @@ const scripts = {
             },
             {
                 text: "LOCK YOUR POSITION.",
-                subtext: "Join the Waitlist. Get Paid.",
+                subtext: "Join the Waitlist. Receive Settlement.",
                 duration: 4000,
                 visual: "CTA Button Glow"
             },
@@ -83,7 +83,7 @@ const scripts = {
             },
             {
                 text: "SUCCESS COACH.",
-                subtext: "Help others. Get paid more.",
+                subtext: "Help others. Receive more settlements.",
                 duration: 5000,
                 visual: "Coach Roadmap"
             }

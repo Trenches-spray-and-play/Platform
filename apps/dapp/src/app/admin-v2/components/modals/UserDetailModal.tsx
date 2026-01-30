@@ -119,7 +119,7 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
 
             <div className={styles.statsGrid}>
               <div className={styles.statCard}>
-                <span className={styles.statValue}>${user.balance.toFixed(2)}</span>
+                <span className={styles.statValue}>${Number(user.balance).toFixed(2)}</span>
                 <span className={styles.statLabel}>Balance</span>
               </div>
               <div className={styles.statCard}>
@@ -127,11 +127,11 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
                 <span className={styles.statLabel}>Belief Score</span>
               </div>
               <div className={styles.statCard}>
-                <span className={styles.statValue}>${user.stats.totalDepositsUsd.toFixed(2)}</span>
+                <span className={styles.statValue}>${Number(user.stats.totalDepositsUsd).toFixed(2)}</span>
                 <span className={styles.statLabel}>Total Deposits</span>
               </div>
               <div className={styles.statCard}>
-                <span className={styles.statValue}>${user.stats.profitLoss.toFixed(2)}</span>
+                <span className={styles.statValue}>${Number(user.stats.profitLoss).toFixed(2)}</span>
                 <span className={styles.statLabel}>P/L</span>
               </div>
             </div>
@@ -174,11 +174,11 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
                     </div>
                     <div className={styles.infoRow}>
                       <span>Pending Payouts:</span>
-                      <span>${user.stats.pendingPayoutTotal.toFixed(2)}</span>
+                      <span>${Number(user.stats.pendingPayoutTotal).toFixed(2)}</span>
                     </div>
                     <div className={styles.infoRow}>
                       <span>Total Received:</span>
-                      <span>${user.stats.totalReceived.toFixed(2)}</span>
+                      <span>${Number(user.stats.totalReceived).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

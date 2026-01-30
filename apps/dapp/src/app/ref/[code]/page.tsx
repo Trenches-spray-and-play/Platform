@@ -1,26 +1,49 @@
 "use client";
 
-import { useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { storeReferralCode } from '@/lib/referral-cookie';
 
 export default function ReferralRedirect() {
     const params = useParams();
+    const searchParams = useSearchParams();
     const router = useRouter();
     const code = params.code as string;
+    const hasLogged = useRef(false);
 
     useEffect(() => {
-        if (code) {
+        if (code && !hasLogged.current) {
+            hasLogged.current = true;
+
+            // Extract UTM parameters
+            const utmSource = searchParams.get('utm_source');
+            const utmMedium = searchParams.get('utm_medium');
+            const utmCampaign = searchParams.get('utm_campaign');
+
             // Store referral code in all storage mechanisms
-            // This ensures it persists through OAuth redirects
             storeReferralCode(code);
-            
+
+            // Log visit for analytics (async, don't block redirect)
+            fetch('/api/referral', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code,
+                    utmSource,
+                    utmMedium,
+                    utmCampaign,
+                    logVisitOnly: true
+                })
+            }).catch(err => console.error('Failed to log referral visit:', err));
+
             // Redirect to the join page with the code in the query param
-            router.push(`/join?ref=${code}`);
-        } else {
+            const queryParams = new URLSearchParams(searchParams.toString());
+            queryParams.set('ref', code);
+            router.push(`/join?${queryParams.toString()}`);
+        } else if (!code) {
             router.push('/join');
         }
-    }, [code, router]);
+    }, [code, router, searchParams]);
 
     return (
         <main style={{

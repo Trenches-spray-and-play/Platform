@@ -589,3 +589,24 @@ model DepositScanLog {
 
   @@index([userId, scannedAt])
 }
+
+// Referral Analytics tracking
+model ReferralVisit {
+  id          String   @id @default(uuid())
+  code        String
+  referrerId  String?  // Resolved from code
+  ip          String?  // Anonymized/Hashed for GDPR
+  userAgent   String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  converted   Boolean  @default(false)
+  convertedAt DateTime? // When conversion happened
+  refereeId   String?  // Link to user who signed up (User.id)
+  createdAt   DateTime @default(now())
+
+  @@index([code])
+  @@index([referrerId])
+  @@index([createdAt])
+  @@index([converted])
+}

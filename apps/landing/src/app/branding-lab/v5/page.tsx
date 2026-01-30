@@ -181,7 +181,7 @@ export default function MinimalVariation() {
         {
             title: "Step 04",
             heading: "Reach the Front & Collect.",
-            text: "Once your timer reaches zero, the system automatically settles your spot. Your original deposit plus your 50% profit is sent instantly to your wallet.",
+            text: "Once your timer reaches zero, the system automatically settles your spot. Your original deposit plus your 50% reward is sent instantly to your wallet.",
             stats: ["Automatic Payout", "Fixed Settlement"]
         }
     ];

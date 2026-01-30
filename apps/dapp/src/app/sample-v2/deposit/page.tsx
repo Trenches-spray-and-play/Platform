@@ -5,6 +5,7 @@ import Layout from "../components/Layout";
 import styles from "./page.module.css";
 import QRCode from "qrcode";
 import { CheckDepositsButton } from "@/components/deposits/CheckDepositsButton";
+import { ComplianceDisclaimer } from "@trenches/ui";
 
 export type Chain = 'ethereum' | 'base' | 'arbitrum' | 'hyperevm' | 'bsc' | 'solana';
 export type Coin = 'USDC' | 'USDT' | 'ETH' | 'BNB' | 'SOL' | 'BLT' | 'HYPE';
@@ -968,6 +969,7 @@ export default function DepositPage() {
           </span>
           <span className={styles.toastMessage}>{toast.message}</span>
         </div>
+        <ComplianceDisclaimer variant="footer" />
       </div>
     </Layout>
   );

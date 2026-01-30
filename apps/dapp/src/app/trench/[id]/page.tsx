@@ -9,6 +9,7 @@ import ValidationModal from '@/components/ValidationModal';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
+import { ComplianceDisclaimer } from "@trenches/ui";
 
 // BLT Contract Address
 const BLT_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_BLT_CONTRACT_ADDRESS || "0xFEF20Fd2422a9d47Fe1a8C355A1AE83F04025EDF";
@@ -281,6 +282,7 @@ export default function TrenchPage() {
                     </button>
                 )}
             </div>
+            <ComplianceDisclaimer variant="footer" />
         </main>
     );
 }

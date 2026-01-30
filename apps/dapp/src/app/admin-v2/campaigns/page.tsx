@@ -44,6 +44,7 @@ export default function CampaignsPage() {
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [saving, setSaving] = useState(false);
+  const [refreshingReserve, setRefreshingReserve] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -197,6 +198,28 @@ export default function CampaignsPage() {
     }));
   };
 
+  const handleRefreshReserve = async (campaignId: string) => {
+    setRefreshingReserve(campaignId);
+    try {
+      const res = await fetch("/api/reserves", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ campaignId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Reserve refreshed: ${data.data.reserve}`);
+        fetchCampaigns();
+      } else {
+        alert(data.error || "Failed to refresh reserve");
+      }
+    } catch (err) {
+      console.error("Failed to refresh reserve:", err);
+      alert("Failed to refresh reserve");
+    }
+    setRefreshingReserve(null);
+  };
+
   const columns = [
     {
       key: "name",
@@ -213,7 +236,7 @@ export default function CampaignsPage() {
     {
       key: "trenches",
       header: "Trenches",
-      render: (c: Campaign) => c.trenchIds.map((t) => t.toUpperCase()).join(", ") || "-",
+      render: (c: Campaign) => (c.trenchIds || []).map((t) => t.toUpperCase()).join(", ") || "-",
     },
     {
       key: "token",
@@ -228,7 +251,22 @@ export default function CampaignsPage() {
     {
       key: "reserves",
       header: "Reserves",
-      render: (c: Campaign) => c.reserveCachedBalance || "-",
+      render: (c: Campaign) => (
+        <div className={styles.reserveCell}>
+          <span>{c.reserveCachedBalance || "-"}</span>
+          <button
+            className={styles.refreshBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRefreshReserve(c.id);
+            }}
+            disabled={refreshingReserve === c.id}
+            title="Refresh reserve"
+          >
+            {refreshingReserve === c.id ? "..." : "↻"}
+          </button>
+        </div>
+      ),
     },
     {
       key: "roi",
@@ -239,7 +277,7 @@ export default function CampaignsPage() {
       key: "price",
       header: "Price",
       render: (c: Campaign) =>
-        c.manualPrice ? `$${c.manualPrice.toFixed(4)}` : c.useOracle ? c.oracleSource : "-",
+        c.manualPrice ? `$${Number(c.manualPrice).toFixed(4)}` : c.useOracle ? c.oracleSource : "-",
     },
     {
       key: "status",
@@ -254,8 +292,11 @@ export default function CampaignsPage() {
 
   const actions = [
     {
+      label: "View",
+      onClick: (c: Campaign) => setSelectedCampaignId(c.id),
+    },
+    {
       label: (c: Campaign) => c.isHidden ? "Show" : "Hide",
-      variant: "default" as const,
       onClick: handleToggleVisibility,
     },
     {
@@ -402,8 +443,7 @@ export default function CampaignsPage() {
                         <button
                           key={trench.id}
                           type="button"
-                          className={`${styles.trenchTag} ${formData.trenchIds.includes(trench.id) ? styles.trenchTagActive : ""
-                            }`}
+                          className={`${styles.trenchTag} ${formData.trenchIds.includes(trench.id) ? styles.trenchTagActive : ""}`.trim()}
                           onClick={() => toggleTrench(trench.id)}
                         >
                           {trench.name}

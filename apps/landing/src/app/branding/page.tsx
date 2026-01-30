@@ -51,7 +51,7 @@ export default function BrandingPage() {
         {
             title: "PROTECTING_YOUR_SUPPORT: USD_VALUE_PEG",
             subtitle: "SECURITY_MECHANISM",
-            content: "We protect your money. If you start with $100, we make sure you get $150 back. We use dollar values, so even if the coin price goes up or down while you wait, you still get your full profit based on the dollars you started with.",
+            content: "We protect your money. If you start with $100, we make sure you get $150 back. We use dollar values, so even if the coin price goes up or down while you wait, you still get your full settlement based on the dollars you started with.",
             stats: [
                 { label: "VALUE_PEG", value: "USD_NORMALIZED" },
                 { label: "PROTECTION", value: "ANTI_VOLATILITY" }
@@ -87,7 +87,7 @@ export default function BrandingPage() {
         {
             title: "SIMPLE_FLOW: HELP_&_EARN",
             subtitle: "THE_PROCESS",
-            content: "1. HELP: Send support to others currently in line.\n2. SHARE: Tell others about the project to move up faster.\n3. GET PAID: When it's your turn, you receive your original money back plus a 50% cash bonus. It's a simple circle of people helping each other win.",
+            content: "1. HELP: Send support to others currently in line.\n2. SHARE: Tell others about the project to move up faster.\n3. RECEIVE SETTLEMENT: When it's your turn, you receive your original money back plus a 50% reward. It's a simple circle of people helping each other win.",
             stats: [
                 { label: "ACTION", value: "SPRAY_&_PLAY" },
                 { label: "REWARD", value: "AUTOMATIC" }
@@ -146,7 +146,7 @@ export default function BrandingPage() {
         {
             title: "STEP_5: RE-ENTER_TO_WIN_AGAIN",
             subtitle: "INFINITE_GROWTH",
-            content: "The game keeps going! Most successful players use their profits to enter the trench again. By repeating this loop, you keep growing your money and help the project reach new heights while maintaining your top ranking.",
+            content: "The game keeps going! Most successful players use their settlements to enter the trench again. By repeating this loop, you keep growing your money and help the project reach new heights while maintaining your top ranking.",
             stats: [
                 { label: "STRATEGY", value: "GROW_YOUR_MONEY" },
                 { label: "SPEED", value: "MAX_VELOCITY" }

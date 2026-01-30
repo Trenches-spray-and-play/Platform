@@ -15,6 +15,36 @@ const REFERRAL_BELIEF_REWARD = 50;  // Belief points for successful referral
 const REFERRAL_BOOST_REWARD = 100;  // Boost points for successful referral
 
 /**
+ * Log a referral visit for analytics
+ */
+export async function logReferralVisit(data: {
+    code: string;
+    referrerId?: string;
+    ip?: string;
+    userAgent?: string;
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+}): Promise<string> {
+    // Anonymize/Hash IP for GDPR
+    const hashedIp = data.ip ? crypto.createHash('sha256').update(data.ip).digest('hex').slice(0, 16) : null;
+
+    const visit = await prisma.referralVisit.create({
+        data: {
+            code: data.code.toUpperCase(),
+            referrerId: data.referrerId,
+            ip: hashedIp,
+            userAgent: data.userAgent,
+            utmSource: data.utmSource,
+            utmMedium: data.utmMedium,
+            utmCampaign: data.utmCampaign,
+        },
+    });
+
+    return visit.id;
+}
+
+/**
  * Generate a unique 8-character alphanumeric referral code
  */
 export function generateReferralCode(): string {
@@ -127,6 +157,31 @@ export async function applyReferral(
             where: { id: userId },
             data: { referredById: referrerId },
         });
+
+        // Mark the latest referral visit as converted
+        try {
+            const lastVisit = await prisma.referralVisit.findFirst({
+                where: {
+                    referrerId: referrerId,
+                    converted: false
+                },
+                orderBy: { createdAt: 'desc' }
+            });
+
+            if (lastVisit) {
+                await prisma.referralVisit.update({
+                    where: { id: lastVisit.id },
+                    data: {
+                        converted: true,
+                        convertedAt: new Date(),
+                        refereeId: userId
+                    }
+                });
+            }
+        } catch (visitErr) {
+            console.error('Error updating referral visit conversion:', visitErr);
+            // Don't fail the referral application if analytics update fails
+        }
 
         return { success: true };
     } catch (error) {

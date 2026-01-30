@@ -9,9 +9,22 @@ interface Column<T> {
   render?: (item: T) => React.ReactNode;
 }
 
+function getActionBtnClass(variant?: string): string {
+  const classes = [styles.actionBtn];
+  if (variant === "primary") {
+    classes.push(styles.actionBtnPrimary);
+  } else if (variant === "danger") {
+    classes.push(styles.actionBtnDanger);
+  }
+  if (variant === "sm") {
+    classes.push(styles.actionBtnSm);
+  }
+  return classes.join(" ");
+}
+
 interface Action<T> {
   label: string | ((item: T) => string);
-  variant?: "default" | "primary" | "danger" | "sm";
+  variant?: "primary" | "danger" | "sm";
   onClick: (item: T) => void;
   condition?: (item: T) => boolean;
 }
@@ -54,7 +67,7 @@ export default function DataTable<T>({
     );
   }
 
-  if (data.length === 0) {
+  if (!Array.isArray(data) || data.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.emptyState}>
@@ -96,12 +109,7 @@ export default function DataTable<T>({
                         .map((action, idx) => (
                           <button
                             key={idx}
-                            className={`${styles.actionBtn} ${action.variant === "primary"
-                              ? styles.actionBtnPrimary
-                              : action.variant === "danger"
-                                ? styles.actionBtnDanger
-                                : ""
-                              } ${action.variant === "sm" ? styles.actionBtnSm : ""}`}
+                            className={getActionBtnClass(action.variant)}
                             onClick={() => action.onClick(item)}
                           >
                             {typeof action.label === "function" ? action.label(item) : action.label}
@@ -136,8 +144,7 @@ export default function DataTable<T>({
               return (
                 <button
                   key={page}
-                  className={`${styles.pageBtn} ${page === pagination.currentPage ? styles.pageBtnActive : ""
-                    }`}
+                  className={`${styles.pageBtn} ${page === pagination.currentPage ? styles.pageBtnActive : ""}`.trim()}
                   onClick={() => pagination.onPageChange(page)}
                 >
                   {page}

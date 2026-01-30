@@ -228,6 +228,39 @@
   color: var(--warning, #f59e0b);
 }
 
+/* Reserve Cell */
+.reserveCell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.refreshBtn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary, #1a1a1d);
+  border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-secondary, #a1a1aa);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.refreshBtn:hover:not(:disabled) {
+  background: var(--bg-elevated, #212124);
+  border-color: var(--accent-primary, #22c55e);
+  color: var(--accent-primary, #22c55e);
+}
+
+.refreshBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Token Display */
 .tokenDisplay {
   display: flex;

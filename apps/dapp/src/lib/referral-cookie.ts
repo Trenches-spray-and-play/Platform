@@ -13,12 +13,18 @@ const COOKIE_MAX_AGE_DAYS = 7;
  */
 export function setReferralCookie(code: string): void {
     if (typeof document === 'undefined') return;
-    
+
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + COOKIE_MAX_AGE_DAYS);
-    
+
     // Set cookie with proper attributes for OAuth persistence
-    document.cookie = `${REFERRAL_COOKIE_NAME}=${code.toUpperCase()}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
+    // In production, we need SameSite=None; Secure for cross-site OAuth redirects
+    const isDev = process.env.NODE_ENV === 'development' ||
+        (typeof window !== 'undefined' && window.location.hostname === 'localhost');
+    const sameSite = isDev ? 'Lax' : 'None';
+    const secure = isDev ? '' : '; Secure';
+
+    document.cookie = `${REFERRAL_COOKIE_NAME}=${code.toUpperCase()}; expires=${expiryDate.toUTCString()}; path=/; SameSite=${sameSite}${secure}`;
 }
 
 /**
@@ -26,7 +32,7 @@ export function setReferralCookie(code: string): void {
  */
 export function getReferralCookie(): string | null {
     if (typeof document === 'undefined') return null;
-    
+
     const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
         const [name, value] = cookie.trim().split('=');
@@ -42,7 +48,7 @@ export function getReferralCookie(): string | null {
  */
 export function clearReferralCookie(): void {
     if (typeof document === 'undefined') return;
-    
+
     // Clear by setting expiry in the past
     document.cookie = `${REFERRAL_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
 }
@@ -53,17 +59,17 @@ export function clearReferralCookie(): void {
  */
 export function storeReferralCode(code: string): void {
     const upperCode = code.toUpperCase();
-    
+
     // localStorage: Persists across sessions
     if (typeof localStorage !== 'undefined') {
         localStorage.setItem('referralCode', upperCode);
     }
-    
+
     // sessionStorage: For same-session backup
     if (typeof sessionStorage !== 'undefined') {
         sessionStorage.setItem('referralCode', upperCode);
     }
-    
+
     // Cookie: Persists through OAuth redirects
     setReferralCookie(upperCode);
 }
@@ -76,19 +82,19 @@ export function getReferralCode(): string | null {
     // Try cookie first (most reliable for OAuth)
     const cookieCode = getReferralCookie();
     if (cookieCode) return cookieCode;
-    
+
     // Fall back to localStorage
     if (typeof localStorage !== 'undefined') {
         const localCode = localStorage.getItem('referralCode');
         if (localCode) return localCode;
     }
-    
+
     // Last resort: sessionStorage
     if (typeof sessionStorage !== 'undefined') {
         const sessionCode = sessionStorage.getItem('referralCode');
         if (sessionCode) return sessionCode;
     }
-    
+
     return null;
 }
 
@@ -99,10 +105,10 @@ export function clearReferralCode(): void {
     if (typeof localStorage !== 'undefined') {
         localStorage.removeItem('referralCode');
     }
-    
+
     if (typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem('referralCode');
     }
-    
+
     clearReferralCookie();
 }

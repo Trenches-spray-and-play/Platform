@@ -174,14 +174,14 @@ export default function DepositsPage() {
         <div className={styles.statsGrid}>
           <StatCard
             label="Total Deposits (USD)"
-            value={`$${(balance?.totals?.totalDepositsUsd || 0).toFixed(2)}`}
+            value={`$${Number(balance?.totals?.totalDepositsUsd || 0).toFixed(2)}`}
             icon="💰"
             variant="accent"
             size="compact"
           />
           <StatCard
             label="Unswept Funds"
-            value={`$${(balance?.totals?.unsweptUsd || 0).toFixed(2)}`}
+            value={`$${Number(balance?.totals?.unsweptUsd || 0).toFixed(2)}`}
             icon="⏳"
             variant="warning"
             size="compact"
@@ -189,7 +189,7 @@ export default function DepositsPage() {
           />
           <StatCard
             label="Swept Funds"
-            value={`$${(balance?.totals?.sweptUsd || 0).toFixed(2)}`}
+            value={`$${Number(balance?.totals?.sweptUsd || 0).toFixed(2)}`}
             icon="✓"
             variant="info"
             size="compact"
@@ -199,7 +199,7 @@ export default function DepositsPage() {
               <StatCard
                 key={chain}
                 label={`${chain.toUpperCase()} Deposits`}
-                value={`$${(data?.totalDeposits || 0).toFixed(2)}`}
+                value={`$${Number(data?.totalDeposits || 0).toFixed(2)}`}
                 icon="🔗"
                 variant="default"
                 size="compact"

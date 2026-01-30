@@ -33,7 +33,7 @@ interface VideoFrame {
   component: React.ReactNode;
 }
 
-// ===================== VIDEO 1: GET PAID (NEWBIE) =====================
+// ===================== VIDEO 1: RECEIVE SETTLEMENT (NEWBIE) =====================
 const GetPaidVideo = ({ isPlaying, currentFrame }: { isPlaying: boolean; currentFrame: number }) => {
   const [animatedAmount, setAnimatedAmount] = useState(100);
   
@@ -267,7 +267,7 @@ const GetPaidVideo = ({ isPlaying, currentFrame }: { isPlaying: boolean; current
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              GET PAID FOR YOUR ATTENTION
+              RECEIVE SETTLEMENT FOR YOUR ATTENTION
             </motion.p>
             <motion.button
               className={styles.ctaButton}
@@ -526,7 +526,7 @@ export default function ViralVideosDemo() {
   const [isMuted, setIsMuted] = useState(true);
 
   const videoConfigs = {
-    newbie: { frames: 4, title: "Get Paid", subtitle: "Beginner-Friendly", duration: 30000 },
+    newbie: { frames: 4, title: "Receive Settlement", subtitle: "Beginner-Friendly", duration: 30000 },
     crypto: { frames: 4, title: "Exit Liquidity", subtitle: "Crypto Natives", duration: 25000 }
   };
 
@@ -586,7 +586,7 @@ export default function ViralVideosDemo() {
             className={`${styles.tab} ${activeTab === "newbie" ? styles.active : ""}`}
             onClick={() => handleTabChange("newbie")}
           >
-            <span className={styles.tabTitle}>Video 1: Get Paid</span>
+            <span className={styles.tabTitle}>Video 1: Receive Settlement</span>
             <span className={styles.tabSubtitle}>For Newbies • 30s • Educational</span>
           </button>
           <button 

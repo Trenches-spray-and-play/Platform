@@ -86,7 +86,7 @@ export default function AdminLayout({ children, pageTitle }: AdminLayoutProps) {
       )}
 
       {/* Sidebar */}
-      <aside className={`${styles.sidebar} ${mobileMenuOpen ? styles.sidebarOpen : ""}`}>
+      <aside className={`${styles.sidebar} ${mobileMenuOpen ? styles.sidebarOpen : ""}`.trim()}>
         <div className={styles.sidebarHeader}>
           <Link href="/admin-v2" className={styles.logo}>
             <svg
@@ -118,7 +118,7 @@ export default function AdminLayout({ children, pageTitle }: AdminLayoutProps) {
                       href={item.path}
                       className={`${styles.navItem} ${
                         isActive(item.path) ? styles.navItemActive : ""
-                      }`}
+                      }`.trim()}
                     >
                       <span className={styles.navIcon}>{item.icon}</span>
                       {item.label}

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Layout from "../../components/Layout";
 import styles from "./page.module.css";
+import { ComplianceDisclaimer } from "@trenches/ui";
 
 interface Campaign {
   id: string;
@@ -245,7 +246,7 @@ export default function CampaignDetailPage() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h3>Confirm Your Deposit</h3>
             <p>Please review your deposit details</p>
-            
+
             <div className={styles.modalDetails}>
               <div className={styles.modalRow}>
                 <span>Campaign</span>
@@ -276,6 +277,7 @@ export default function CampaignDetailPage() {
           </div>
         </div>
       )}
+      <ComplianceDisclaimer variant="footer" />
     </Layout>
   );
 }

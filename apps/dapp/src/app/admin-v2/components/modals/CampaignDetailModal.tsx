@@ -120,7 +120,7 @@ export default function CampaignDetailModal({ campaignId, onClose }: CampaignDet
                 <span className={styles.statLabel}>Deposits</span>
               </div>
               <div className={styles.statCard}>
-                <span className={styles.statValue}>${campaign.stats.totalDepositedUsd.toFixed(2)}</span>
+                <span className={styles.statValue}>${Number(campaign.stats.totalDepositedUsd).toFixed(2)}</span>
                 <span className={styles.statLabel}>Total Deposited</span>
               </div>
               <div className={styles.statCard}>
@@ -181,7 +181,7 @@ export default function CampaignDetailModal({ campaignId, onClose }: CampaignDet
                     </div>
                     <div className={styles.infoRow}>
                       <span>Total Deposited in Waitlist:</span>
-                      <span>${campaign.waitlistStats.totalDepositedInWaitlist.toFixed(2)}</span>
+                      <span>${Number(campaign.waitlistStats.totalDepositedInWaitlist).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -207,7 +207,7 @@ export default function CampaignDetailModal({ campaignId, onClose }: CampaignDet
                               <tr key={w.id}>
                                 <td>#{w.position}</td>
                                 <td>@{w.user.handle}</td>
-                                <td>${w.depositAmount?.toFixed(2)}</td>
+                                <td>${w.depositAmount ? Number(w.depositAmount).toFixed(2) : '-'}</td>
                                 <td>{new Date(w.joinedAt).toLocaleDateString()}</td>
                               </tr>
                             ))}

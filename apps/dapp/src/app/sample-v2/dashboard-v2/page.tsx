@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Layout from "../components/Layout";
 import styles from "./page.module.css";
+import { ComplianceDisclaimer } from "@trenches/ui";
 
 interface Position {
   id: string;
@@ -74,7 +75,7 @@ function UnauthenticatedDashboard() {
           <Link href="/login" className={styles.unauthCta}>
             Connect Account
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Link>
         </div>
@@ -144,17 +145,17 @@ function UnauthenticatedDashboard() {
 }
 
 // Authenticated Dashboard
-function AuthenticatedDashboard({ 
-  user, 
-  positions, 
-  status, 
+function AuthenticatedDashboard({
+  user,
+  positions,
+  status,
   setStatus,
   handleCopyReferral,
   copied,
   toggleAutoBoost,
-  togglingBoost 
-}: { 
-  user: UserProfile; 
+  togglingBoost
+}: {
+  user: UserProfile;
   positions: Position[];
   status: { message: string; type: 'success' | 'error' } | null;
   setStatus: (status: { message: string; type: 'success' | 'error' } | null) => void;
@@ -184,10 +185,10 @@ function AuthenticatedDashboard({
       <div className={styles.container}>
         {/* Status Toast */}
         {status && (
-          <StatusToast 
-            message={status.message} 
-            type={status.type} 
-            onClose={() => setStatus(null)} 
+          <StatusToast
+            message={status.message}
+            type={status.type}
+            onClose={() => setStatus(null)}
           />
         )}
 
@@ -217,7 +218,7 @@ function AuthenticatedDashboard({
                 <span className={styles.walletAlertIcon}>⚠</span>
                 <span>Set up your withdrawal wallets</span>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
             )}
@@ -331,15 +332,15 @@ function AuthenticatedDashboard({
                 {copied ? (
                   <>
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                      <path d="M3 8L7 12L13 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M3 8L7 12L13 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     Copied
                   </>
                 ) : (
                   <>
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                      <rect x="2" y="2" width="9" height="9" rx="1" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M5 11V13C5 13.5523 5.44772 14 6 14H13C13.5523 14 14 13.5523 14 13V6C14 5.44772 13.5523 5 13 5H11" stroke="currentColor" strokeWidth="2"/>
+                      <rect x="2" y="2" width="9" height="9" rx="1" stroke="currentColor" strokeWidth="2" />
+                      <path d="M5 11V13C5 13.5523 5.44772 14 6 14H13C13.5523 14 14 13.5523 14 13V6C14 5.44772 13.5523 5 13 5H11" stroke="currentColor" strokeWidth="2" />
                     </svg>
                     Copy
                   </>
@@ -359,7 +360,7 @@ function AuthenticatedDashboard({
             <Link href="/sample-v2" className={styles.browseBtn}>
               Browse Campaigns
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </Link>
           </div>
@@ -402,7 +403,7 @@ function AuthenticatedDashboard({
                         <span className={styles.positionAmountValue}>${entryAmount.toLocaleString()}</span>
                       </div>
                       <svg className={styles.positionArrow} width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                       <div className={styles.positionAmount}>
                         <span className={styles.positionAmountLabel}>Return</span>
@@ -521,11 +522,11 @@ export default function DashboardPage() {
       });
 
       if (res.ok) {
-        setStatus({ 
-          message: `Auto-boost ${!currentValue ? 'enabled' : 'disabled'}`, 
-          type: 'success' 
+        setStatus({
+          message: `Auto-boost ${!currentValue ? 'enabled' : 'disabled'}`,
+          type: 'success'
         });
-        setPositions(prev => prev.map(p => 
+        setPositions(prev => prev.map(p =>
           p.id === positionId ? { ...p, autoBoost: !currentValue } : p
         ));
       } else {
@@ -556,7 +557,7 @@ export default function DashboardPage() {
 
   return (
     <Layout>
-      <AuthenticatedDashboard 
+      <AuthenticatedDashboard
         user={user}
         positions={positions}
         status={status}
@@ -566,6 +567,7 @@ export default function DashboardPage() {
         toggleAutoBoost={toggleAutoBoost}
         togglingBoost={togglingBoost}
       />
+      <ComplianceDisclaimer variant="footer" />
     </Layout>
   );
 }

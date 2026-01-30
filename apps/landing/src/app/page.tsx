@@ -52,7 +52,7 @@ export default function WelcomePage() {
         "Turn Belief into Profit.",
         "The Future of Community Rewards.",
         "Turn $1000 into $1500 in 24 hours.",
-        "Direct payouts. Pure profit."
+        "Direct payouts. Structured rewards."
     ];
 
     // 3. Effects: Config & Session Sync
@@ -204,7 +204,7 @@ export default function WelcomePage() {
                 {/* 1. HERO NARRATIVE */}
                 <section className={`${styles.v6Section} ${styles.v6Hero}`} aria-label="Hero Narrative">
                     <div className={styles.v6TagSection}>
-                        <span className={styles.v6Tag}>[ Protocol Activated ]</span>
+                        <span className={styles.v6Tag} title="The system is live and ready for participation">[ Protocol Activated ]</span>
                     </div>
 
                     <CountdownTimer targetDate={targetDate} />
@@ -273,7 +273,7 @@ export default function WelcomePage() {
                     <div className={styles.featureGrid}>
                         {[
                             { num: "01", title: "Get Early Access", icon: <Cpu strokeWidth={1.5} />, desc: "Join projects before they go viral. Secure your spot at the best price before everyone else." },
-                            { num: "02", title: "Help Projects Grow", icon: <Activity strokeWidth={1.5} />, desc: "Share a post, verify others, and get paid for your support. Your activity moves you forward." },
+                            { num: "02", title: "Help Projects Grow", icon: <Activity strokeWidth={1.5} />, desc: "Share a post, verify others, and receive rewards for your support. Your activity moves you forward." },
                             { num: "03", title: "Rebuild Trust", icon: <Shield strokeWidth={1.5} />, desc: "Bring projects back to life by working together with your community to rebuild market value." }
                         ].map((feature, i) => (
                             <motion.div
@@ -303,7 +303,7 @@ export default function WelcomePage() {
                         {[
                             { num: "01", title: "Spray", icon: <Zap strokeWidth={1.5} />, desc: "Put your tokens into the project fund with as low as $5 to start your 24h timer." },
                             { num: "02", title: "Play", icon: <Activity strokeWidth={1.5} />, desc: "Help the project grow on social media to verify your spot and stay in the game." },
-                            { num: "03", title: "Collect", icon: <Shield strokeWidth={1.5} />, desc: "Collect your 50% Profit sent instantly to your account when the timer hits zero." }
+                            { num: "03", title: "Collect", icon: <Shield strokeWidth={1.5} />, desc: "Receive your settlement sent instantly to your account when the timer hits zero." }
                         ].map((step, i) => (
                             <motion.div
                                 key={i}
