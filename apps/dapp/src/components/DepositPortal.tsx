@@ -5,13 +5,13 @@ import styles from './DepositPortal.module.css';
 import { useAuth } from '@/components/AuthProvider';
 
 type Token = 'BLT' | 'ETH' | 'USDT' | 'USDC' | 'SOL';
-type Chain = 'ethereum' | 'base' | 'arbitrum' | 'hyperevm' | 'solana';
+type Chain = 'ethereum' | 'base' | 'arbitrum' | 'hyperevm' | 'bsc' | 'solana';
 
 const TOKEN_CHAINS: Record<Token, Chain[]> = {
     BLT: ['hyperevm'],
     ETH: ['ethereum', 'base', 'arbitrum'],
-    USDT: ['ethereum', 'base', 'arbitrum', 'hyperevm', 'solana'],
-    USDC: ['ethereum', 'base', 'arbitrum', 'hyperevm', 'solana'],
+    USDT: ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc', 'solana'],
+    USDC: ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc', 'solana'],
     SOL: ['solana'],
 };
 
@@ -20,6 +20,7 @@ const CHAIN_LABELS: Record<Chain, string> = {
     base: 'Base',
     arbitrum: 'Arbitrum',
     hyperevm: 'HyperEVM',
+    bsc: 'BSC (BEP20)',
     solana: 'Solana',
 };
 
