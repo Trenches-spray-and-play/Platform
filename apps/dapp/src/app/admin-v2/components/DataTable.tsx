@@ -10,7 +10,7 @@ interface Column<T> {
 }
 
 interface Action<T> {
-  label: string;
+  label: string | ((item: T) => string);
   variant?: "default" | "primary" | "danger" | "sm";
   onClick: (item: T) => void;
   condition?: (item: T) => boolean;
@@ -96,16 +96,15 @@ export default function DataTable<T>({
                         .map((action, idx) => (
                           <button
                             key={idx}
-                            className={`${styles.actionBtn} ${
-                              action.variant === "primary"
-                                ? styles.actionBtnPrimary
-                                : action.variant === "danger"
+                            className={`${styles.actionBtn} ${action.variant === "primary"
+                              ? styles.actionBtnPrimary
+                              : action.variant === "danger"
                                 ? styles.actionBtnDanger
                                 : ""
-                            } ${action.variant === "sm" ? styles.actionBtnSm : ""}`}
+                              } ${action.variant === "sm" ? styles.actionBtnSm : ""}`}
                             onClick={() => action.onClick(item)}
                           >
-                            {action.label}
+                            {typeof action.label === "function" ? action.label(item) : action.label}
                           </button>
                         ))}
                     </div>
@@ -137,9 +136,8 @@ export default function DataTable<T>({
               return (
                 <button
                   key={page}
-                  className={`${styles.pageBtn} ${
-                    page === pagination.currentPage ? styles.pageBtnActive : ""
-                  }`}
+                  className={`${styles.pageBtn} ${page === pagination.currentPage ? styles.pageBtnActive : ""
+                    }`}
                   onClick={() => pagination.onPageChange(page)}
                 >
                   {page}

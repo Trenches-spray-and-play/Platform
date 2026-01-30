@@ -235,7 +235,7 @@ export default function CampaignsPage() {
 
   const actions = [
     {
-      label: c => c.isHidden ? "Show" : "Hide",
+      label: (c: Campaign) => c.isHidden ? "Show" : "Hide",
       variant: "default" as const,
       onClick: handleToggleVisibility,
     },
@@ -377,9 +377,8 @@ export default function CampaignsPage() {
                         <button
                           key={trench.id}
                           type="button"
-                          className={`${styles.trenchTag} ${
-                            formData.trenchIds.includes(trench.id) ? styles.trenchTagActive : ""
-                          }`}
+                          className={`${styles.trenchTag} ${formData.trenchIds.includes(trench.id) ? styles.trenchTagActive : ""
+                            }`}
                           onClick={() => toggleTrench(trench.id)}
                         >
                           {trench.name}
