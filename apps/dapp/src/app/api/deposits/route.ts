@@ -119,11 +119,12 @@ export async function GET(request: NextRequest) {
             };
         });
 
-        // Serialize Decimal values to strings/numbers for JSON
+        // Serialize special types (Decimal, BigInt) for JSON
         const serializeDeposit = (d: any) => ({
             ...d,
             amount: d.amount?.toString?.() || d.amount,
-            amountUsd: d.amountUsd?.toNumber?.() || Number(d.amountUsd) || 0,
+            amountUsd: typeof d.amountUsd?.toNumber === 'function' ? d.amountUsd.toNumber() : Number(d.amountUsd || 0),
+            blockNumber: d.blockNumber?.toString() || d.blockNumber,
         });
 
         return NextResponse.json({
