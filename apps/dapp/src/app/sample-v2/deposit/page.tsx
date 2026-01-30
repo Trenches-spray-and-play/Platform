@@ -117,6 +117,8 @@ export default function DepositPage() {
   const [toast, setToast] = useState<ToastState>({ show: false, message: '', type: 'success' });
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [showDebug, setShowDebug] = useState(false);
   
   const pullStartY = useRef<number | null>(null);
   const pageRef = useRef<HTMLDivElement>(null);
@@ -178,7 +180,18 @@ export default function DepositPage() {
         if (data.deposits) {
           setDeposits(data.deposits);
           console.log(`[Deposit Page] Loaded ${data.deposits.length} completed deposits`);
+        } else {
+          console.warn('[Deposit Page] No deposits array in response');
         }
+        
+        // Store debug info
+        setDebugInfo({
+          userId: uid,
+          timestamp: new Date().toISOString(),
+          rawResponse: data,
+          depositsCount: data.deposits?.length || 0,
+          pendingCount: data.pending?.deposits?.length || 0,
+        });
         if (data.pending?.deposits) {
           setPendingDeposits(data.pending.deposits);
           console.log(`[Deposit Page] Loaded ${data.pending.deposits.length} pending deposits`);
@@ -750,6 +763,35 @@ export default function DepositPage() {
               </div>
             </div>
           )}
+
+          {/* Debug Panel */}
+          <div className={styles.debugPanel}>
+            <button 
+              className={styles.debugToggle}
+              onClick={() => setShowDebug(!showDebug)}
+            >
+              {showDebug ? 'Hide Debug Info' : 'Show Debug Info'}
+            </button>
+            {showDebug && debugInfo && (
+              <div className={styles.debugContent}>
+                <h4>Debug Info</h4>
+                <p>User ID: {debugInfo.userId}</p>
+                <p>Last Updated: {debugInfo.timestamp}</p>
+                <p>Completed Deposits: {debugInfo.depositsCount}</p>
+                <p>Pending Deposits: {debugInfo.pendingCount}</p>
+                <details>
+                  <summary>Raw Response</summary>
+                  <pre>{JSON.stringify(debugInfo.rawResponse, null, 2)}</pre>
+                </details>
+                <button 
+                  className={styles.refreshBtn}
+                  onClick={() => userId && loadDeposits(userId)}
+                >
+                  Refresh Deposits
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Bottom Sheet Overlay */}
