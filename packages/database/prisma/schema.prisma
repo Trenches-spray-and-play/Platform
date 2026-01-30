@@ -578,3 +578,14 @@ model ConfigAuditLog {
   @@index([configId])
   @@index([changedAt])
 }
+model DepositScanLog {
+  id          String   @id @default(uuid())
+  userId      String
+  chain       String   // 'all', 'ethereum', 'base', etc.
+  foundCount  Int      @default(0)
+  scannedAt   DateTime @default(now())
+  durationMs  Int      // How long scan took
+  error       String?  // If scan failed
+
+  @@index([userId, scannedAt])
+}

@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
+import { storeReferralCode, clearReferralCode } from '@/lib/referral-cookie';
 
 function JoinContent() {
     const searchParams = useSearchParams();
@@ -21,13 +22,18 @@ function JoinContent() {
                 .then(data => {
                     if (data.valid && data.referrer) {
                         setReferrer(data.referrer);
-                        // Store in local storage for persistence
-                        localStorage.setItem('referralCode', refCode);
+                        // Store in all storage mechanisms for maximum persistence
+                        storeReferralCode(refCode);
                     } else {
                         setError(data.error || 'Invalid referral code');
+                        // Clear any stale referral code
+                        clearReferralCode();
                     }
                 })
-                .catch(() => setError('Failed to validate referral code'))
+                .catch(() => {
+                    setError('Failed to validate referral code');
+                    clearReferralCode();
+                })
                 .finally(() => setLoading(false));
         } else {
             setLoading(false);

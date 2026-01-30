@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
+import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
 
 interface Task {
@@ -374,6 +375,7 @@ export default function EarnPage() {
           </div>
         </div>
       )}
+      <ComplianceDisclaimer variant="footer" />
     </Layout>
   );
 }

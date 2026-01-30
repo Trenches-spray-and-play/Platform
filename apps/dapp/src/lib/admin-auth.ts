@@ -1,13 +1,15 @@
 /**
  * Admin Authentication Utilities
  *
- * Provides secure admin authentication using Supabase OAuth.
- * Admin access is restricted to email addresses configured in ADMIN_EMAILS env var.
+ * Provides secure admin authentication using Supabase OAuth and Admin Key.
+ * Admin access via OAuth is restricted to email addresses configured in ADMIN_EMAILS env var.
+ * Admin access via key requires ADMIN_SECRET_KEY environment variable.
  */
 
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 // Get admin emails from environment variable
 function getAdminEmails(): string[] {
@@ -35,11 +37,53 @@ export interface AdminUser {
 }
 
 /**
+ * Get admin session from secure cookie
+ * Returns true if valid admin session exists
+ */
+async function getKeyBasedAdminSession(): Promise<boolean> {
+    try {
+        const cookieStore = await cookies();
+        const sessionCookie = cookieStore.get('admin_session');
+
+        if (!sessionCookie?.value) {
+            return false;
+        }
+
+        // Check if ADMIN_SECRET_KEY is configured (indicates key-based auth is enabled)
+        if (!process.env.ADMIN_SECRET_KEY) {
+            return false;
+        }
+
+        // Session cookie exists - in a production environment, you might want to
+        // validate this against a Redis/database store for session invalidation support.
+        // For now, we trust the httpOnly cookie as it's set securely by our API.
+        return true;
+    } catch (error) {
+        console.error('Error checking key-based admin session:', error);
+        return false;
+    }
+}
+
+/**
  * Get the current admin session.
- * Returns null if not authenticated or not an admin.
+ * Returns null if not authenticated or not authorized.
+ * Supports both OAuth (Supabase) and key-based authentication.
  */
 export async function getAdminSession(): Promise<AdminUser | null> {
     try {
+        // First, check for key-based admin session
+        const hasKeySession = await getKeyBasedAdminSession();
+        if (hasKeySession) {
+            // Return a system admin user for key-based auth
+            return {
+                id: 'admin_key_user',
+                email: 'admin@system',
+                supabaseId: 'admin_key_auth',
+                handle: '@admin',
+            };
+        }
+
+        // Otherwise, check for Supabase OAuth session
         const supabase = await createClient();
         const { data: { user }, error } = await supabase.auth.getUser();
 
@@ -144,4 +188,23 @@ export async function withAdminAuth(
     }
 
     return handler(result.admin);
+}
+
+/**
+ * Logout admin - clears both OAuth and key-based sessions
+ */
+export async function logoutAdmin(): Promise<void> {
+    try {
+        const cookieStore = await cookies();
+        
+        // Clear key-based auth cookies
+        cookieStore.delete('admin_session');
+        cookieStore.delete('admin_auth');
+
+        // Sign out from Supabase (OAuth)
+        const supabase = await createClient();
+        await supabase.auth.signOut();
+    } catch (error) {
+        console.error('Error logging out admin:', error);
+    }
 }

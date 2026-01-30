@@ -9,6 +9,9 @@ export default function AdminLogin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [checking, setChecking] = useState(true);
+    const [adminKey, setAdminKey] = useState('');
+    const [showKeyInput, setShowKeyInput] = useState(false);
+    const [keyLoading, setKeyLoading] = useState(false);
     const router = useRouter();
 
     const supabase = createBrowserClient(
@@ -20,6 +23,21 @@ export default function AdminLogin() {
     useEffect(() => {
         const checkExistingSession = async () => {
             try {
+                // First check for session-based auth (admin key login)
+                const adminAuthCookie = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('admin_auth='));
+                
+                if (adminAuthCookie) {
+                    // Verify the session with the API
+                    const res = await fetch('/api/admin/verify');
+                    if (res.ok) {
+                        router.push('/admin');
+                        return;
+                    }
+                }
+
+                // Then check for Supabase OAuth session
                 const { data: { session } } = await supabase.auth.getSession();
                 if (session?.user?.email) {
                     // Verify admin status via API
@@ -65,6 +83,49 @@ export default function AdminLogin() {
         }
     };
 
+    const handleKeyLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!adminKey.trim()) {
+            setError('Please enter the admin key');
+            return;
+        }
+
+        setKeyLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch('/api/admin/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ adminKey: adminKey.trim() }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.error || 'Authentication failed');
+                setKeyLoading(false);
+                return;
+            }
+
+            if (data.success) {
+                // Authentication successful - cookies are set by the server
+                router.push('/admin');
+                return;
+            }
+
+            setError('Authentication failed');
+            setKeyLoading(false);
+        } catch (err) {
+            console.error('Key login error:', err);
+            setError('Failed to authenticate. Please try again.');
+            setKeyLoading(false);
+        }
+    };
+
     if (checking) {
         return (
             <div className={styles.container}>
@@ -88,54 +149,151 @@ export default function AdminLogin() {
                         color: '#ff4444',
                         fontSize: '0.8rem',
                         textAlign: 'center',
+                        marginBottom: '1rem',
                     }}>
                         {error}
                     </div>
                 )}
 
-                <p style={{
-                    fontSize: '0.75rem',
-                    color: 'var(--text-muted)',
-                    textAlign: 'center',
-                    margin: '0.5rem 0',
-                }}>
-                    Admin access restricted to authorized accounts
-                </p>
+                {!showKeyInput ? (
+                    <>
+                        <p style={{
+                            fontSize: '0.75rem',
+                            color: 'var(--text-muted)',
+                            textAlign: 'center',
+                            margin: '0.5rem 0',
+                        }}>
+                            Admin access restricted to authorized accounts
+                        </p>
 
-                <button
-                    type="button"
-                    className={styles.button}
-                    onClick={handleGoogleLogin}
-                    disabled={loading}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                    }}
-                >
-                    {loading ? 'AUTHENTICATING...' : (
-                        <>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                            </svg>
-                            AUTHENTICATE WITH GOOGLE
-                        </>
-                    )}
-                </button>
+                        <button
+                            type="button"
+                            className={styles.button}
+                            onClick={handleGoogleLogin}
+                            disabled={loading}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                            }}
+                        >
+                            {loading ? 'AUTHENTICATING...' : (
+                                <>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                    </svg>
+                                    AUTHENTICATE WITH GOOGLE
+                                </>
+                            )}
+                        </button>
 
-                <p style={{
-                    fontSize: '0.65rem',
-                    color: 'var(--text-muted)',
-                    textAlign: 'center',
-                    marginTop: '1rem',
-                    opacity: 0.7,
-                }}>
-                    Only authorized emails can access the admin panel
-                </p>
+                        <div style={{
+                            margin: '1.5rem 0',
+                            textAlign: 'center',
+                            position: 'relative',
+                        }}>
+                            <div style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: 0,
+                                right: 0,
+                                height: '1px',
+                                background: 'var(--border-color)',
+                            }} />
+                            <span style={{
+                                background: 'var(--card-bg)',
+                                padding: '0 1rem',
+                                position: 'relative',
+                                fontSize: '0.7rem',
+                                color: 'var(--text-muted)',
+                            }}>
+                                OR
+                            </span>
+                        </div>
+
+                        <button
+                            type="button"
+                            className={styles.button}
+                            onClick={() => setShowKeyInput(true)}
+                            style={{
+                                background: 'transparent',
+                                border: '1px solid var(--border-color)',
+                            }}
+                        >
+                            USE ADMIN KEY
+                        </button>
+
+                        <p style={{
+                            fontSize: '0.65rem',
+                            color: 'var(--text-muted)',
+                            textAlign: 'center',
+                            marginTop: '1rem',
+                            opacity: 0.7,
+                        }}>
+                            Only authorized emails can access the admin panel
+                        </p>
+                    </>
+                ) : (
+                    <form onSubmit={handleKeyLogin}>
+                        <p style={{
+                            fontSize: '0.75rem',
+                            color: 'var(--text-muted)',
+                            textAlign: 'center',
+                            margin: '0.5rem 0 1rem',
+                        }}>
+                            Enter admin key to continue
+                        </p>
+
+                        <input
+                            type="password"
+                            value={adminKey}
+                            onChange={(e) => setAdminKey(e.target.value)}
+                            placeholder="Enter admin key..."
+                            disabled={keyLoading}
+                            style={{
+                                width: '100%',
+                                padding: '12px',
+                                marginBottom: '1rem',
+                                background: 'var(--input-bg)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '4px',
+                                color: 'var(--text-primary)',
+                                fontSize: '0.9rem',
+                            }}
+                            autoFocus
+                        />
+
+                        <button
+                            type="submit"
+                            className={styles.button}
+                            disabled={keyLoading || !adminKey.trim()}
+                        >
+                            {keyLoading ? 'AUTHENTICATING...' : 'ACCESS ADMIN'}
+                        </button>
+
+                        <button
+                            type="button"
+                            className={styles.button}
+                            onClick={() => {
+                                setShowKeyInput(false);
+                                setAdminKey('');
+                                setError(null);
+                            }}
+                            disabled={keyLoading}
+                            style={{
+                                background: 'transparent',
+                                border: '1px solid var(--border-color)',
+                                marginTop: '0.5rem',
+                            }}
+                        >
+                            BACK
+                        </button>
+                    </form>
+                )}
             </div>
         </div>
     );

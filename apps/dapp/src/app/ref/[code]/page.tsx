@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { storeReferralCode } from '@/lib/referral-cookie';
 
 export default function ReferralRedirect() {
     const params = useParams();
@@ -10,11 +11,11 @@ export default function ReferralRedirect() {
 
     useEffect(() => {
         if (code) {
-            // Save referral code for later registration
-            sessionStorage.setItem('referralCode', code);
-
+            // Store referral code in all storage mechanisms
+            // This ensures it persists through OAuth redirects
+            storeReferralCode(code);
+            
             // Redirect to the join page with the code in the query param
-            // This ensures both ways of tracking work
             router.push(`/join?ref=${code}`);
         } else {
             router.push('/join');

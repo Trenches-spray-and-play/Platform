@@ -11,6 +11,7 @@
         "dev:landing": "npm run dev --workspace=apps/landing",
         "build": "npm run build --workspace=apps/dapp --workspace=apps/landing",
         "lint": "npm run lint --workspaces",
+        "compliance:check": "./scripts/compliance-check.sh",
         "prisma:generate": "npm run prisma:generate --workspace=packages/database",
         "prisma:migrate": "npm run prisma:migrate --workspace=packages/database",
         "prisma:studio": "npm run prisma:studio --workspace=packages/database"

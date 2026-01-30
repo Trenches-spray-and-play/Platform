@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import styles from './dashboard.module.css';
 import { useAuth } from '@/components/AuthProvider';
+import { ComplianceDisclaimer } from "@trenches/ui";
 import Logo from '@/components/Logo';
 import CountdownTimer from '@/components/CountdownTimer';
 import {
@@ -665,6 +666,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </section>
+            <ComplianceDisclaimer variant="footer" />
         </main>
     );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
+import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
 
 interface UserWallets {
@@ -239,6 +240,7 @@ export default function WalletPage() {
           </section>
         </div>
       </div>
+      <ComplianceDisclaimer variant="footer" />
     </Layout>
   );
 }

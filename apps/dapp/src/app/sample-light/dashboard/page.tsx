@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Layout from "../components/Layout";
+import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
 
 interface Position {
@@ -206,6 +207,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      <ComplianceDisclaimer variant="footer" />
     </Layout>
   );
 }

@@ -1,16 +1,44 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './register.module.css';
+import { getReferralCode, clearReferralCode } from '@/lib/referral-cookie';
 
 export default function RegisterPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const refApplied = searchParams.get('refApplied');
+    
     const [username, setUsername] = useState('');
     const [isChecking, setIsChecking] = useState(false);
     const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [referralInfo, setReferralInfo] = useState<{ referrerHandle: string } | null>(null);
+
+    // Check if referral was already applied via auth callback
+    useEffect(() => {
+        if (refApplied === 'true') {
+            setReferralInfo({ referrerHandle: 'your referrer' });
+            // Clear all referral storage since it's been applied
+            clearReferralCode();
+        } else {
+            // Check if there's a pending referral code in storage
+            const pendingCode = getReferralCode();
+            if (pendingCode) {
+                // Validate and show referrer info
+                fetch(`/api/referral?code=${pendingCode}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.valid && data.referrer) {
+                            setReferralInfo({ referrerHandle: data.referrer.handle });
+                        }
+                    })
+                    .catch(console.error);
+            }
+        }
+    }, [refApplied]);
 
     // Debounced username check
     const checkUsername = useCallback(async (value: string) => {
@@ -47,7 +75,9 @@ export default function RegisterPage() {
         if (!isAvailable || isSubmitting) return;
 
         setIsSubmitting(true);
-        const referralCode = localStorage.getItem('referralCode');
+        
+        // Get referral code from storage (as backup in case cookie didn't work)
+        const referralCode = getReferralCode();
 
         try {
             const res = await fetch('/api/user/username', {
@@ -61,6 +91,9 @@ export default function RegisterPage() {
             const data = await res.json();
 
             if (data.success) {
+                // Clear referral code from all storage after successful registration
+                clearReferralCode();
+                
                 router.push('/dashboard');
             } else {
                 setErrorMessage(data.error || 'Failed to set username');
@@ -85,6 +118,21 @@ export default function RegisterPage() {
                 <div className={styles.header}>
                     <h1 className={styles.title}>CHOOSE YOUR IDENTITY</h1>
                     <p className={styles.subtitle}>Pick a unique username to enter the trenches</p>
+                    
+                    {referralInfo && (
+                        <div style={{
+                            marginTop: '1rem',
+                            padding: '0.75rem 1rem',
+                            background: 'rgba(0, 255, 102, 0.1)',
+                            border: '1px solid rgba(0, 255, 102, 0.3)',
+                            borderRadius: '8px',
+                            color: '#00FF66',
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                        }}>
+                            ✓ Referred by @{referralInfo.referrerHandle}
+                        </div>
+                    )}
                 </div>
 
                 <form onSubmit={handleSubmit} className={styles.form}>
