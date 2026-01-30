@@ -3,19 +3,68 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Layout from "../components/Layout";
 import styles from "./page.module.css";
-import { Chain } from "./ChainSelector";
 import QRCode from "qrcode";
 
+export type Chain = 'ethereum' | 'base' | 'arbitrum' | 'hyperevm' | 'bsc' | 'solana';
+export type Coin = 'USDC' | 'USDT' | 'ETH' | 'BNB' | 'SOL' | 'BLT' | 'HYPE';
+
 // Chain configurations
-const CHAIN_CONFIG: Record<Chain, { name: string; icon: string; color: string; assets: string }> = {
-  ethereum: { name: "Ethereum", icon: "◈", color: "#627EEA", assets: "ETH, USDC, USDT" },
-  base: { name: "Base", icon: "◆", color: "#0052FF", assets: "ETH, USDC, USDT" },
-  arbitrum: { name: "Arbitrum", icon: "△", color: "#28A0F0", assets: "ETH, USDC, USDT" },
-  hyperevm: { name: "HyperEVM", icon: "◉", color: "#00FF66", assets: "ETH, USDC, USDT" },
-  bsc: { name: "BSC", icon: "⬡", color: "#F3BA2F", assets: "BNB, USDC, USDT" },
-  solana: { name: "Solana", icon: "◎", color: "#14F195", assets: "SOL, USDC" },
+const CHAIN_CONFIG: Record<Chain, { name: string; icon: string; color: string; nativeAsset: string }> = {
+  ethereum: { name: "Ethereum", icon: "◈", color: "#627EEA", nativeAsset: "ETH" },
+  base: { name: "Base", icon: "◆", color: "#0052FF", nativeAsset: "ETH" },
+  arbitrum: { name: "Arbitrum", icon: "△", color: "#28A0F0", nativeAsset: "ETH" },
+  hyperevm: { name: "HyperEVM", icon: "◉", color: "#00FF66", nativeAsset: "ETH" },
+  bsc: { name: "BSC", icon: "⬡", color: "#F3BA2F", nativeAsset: "BNB" },
+  solana: { name: "Solana", icon: "◎", color: "#14F195", nativeAsset: "SOL" },
 };
 
+// Coin configurations - each coin lists which chains support it
+const COIN_CONFIG: Record<Coin, { name: string; icon: string; color: string; supportedChains: Chain[] }> = {
+  USDC: { 
+    name: "USD Coin", 
+    icon: "$", 
+    color: "#2775CA", 
+    supportedChains: ['ethereum', 'base', 'arbitrum', 'bsc']
+  },
+  USDT: { 
+    name: "Tether USD", 
+    icon: "₮", 
+    color: "#26A17B", 
+    supportedChains: ['ethereum', 'base', 'arbitrum', 'bsc']
+  },
+  ETH: { 
+    name: "Ethereum", 
+    icon: "◈", 
+    color: "#627EEA", 
+    supportedChains: ['ethereum', 'base', 'arbitrum', 'hyperevm']
+  },
+  BNB: { 
+    name: "BNB", 
+    icon: "⬡", 
+    color: "#F3BA2F", 
+    supportedChains: ['bsc']
+  },
+  SOL: { 
+    name: "Solana", 
+    icon: "◎", 
+    color: "#14F195", 
+    supportedChains: ['solana']
+  },
+  BLT: { 
+    name: "Believe Trust", 
+    icon: "●", 
+    color: "#00FF66", 
+    supportedChains: ['hyperevm']
+  },
+  HYPE: { 
+    name: "Hyperliquid", 
+    icon: "H", 
+    color: "#00D4AA", 
+    supportedChains: ['hyperevm']
+  },
+};
+
+const SUPPORTED_COINS: Coin[] = ['USDC', 'USDT', 'ETH', 'BNB', 'SOL', 'BLT', 'HYPE'];
 const SUPPORTED_CHAINS: Chain[] = ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc', 'solana'];
 
 interface AddressState {
@@ -36,6 +85,12 @@ interface Deposit {
   createdAt: string;
 }
 
+interface PendingDeposit extends Deposit {
+  progress: number;
+  requiredConfirmations: number;
+  estimatedSecondsRemaining: number;
+}
+
 interface ToastState {
   show: boolean;
   message: string;
@@ -53,8 +108,12 @@ export default function DepositPage() {
     ) as Record<Chain, AddressState>
   );
   const [deposits, setDeposits] = useState<Deposit[]>([]);
+  const [pendingDeposits, setPendingDeposits] = useState<PendingDeposit[]>([]);
+  const [pendingSummary, setPendingSummary] = useState<{ count: number; amountUsd: number }>({ count: 0, amountUsd: 0 });
+  const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
   const [selectedChain, setSelectedChain] = useState<Chain | null>(null);
-  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+  const [coinSheetOpen, setCoinSheetOpen] = useState(false);
+  const [chainSheetOpen, setChainSheetOpen] = useState(false);
   const [toast, setToast] = useState<ToastState>({ show: false, message: '', type: 'success' });
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -115,11 +174,47 @@ export default function DepositPage() {
       const res = await fetch(`/api/deposits?userId=${uid}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.data) setDeposits(data.data);
+        console.log('[Deposit Page] API response:', data);
+        if (data.deposits) {
+          setDeposits(data.deposits);
+          console.log(`[Deposit Page] Loaded ${data.deposits.length} completed deposits`);
+        }
+        if (data.pending?.deposits) {
+          setPendingDeposits(data.pending.deposits);
+          console.log(`[Deposit Page] Loaded ${data.pending.deposits.length} pending deposits`);
+        }
+        if (data.pending?.summary) setPendingSummary(data.pending.summary);
+      } else {
+        console.error('[Deposit Page] Failed to load deposits:', await res.text());
       }
     } catch (err) {
       console.error("Failed to load deposits:", err);
     }
+  };
+
+  // Format seconds to human readable
+  const formatTimeRemaining = (seconds: number): string => {
+    if (seconds <= 0) return 'Any moment now...';
+    if (seconds < 60) return `${Math.ceil(seconds)}s remaining`;
+    if (seconds < 3600) return `${Math.ceil(seconds / 60)} min remaining`;
+    return `${Math.ceil(seconds / 3600)} hours remaining`;
+  };
+
+  // Format amount for display (handles both string numbers and Decimal)
+  const formatAmount = (amount: string | number): string => {
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(num)) return '0';
+    // Format with appropriate decimals
+    if (num >= 1000000) return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    if (num >= 1) return num.toLocaleString(undefined, { maximumFractionDigits: 4 });
+    return num.toLocaleString(undefined, { maximumFractionDigits: 8 });
+  };
+
+  // Format USD value
+  const formatUsd = (amount: string | number): string => {
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(num)) return '0.00';
+    return num.toFixed(2);
   };
 
   // Pull to refresh handlers
@@ -244,6 +339,14 @@ export default function DepositPage() {
 
   const existingChains = SUPPORTED_CHAINS.filter(chain => addresses[chain]?.address);
   const selectedState = selectedChain ? addresses[selectedChain] : null;
+  
+  // Get available chains for the selected coin
+  const getAvailableChainsForCoin = (coin: Coin | null): Chain[] => {
+    if (!coin) return [];
+    return COIN_CONFIG[coin].supportedChains;
+  };
+  
+  const availableChains = getAvailableChainsForCoin(selectedCoin);
 
   return (
     <Layout>
@@ -273,28 +376,28 @@ export default function DepositPage() {
             </div>
           )}
 
-          {/* Chain Selection - Mobile Bottom Sheet Trigger */}
+          {/* Step 1: Coin Selection */}
           <div className={styles.chainSection}>
-            <label className={styles.sectionLabel}>Select Network</label>
+            <label className={styles.sectionLabel}>Step 1: Select Coin</label>
             <button
-              className={`${styles.chainSelectorTrigger} ${selectedChain ? styles.hasSelection : ''} haptic`}
-              onClick={() => setBottomSheetOpen(true)}
-              aria-expanded={bottomSheetOpen}
+              className={`${styles.chainSelectorTrigger} ${selectedCoin ? styles.hasSelection : ''} haptic`}
+              onClick={() => setCoinSheetOpen(true)}
+              aria-expanded={coinSheetOpen}
             >
-              {selectedChain ? (
+              {selectedCoin ? (
                 <>
                   <span 
                     className={styles.chainIconWrapper}
                     style={{ 
-                      color: CHAIN_CONFIG[selectedChain].color,
-                      background: `${CHAIN_CONFIG[selectedChain].color}15`
+                      color: COIN_CONFIG[selectedCoin].color,
+                      background: `${COIN_CONFIG[selectedCoin].color}15`
                     }}
                   >
-                    {CHAIN_CONFIG[selectedChain].icon}
+                    {COIN_CONFIG[selectedCoin].icon}
                   </span>
                   <div className={styles.chainSelectorInfo}>
-                    <h3>{CHAIN_CONFIG[selectedChain].name}</h3>
-                    <p>{CHAIN_CONFIG[selectedChain].assets}</p>
+                    <h3>{selectedCoin}</h3>
+                    <p>{COIN_CONFIG[selectedCoin].name}</p>
                   </div>
                 </>
               ) : (
@@ -303,11 +406,11 @@ export default function DepositPage() {
                     className={styles.chainIconWrapper}
                     style={{ color: '#888', background: 'rgba(255,255,255,0.05)' }}
                   >
-                    ◇
+                    ₿
                   </span>
                   <div className={styles.chainSelectorInfo}>
-                    <h3>Choose Network</h3>
-                    <p>Select a blockchain to deposit from</p>
+                    <h3>Choose Coin</h3>
+                    <p>Select a cryptocurrency to deposit</p>
                   </div>
                 </>
               )}
@@ -315,8 +418,53 @@ export default function DepositPage() {
             </button>
           </div>
 
+          {/* Step 2: Network Selection (only show after coin is selected) */}
+          {selectedCoin && (
+            <div className={styles.chainSection}>
+              <label className={styles.sectionLabel}>Step 2: Select Network</label>
+              <button
+                className={`${styles.chainSelectorTrigger} ${selectedChain ? styles.hasSelection : ''} haptic`}
+                onClick={() => setChainSheetOpen(true)}
+                aria-expanded={chainSheetOpen}
+                disabled={!selectedCoin}
+              >
+                {selectedChain ? (
+                  <>
+                    <span 
+                      className={styles.chainIconWrapper}
+                      style={{ 
+                        color: CHAIN_CONFIG[selectedChain].color,
+                        background: `${CHAIN_CONFIG[selectedChain].color}15`
+                      }}
+                    >
+                      {CHAIN_CONFIG[selectedChain].icon}
+                    </span>
+                    <div className={styles.chainSelectorInfo}>
+                      <h3>{CHAIN_CONFIG[selectedChain].name}</h3>
+                      <p>Deposit {selectedCoin} on {CHAIN_CONFIG[selectedChain].name}</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span 
+                      className={styles.chainIconWrapper}
+                      style={{ color: '#888', background: 'rgba(255,255,255,0.05)' }}
+                    >
+                      ◇
+                    </span>
+                    <div className={styles.chainSelectorInfo}>
+                      <h3>Choose Network</h3>
+                      <p>Select a network for {selectedCoin}</p>
+                    </div>
+                  </>
+                )}
+                <span className={styles.chevron}>▼</span>
+              </button>
+            </div>
+          )}
+
           {/* Selected Chain Address Card */}
-          {selectedChain && selectedState && (
+          {selectedCoin && selectedChain && selectedState && (
             <div className={styles.addressCard}>
               {/* Card Header */}
               <div className={styles.cardHeader}>
@@ -331,7 +479,7 @@ export default function DepositPage() {
                 </span>
                 <div className={styles.chainInfo}>
                   <h3>{CHAIN_CONFIG[selectedChain].name}</h3>
-                  <span className={styles.chainAssets}>{CHAIN_CONFIG[selectedChain].assets}</span>
+                  <span className={styles.chainAssets}>{selectedCoin} on {CHAIN_CONFIG[selectedChain].name}</span>
                 </div>
                 {selectedState.address && (
                   <span className={styles.activeBadge}>Active</span>
@@ -395,8 +543,8 @@ export default function DepositPage() {
                     <div className={styles.chainWarning}>
                       <span className={styles.warningIcon}>⚠️</span>
                       <p>
-                        Send only {CHAIN_CONFIG[selectedChain].name} assets to this address. 
-                        Sending assets from other networks may result in permanent loss.
+                        Send only {selectedCoin} on {CHAIN_CONFIG[selectedChain].name} to this address. 
+                        Sending other assets or using the wrong network may result in permanent loss.
                       </p>
                     </div>
                   </>
@@ -422,20 +570,22 @@ export default function DepositPage() {
             </div>
           )}
 
-          {/* All Chains Grid - Desktop Only */}
+          {/* All Coins Grid - Desktop Only */}
           <div className="hide-mobile">
-            <label className={styles.sectionLabel}>All Networks</label>
+            <label className={styles.sectionLabel}>All Coins</label>
             <div className={styles.chainGrid}>
-              {SUPPORTED_CHAINS.map(chain => {
-                const config = CHAIN_CONFIG[chain];
-                const state = addresses[chain];
-                const isSelected = selectedChain === chain;
+              {SUPPORTED_COINS.map(coin => {
+                const config = COIN_CONFIG[coin];
+                const isSelected = selectedCoin === coin;
 
                 return (
                   <div
-                    key={chain}
-                    className={`${styles.chainOption} ${isSelected ? styles.selected : ''} ${state.address ? styles.hasAddress : ''} haptic`}
-                    onClick={() => setSelectedChain(chain)}
+                    key={coin}
+                    className={`${styles.chainOption} ${isSelected ? styles.selected : ''} haptic`}
+                    onClick={() => {
+                      setSelectedCoin(coin);
+                      setSelectedChain(null);
+                    }}
                   >
                     <span 
                       className={styles.chainIcon}
@@ -447,18 +597,58 @@ export default function DepositPage() {
                       {config.icon}
                     </span>
                     <div className={styles.chainDetails}>
-                      <span className={styles.chainName}>{config.name}</span>
+                      <span className={styles.chainName}>{coin}</span>
                       <span className={styles.chainSubtext}>
-                        {state.address ? 'Address ready' : 'Tap to generate'}
+                        {config.supportedChains.length} networks
                       </span>
                     </div>
-                    {state.address && (
-                      <span className={styles.checkmark}>✓</span>
-                    )}
                   </div>
                 );
               })}
             </div>
+            
+            {/* Available Networks for Selected Coin - Desktop */}
+            {selectedCoin && (
+              <>
+                <label className={styles.sectionLabel} style={{ marginTop: '1.5rem' }}>
+                  Available Networks for {selectedCoin}
+                </label>
+                <div className={styles.chainGrid}>
+                  {availableChains.map(chain => {
+                    const config = CHAIN_CONFIG[chain];
+                    const state = addresses[chain];
+                    const isSelected = selectedChain === chain;
+
+                    return (
+                      <div
+                        key={chain}
+                        className={`${styles.chainOption} ${isSelected ? styles.selected : ''} ${state.address ? styles.hasAddress : ''} haptic`}
+                        onClick={() => setSelectedChain(chain)}
+                      >
+                        <span 
+                          className={styles.chainIcon}
+                          style={{ 
+                            color: config.color,
+                            background: `${config.color}15`
+                          }}
+                        >
+                          {config.icon}
+                        </span>
+                        <div className={styles.chainDetails}>
+                          <span className={styles.chainName}>{config.name}</span>
+                          <span className={styles.chainSubtext}>
+                            {state.address ? 'Address ready' : 'Tap to select'}
+                          </span>
+                        </div>
+                        {state.address && (
+                          <span className={styles.checkmark}>✓</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Info Section */}
@@ -468,8 +658,8 @@ export default function DepositPage() {
               <div className={styles.infoCard}>
                 <span className={styles.infoIcon}>1</span>
                 <div>
-                  <h4>Generate Address</h4>
-                  <p>Select a network and generate your deposit address</p>
+                  <h4>Select Coin & Network</h4>
+                  <p>Choose your coin, then select a supported network</p>
                 </div>
               </div>
               <div className={styles.infoCard}>
@@ -489,6 +679,46 @@ export default function DepositPage() {
             </div>
           </div>
 
+          {/* Pending Deposits */}
+          {pendingDeposits.length > 0 && (
+            <div className={styles.historySection}>
+              <h3>⏳ Incoming Deposits</h3>
+              <p className={styles.pendingSummary}>
+                {pendingSummary.count} deposit{pendingSummary.count > 1 ? 's' : ''} pending • 
+                ${pendingSummary.amountUsd.toFixed(2)} will be credited soon
+              </p>
+              <div className={styles.depositList}>
+                {pendingDeposits.map(deposit => (
+                  <div key={deposit.id} className={`${styles.depositRow} ${styles.pending}`}>
+                    <div className={styles.depositInfo}>
+                      <span className={styles.depositAsset}>{deposit.asset}</span>
+                      <span className={styles.depositChain}>{deposit.chain}</span>
+                      <span className={styles.depositStatus}>{deposit.status}</span>
+                    </div>
+                    <div className={styles.depositAmounts}>
+                      <span className="amount">{formatAmount(deposit.amount)}</span>
+                      <span className={styles.usdValue}>${formatUsd(deposit.amountUsd)}</span>
+                    </div>
+                    <div className={styles.progressSection}>
+                      <div className={styles.progressBar}>
+                        <div 
+                          className={styles.progressFill} 
+                          style={{ width: `${deposit.progress}%` }}
+                        />
+                      </div>
+                      <span className={styles.progressText}>
+                        {deposit.progress >= 100 
+                          ? 'Finalizing...' 
+                          : `${deposit.confirmations || 0}/${deposit.requiredConfirmations} confirms • ${formatTimeRemaining(deposit.estimatedSecondsRemaining)}`
+                        }
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Deposit History */}
           {deposits.length > 0 ? (
             <div className={styles.historySection}>
@@ -501,8 +731,8 @@ export default function DepositPage() {
                       <span className={styles.depositChain}>{deposit.chain}</span>
                     </div>
                     <div className={styles.depositAmounts}>
-                      <span className="amount">{deposit.amount}</span>
-                      <span className={styles.usdValue}>${deposit.amountUsd}</span>
+                      <span className="amount">{formatAmount(deposit.amount)}</span>
+                      <span className={styles.usdValue}>${formatUsd(deposit.amountUsd)}</span>
                     </div>
                     <span className={`${styles.statusBadge} ${styles[deposit.status.toLowerCase()]}`}>
                       {deposit.status}
@@ -516,7 +746,7 @@ export default function DepositPage() {
               <h3>📋 Recent Deposits</h3>
               <div className={styles.emptyHistory}>
                 <div className={styles.emptyHistoryIcon}>📭</div>
-                <p>No deposits yet. Generate an address to get started!</p>
+                <p>No completed deposits yet. Generate an address to get started!</p>
               </div>
             </div>
           )}
@@ -524,27 +754,30 @@ export default function DepositPage() {
 
         {/* Bottom Sheet Overlay */}
         <div 
-          className={`${styles.bottomSheetOverlay} ${bottomSheetOpen ? styles.visible : ''}`}
-          onClick={() => setBottomSheetOpen(false)}
+          className={`${styles.bottomSheetOverlay} ${(coinSheetOpen || chainSheetOpen) ? styles.visible : ''}`}
+          onClick={() => {
+            setCoinSheetOpen(false);
+            setChainSheetOpen(false);
+          }}
         />
 
-        {/* Bottom Sheet - Chain Selection */}
-        <div className={`${styles.bottomSheet} ${bottomSheetOpen ? styles.visible : ''}`}>
+        {/* Bottom Sheet - Coin Selection */}
+        <div className={`${styles.bottomSheet} ${coinSheetOpen ? styles.visible : ''}`}>
           <div className={styles.bottomSheetHandle} />
-          <h3 className={styles.bottomSheetTitle}>Select Network</h3>
+          <h3 className={styles.bottomSheetTitle}>Select Coin</h3>
           <div className={styles.bottomSheetChainGrid}>
-            {SUPPORTED_CHAINS.map(chain => {
-              const config = CHAIN_CONFIG[chain];
-              const state = addresses[chain];
-              const isSelected = selectedChain === chain;
+            {SUPPORTED_COINS.map(coin => {
+              const config = COIN_CONFIG[coin];
+              const isSelected = selectedCoin === coin;
 
               return (
                 <button
-                  key={chain}
+                  key={coin}
                   className={`${styles.bottomSheetChainOption} ${isSelected ? styles.selected : ''} haptic`}
                   onClick={() => {
-                    setSelectedChain(chain);
-                    setBottomSheetOpen(false);
+                    setSelectedCoin(coin);
+                    setSelectedChain(null);
+                    setCoinSheetOpen(false);
                   }}
                 >
                   <span 
@@ -557,14 +790,60 @@ export default function DepositPage() {
                     {config.icon}
                   </span>
                   <div className={styles.chainDetails}>
-                    <span className={styles.chainName}>{config.name}</span>
+                    <span className={styles.chainName}>{coin}</span>
                     <span className={styles.chainSubtext}>
-                      {state.address ? '✓ Address ready' : config.assets}
+                      {config.supportedChains.length} networks
                     </span>
                   </div>
                 </button>
               );
             })}
+          </div>
+        </div>
+
+        {/* Bottom Sheet - Chain Selection */}
+        <div className={`${styles.bottomSheet} ${chainSheetOpen ? styles.visible : ''}`}>
+          <div className={styles.bottomSheetHandle} />
+          <h3 className={styles.bottomSheetTitle}>
+            Select Network for {selectedCoin || 'Coin'}
+          </h3>
+          <div className={styles.bottomSheetChainGrid}>
+            {selectedCoin ? (
+              availableChains.map(chain => {
+                const config = CHAIN_CONFIG[chain];
+                const state = addresses[chain];
+                const isSelected = selectedChain === chain;
+
+                return (
+                  <button
+                    key={chain}
+                    className={`${styles.bottomSheetChainOption} ${isSelected ? styles.selected : ''} haptic`}
+                    onClick={() => {
+                      setSelectedChain(chain);
+                      setChainSheetOpen(false);
+                    }}
+                  >
+                    <span 
+                      className={styles.chainIcon}
+                      style={{ 
+                        color: config.color,
+                        background: `${config.color}15`
+                      }}
+                    >
+                      {config.icon}
+                    </span>
+                    <div className={styles.chainDetails}>
+                      <span className={styles.chainName}>{config.name}</span>
+                      <span className={styles.chainSubtext}>
+                        {state.address ? '✓ Address ready' : config.nativeAsset}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })
+            ) : (
+              <p className={styles.emptyHistory}>Please select a coin first</p>
+            )}
           </div>
         </div>
 

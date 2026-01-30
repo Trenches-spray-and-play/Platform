@@ -4,6 +4,8 @@
  */
 
 import { startMonitoring, initializeBlockchain } from '@/services/blockchain.monitor';
+import { startAllChainMonitoring } from '@/services/deposit-monitor.service';
+import { startScheduledSweeps } from '@/services/sweep.service';
 import { expirePendingTransactions } from '@/services/transaction.service';
 import { startReorgChecker } from '@/services/reorg-protection.service';
 
@@ -25,8 +27,14 @@ export async function initializeBlockchainServices() {
     return;
   }
 
-  // Start monitoring
+  // Start monitoring for spray entries (legacy system)
   await startMonitoring();
+
+  // Start deposit monitoring for all chains (deposit address system)
+  await startAllChainMonitoring();
+
+  // Start scheduled sweeps to consolidate deposits
+  startScheduledSweeps();
 
   // Start reorg protection background checker
   startReorgChecker();

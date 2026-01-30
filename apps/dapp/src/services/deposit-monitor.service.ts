@@ -29,33 +29,7 @@ const ERC20_ABI = parseAbi([
 ]);
 
 // Token contract addresses per chain
-const TOKEN_ADDRESSES: Record<string, Record<string, string>> = {
-    ethereum: {
-        USDT: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-        USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-        ETH: 'native',
-    },
-    base: {
-        USDC: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-        ETH: 'native',
-    },
-    arbitrum: {
-        USDT: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
-        USDC: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
-        ETH: 'native',
-    },
-    hyperevm: {
-        BLT: config.bltContractAddress,
-        USDT: '0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb',
-        USDC: '0xb88339CB7199b77E23DB6E890353E22632Ba630f',
-        ETH: 'native',
-    },
-    bsc: {
-        BNB: 'native',
-        USDT: '0x55d398326f99059fF775485246999027B3197955',
-        USDC: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
-    }
-};
+const TOKEN_ADDRESSES = config.tokenAddresses;
 
 // Solana SPL token mint addresses
 const SOLANA_TOKEN_MINTS: Record<string, { mint: string; decimals: number }> = {
@@ -73,10 +47,32 @@ const SOLANA_TOKEN_MINTS: Record<string, { mint: string; decimals: number }> = {
 const MIN_DEPOSIT_THRESHOLDS: Record<string, number> = {
     ETH: 0.001,      // 0.001 ETH
     SOL: 0.01,       // 0.01 SOL
+    BNB: 0.01,       // 0.01 BNB
     USDC: 1,         // $1
     USDT: 1,         // $1
     BLT: 1,          // 1 BLT
+    HYPE: 0.1,       // 0.1 HYPE
 };
+
+/**
+ * Get the native asset name for a specific chain
+ */
+function getNativeAssetForChain(chain: Chain): string {
+    switch (chain) {
+        case 'ethereum':
+        case 'base':
+        case 'arbitrum':
+            return 'ETH';
+        case 'bsc':
+            return 'BNB';
+        case 'hyperevm':
+            return 'HYPE';
+        case 'solana':
+            return 'SOL';
+        default:
+            return 'ETH';
+    }
+}
 
 // Chain state for EVM
 interface EvmChainMonitorState {
@@ -199,7 +195,7 @@ async function getUsdValue(asset: string, amount: bigint, chain: Chain): Promise
 
     try {
         // Map to Asset type (handles case sensitivity)
-        const assetType = asset.toUpperCase() as 'ETH' | 'SOL' | 'BLT' | 'USDT' | 'USDC';
+        const assetType = asset.toUpperCase() as 'ETH' | 'SOL' | 'BNB' | 'BLT' | 'HYPE' | 'USDT' | 'USDC';
         return await oracleGetUsdValue(assetType, amount);
     } catch (error) {
         console.error(`Error getting USD value for ${asset}:`, error);
@@ -464,7 +460,9 @@ async function scanNativeTransfers(
                 const depositAmount = balance - lastKnownBalance;
 
                 // Check minimum threshold
-                const minThreshold = parseEther(String(MIN_DEPOSIT_THRESHOLDS.ETH || 0.001));
+                const nativeAsset = getNativeAssetForChain(chain);
+                const thresholdValue = MIN_DEPOSIT_THRESHOLDS[nativeAsset] || 0.001;
+                const minThreshold = parseEther(String(thresholdValue));
                 if (depositAmount < minThreshold) {
                     // Still update the known balance to track small amounts
                     await prisma.depositAddress.update({
@@ -485,7 +483,7 @@ async function scanNativeTransfers(
                 const recentDeposit = await prisma.deposit.findFirst({
                     where: {
                         depositAddressId: depositAddress.id,
-                        asset: 'ETH',
+                        asset: nativeAsset,
                         status: 'PENDING',
                         createdAt: { gte: new Date(Date.now() - 60000) }, // Within last minute
                     },
@@ -496,7 +494,7 @@ async function scanNativeTransfers(
                         chain,
                         txHash: pseudoTxHash,
                         toAddress: address,
-                        asset: 'ETH',
+                        asset: nativeAsset,
                         amount: depositAmount,
                         blockNumber: currentBlock,
                     });
@@ -532,7 +530,7 @@ async function scanChainForDeposits(chain: Chain, fromBlock: bigint, toBlock: bi
     const watchedAddresses = await getWatchedAddresses(chain);
     if (watchedAddresses.length === 0) return;
 
-    const tokens = TOKEN_ADDRESSES[chain] || {};
+    const tokens = (TOKEN_ADDRESSES as any)[chain] || {};
 
     // Scan for ERC20 transfers to our addresses
     for (const [asset, tokenAddress] of Object.entries(tokens)) {

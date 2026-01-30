@@ -53,12 +53,13 @@
   position: relative;
   color: var(--bg-primary);
   margin-top: -20px;
+  padding-bottom: 2px;
 }
 
 .action::before {
   content: '';
   position: absolute;
-  top: 50%;
+  top: 35%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 52px;
@@ -79,6 +80,16 @@
     0 0 0 4px var(--bg-primary);
 }
 
+/* Ensure action button label is always visible */
+.action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 4px;
+  min-height: 56px;
+}
+
 .action .icon {
   font-size: 24px;
   font-weight: 300;
@@ -86,8 +97,11 @@
 }
 
 .action .label {
-  color: var(--text-secondary);
-  font-size: 10px;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  margin-top: 2px;
 }
 
 .icon {
@@ -144,6 +158,10 @@
   .action::before {
     width: 48px;
     height: 48px;
+  }
+  
+  .action .label {
+    font-size: 10px;
   }
 }
 

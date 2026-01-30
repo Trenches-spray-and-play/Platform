@@ -966,6 +966,67 @@
   }
 }
 
+/* ========================================
+   PENDING DEPOSITS
+   ======================================== */
+
+.pendingSummary {
+  font-size: var(--mobile-text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.depositRow.pending {
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(0, 255, 102, 0.05) 100%);
+  border: 1px solid rgba(0, 255, 102, 0.2);
+}
+
+.depositStatus {
+  font-size: 11px;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.progressSection {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.progressBar {
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 480px) {
+  .depositRow.pending {
+    grid-template-columns: 1fr auto;
+  }
+  
+  .progressSection {
+    grid-column: span 2;
+  }
+}
+
 /* Landscape mobile adjustments */
 @media (max-width: 768px) and (orientation: landscape) {
   .page {

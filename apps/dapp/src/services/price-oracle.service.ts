@@ -8,13 +8,15 @@
 import { config } from '@/lib/config';
 
 // Supported assets
-export type Asset = 'ETH' | 'SOL' | 'BLT' | 'USDT' | 'USDC';
+export type Asset = 'ETH' | 'SOL' | 'BNB' | 'BLT' | 'HYPE' | 'USDT' | 'USDC';
 
 // CoinGecko IDs for assets
 const COINGECKO_IDS: Record<Asset, string> = {
     ETH: 'ethereum',
     SOL: 'solana',
-    BLT: 'hyperliquid', // Using HYPE as proxy for BLT, update when BLT is listed
+    BNB: 'binancecoin',
+    BLT: 'believe-trust', // Not listed on CoinGecko yet, uses fallback
+    HYPE: 'hyperliquid',
     USDT: 'tether',
     USDC: 'usd-coin',
 };
@@ -23,7 +25,9 @@ const COINGECKO_IDS: Record<Asset, string> = {
 const ASSET_DECIMALS: Record<Asset, number> = {
     ETH: 18,
     SOL: 9,
+    BNB: 18,
     BLT: 18,
+    HYPE: 18,
     USDT: 6,
     USDC: 6,
 };
@@ -55,7 +59,9 @@ async function fetchPricesFromCoinGecko(): Promise<Record<Asset, number>> {
         const prices: Record<Asset, number> = {
             ETH: data[COINGECKO_IDS.ETH]?.usd || 0,
             SOL: data[COINGECKO_IDS.SOL]?.usd || 0,
-            BLT: data[COINGECKO_IDS.BLT]?.usd || 0.10, // Default if not listed
+            BNB: data[COINGECKO_IDS.BNB]?.usd || 0,
+            BLT: 0.005, // Target price for BLT
+            HYPE: data[COINGECKO_IDS.HYPE]?.usd || 25.0, // Default fallback
             USDT: 1.0, // Stablecoin
             USDC: 1.0, // Stablecoin
         };
@@ -96,7 +102,9 @@ export async function getPrices(): Promise<Record<Asset, number>> {
         return {
             ETH: 2500,
             SOL: 150,
-            BLT: 0.10,
+            BNB: 600,
+            BLT: 0.005,
+            HYPE: 25.0,
             USDT: 1.0,
             USDC: 1.0,
         };
