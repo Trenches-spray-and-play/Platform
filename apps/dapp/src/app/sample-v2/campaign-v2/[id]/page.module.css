@@ -1049,3 +1049,403 @@
   margin: var(--space-2) 0;
 }
 
+
+/* ========================================
+   MOBILE-FIRST ENHANCEMENTS (< 769px)
+   Industry-Standard Mobile UI/UX
+   ======================================== */
+
+@media (max-width: 768px) {
+  .page {
+    padding: var(--space-4) 0 var(--space-12);
+  }
+
+  .container {
+    padding: 0 var(--space-4);
+  }
+
+  /* Status Banner Mobile */
+  .statusBanner {
+    margin-bottom: var(--space-4);
+    padding: var(--space-3);
+    font-size: 0.6875rem;
+  }
+
+  /* Breadcrumb Mobile */
+  .breadcrumb {
+    font-size: 0.75rem;
+    margin-bottom: var(--space-4);
+  }
+
+  /* Header Mobile */
+  .header {
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .badgeRow {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .levelBadge,
+  .liveBadge,
+  .pausedBadge,
+  .waitlistBadge {
+    font-size: 0.625rem;
+    padding: 2px var(--space-2);
+  }
+
+  .title {
+    font-size: 1.375rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .tokenInfo {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tokenSymbol {
+    font-size: 0.875rem;
+  }
+
+  .chain {
+    font-size: 0.75rem;
+  }
+
+  .contract {
+    font-size: 0.6875rem;
+    padding: 2px var(--space-2);
+  }
+
+  /* Grid Mobile - Single column */
+  .grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  /* Stats Grid Mobile */
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .statCard {
+    padding: var(--space-4);
+    gap: var(--space-2);
+  }
+
+  .statLabel {
+    font-size: 0.625rem;
+  }
+
+  .statValue {
+    font-size: 1.25rem;
+  }
+
+  /* Section Mobile */
+  .section {
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .section h2 {
+    font-size: 1rem;
+    margin-bottom: var(--space-3);
+  }
+
+  .section > p {
+    font-size: 0.875rem;
+    margin-bottom: var(--space-4);
+  }
+
+  .infoList {
+    gap: var(--space-2);
+  }
+
+  .infoItem {
+    font-size: 0.8125rem;
+    gap: var(--space-2);
+  }
+
+  .infoIcon {
+    width: 18px;
+    height: 18px;
+    font-size: 0.6875rem;
+  }
+
+  /* Requirements Mobile */
+  .requirements {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .requirement {
+    padding: var(--space-3);
+    gap: 2px;
+  }
+
+  .reqLabel {
+    font-size: 0.625rem;
+  }
+
+  .reqValue {
+    font-size: 0.9375rem;
+  }
+
+  /* Deposit Column Mobile - Full width sticky at bottom */
+  .depositColumn {
+    position: fixed;
+    bottom: var(--bottom-nav-height);
+    left: 0;
+    right: 0;
+    z-index: var(--z-sticky);
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-primary);
+    padding: var(--space-4);
+    max-height: 70vh;
+    overflow-y: auto;
+    transform: translateY(calc(100% - 80px));
+    transition: transform 0.3s ease;
+  }
+
+  .depositColumn.expanded {
+    transform: translateY(0);
+  }
+
+  /* Handle for mobile bottom sheet */
+  .depositColumn::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: var(--border-primary);
+    border-radius: 2px;
+    margin: 0 auto var(--space-4);
+  }
+
+  .depositCard {
+    padding: 0;
+    background: transparent;
+    border: none;
+  }
+
+  .depositCard h3 {
+    font-size: 1rem;
+    margin-bottom: var(--space-1);
+  }
+
+  .entrySubtitle {
+    font-size: 0.6875rem;
+    margin-bottom: var(--space-4);
+  }
+
+  /* Auth/Deposit Prompt Mobile */
+  .authPrompt,
+  .depositPrompt {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .promptText {
+    font-size: 0.6875rem;
+  }
+
+  .connectBtn,
+  .depositLinkBtn {
+    width: 100%;
+    justify-content: center;
+    padding: var(--space-3);
+  }
+
+  /* Balance Display Mobile */
+  .balanceDisplay {
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .balanceDisplay span {
+    font-size: 0.625rem;
+  }
+
+  .balanceDisplay strong {
+    font-size: 1rem;
+  }
+
+  /* Input Mobile */
+  .inputGroup {
+    margin-bottom: var(--space-4);
+  }
+
+  .inputLabel {
+    font-size: 0.625rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .inputWrapper input {
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6);
+    font-size: 1rem;
+  }
+
+  .currency {
+    left: var(--space-3);
+    font-size: 1rem;
+  }
+
+  .inputMeta {
+    font-size: 0.625rem;
+  }
+
+  /* Auto Boost Mobile */
+  .autoBoostSection {
+    margin: var(--space-3) 0;
+    padding: var(--space-3);
+  }
+
+  .toggleLabel {
+    font-size: 0.75rem;
+  }
+
+  .toggleLabel small {
+    font-size: 0.6875rem;
+  }
+
+  /* Projection Mobile */
+  .projection {
+    padding: var(--space-3);
+    margin: var(--space-3) 0;
+  }
+
+  .projectionRow {
+    font-size: 0.8125rem;
+  }
+
+  .projectedReturn {
+    font-size: 1.125rem;
+  }
+
+  /* Enter Button Mobile */
+  .enterBtn {
+    padding: var(--space-3);
+    font-size: 0.9375rem;
+    min-height: 52px;
+  }
+
+  .entryNote {
+    font-size: 0.6875rem;
+    padding: var(--space-2) var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  /* Quick Stats Mobile */
+  .quickStats {
+    display: none; /* Hide on mobile, info is in stats grid above */
+  }
+
+  /* Modal Mobile - Full screen */
+  .modalOverlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    max-width: 100%;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: var(--space-4);
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .modal h3 {
+    font-size: 1.125rem;
+  }
+
+  .modal > p {
+    font-size: 0.875rem;
+  }
+
+  .modalDetails {
+    padding: var(--space-3);
+  }
+
+  .modalRow {
+    font-size: 0.8125rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .modalActions {
+    flex-direction: column;
+  }
+
+  .modalCancel,
+  .modalConfirm {
+    width: 100%;
+    padding: var(--space-3);
+  }
+
+  /* Loading & Error Mobile */
+  .error {
+    padding: var(--space-8) var(--space-4);
+  }
+
+  .errorIcon {
+    font-size: 3rem;
+  }
+
+  .error h1 {
+    font-size: 1.25rem;
+  }
+
+  .error p {
+    font-size: 0.875rem;
+  }
+
+  .backBtn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 380px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .statValue {
+    font-size: 1.125rem;
+  }
+
+  .positionMetricValue {
+    font-size: 0.75rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (max-width: 768px) {
+  .enterBtn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .connectBtn:active,
+  .depositLinkBtn:active,
+  .backBtn:active {
+    transform: scale(0.98);
+  }
+}

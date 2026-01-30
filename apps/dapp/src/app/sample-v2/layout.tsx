@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./globals.mobile.css";
 
 export const metadata: Metadata = {
   title: "Trenches v2 - Spray & Play",

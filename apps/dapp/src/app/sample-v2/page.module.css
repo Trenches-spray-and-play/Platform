@@ -399,42 +399,97 @@
   }
 }
 
+/* ========================================
+   MOBILE-FIRST ENHANCEMENTS (< 769px)
+   Industry-Standard Mobile UI/UX
+   ======================================== */
+
 @media (max-width: 768px) {
+  /* Hero Section Mobile */
   .hero {
-    padding: var(--space-10) var(--space-4);
+    padding: var(--space-8) var(--space-4) var(--space-10);
+    text-align: center;
+  }
+
+  .heroContent {
+    max-width: 100%;
+  }
+
+  .heroBadge {
+    font-size: 0.6875rem;
+    padding: var(--space-1) var(--space-3);
+    margin-bottom: var(--space-4);
   }
 
   .heroTitle {
     font-size: 2rem;
+    line-height: 1.15;
+    margin-bottom: var(--space-4);
+  }
+
+  .heroHighlight {
+    font-size: 1.5rem;
+    display: block;
+    margin-top: var(--space-1);
   }
 
   .heroDescription {
-    font-size: 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin-bottom: var(--space-6);
+    padding: 0 var(--space-2);
   }
 
   .heroActions {
     flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
     width: 100%;
   }
 
   .heroBtnPrimary,
   .heroBtnSecondary {
     width: 100%;
+    padding: var(--space-3) var(--space-6);
+    font-size: 0.9375rem;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
+  /* Stats Bar Mobile - 2x2 Grid */
   .statsBar {
-    flex-direction: column;
-    gap: var(--space-4);
-    padding: var(--space-6);
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+
+  .statItem {
+    flex: 1;
+    min-width: calc(50% - var(--space-3));
+    padding: var(--space-3);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+  }
+
+  .statValue {
+    font-size: 1.5rem;
+  }
+
+  .statLabel {
+    font-size: 0.625rem;
   }
 
   .statDivider {
-    width: 60px;
-    height: 1px;
+    display: none;
   }
 
+  /* Campaigns Section Mobile */
   .campaigns {
-    padding: var(--space-10) 0;
+    padding: var(--space-8) 0 var(--space-12);
   }
 
   .container {
@@ -443,15 +498,161 @@
 
   .sectionHeader {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
   }
 
+  .sectionTitle h2 {
+    font-size: 1.375rem;
+    margin-bottom: var(--space-1);
+  }
+
+  .sectionTitle p {
+    font-size: 0.875rem;
+  }
+
+  /* Filter Tabs - Horizontal scroll */
+  .filterTabs {
+    display: flex;
+    gap: var(--space-2);
+    background: transparent;
+    padding: 0;
+    border: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: var(--space-2);
+  }
+
+  .filterTabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filterTab {
+    flex-shrink: 0;
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    min-height: 40px;
+  }
+
+  .filterTab.active {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: var(--bg-primary);
+  }
+
+  /* Campaigns Grid - Full width cards */
   .campaignsGrid {
     grid-template-columns: 1fr;
+    gap: var(--space-4);
   }
 
-  .filterTabs {
-    width: 100%;
-    overflow-x: auto;
+  /* Empty State Mobile */
+  .empty {
+    padding: var(--space-10) var(--space-4);
+  }
+
+  .emptyIcon {
+    font-size: 3rem;
+    margin-bottom: var(--space-3);
+  }
+
+  .empty h3 {
+    font-size: 1.125rem;
+  }
+
+  .empty p {
+    font-size: 0.875rem;
+  }
+
+  /* How It Works Mobile */
+  .howItWorks {
+    padding: var(--space-10) 0 var(--space-12);
+  }
+
+  .sectionTitleCenter {
+    margin-bottom: var(--space-8);
+  }
+
+  .sectionTitleCenter h2 {
+    font-size: 1.375rem;
+  }
+
+  .sectionTitleCenter p {
+    font-size: 0.875rem;
+  }
+
+  .steps {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .step {
+    max-width: 100%;
+    padding: var(--space-5);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    text-align: left;
+  }
+
+  .stepNumber {
+    position: static;
+    transform: none;
+    flex-shrink: 0;
+  }
+
+  .stepIcon {
+    display: none;
+  }
+
+  .step h3 {
+    font-size: 1rem;
+    margin-bottom: var(--space-1);
+  }
+
+  .step p {
+    font-size: 0.8125rem;
+    margin: 0;
+  }
+
+  .stepArrow {
+    display: none;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 380px) {
+  .heroTitle {
+    font-size: 1.75rem;
+  }
+
+  .heroHighlight {
+    font-size: 1.25rem;
+  }
+
+  .statValue {
+    font-size: 1.25rem;
+  }
+
+  .sectionTitle h2,
+  .sectionTitleCenter h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (max-width: 768px) {
+  .heroBtnPrimary:active,
+  .heroBtnSecondary:active {
+    transform: scale(0.98);
+  }
+
+  .filterTab:active {
+    transform: scale(0.95);
   }
 }

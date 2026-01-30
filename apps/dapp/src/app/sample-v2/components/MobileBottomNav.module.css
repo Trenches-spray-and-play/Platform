@@ -4,10 +4,12 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--bg-primary, #0a0a0a);
-  border-top: 1px solid var(--border, #333);
-  padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
-  z-index: 100;
+  background: rgba(10, 10, 11, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-primary);
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  z-index: var(--z-sticky);
   justify-content: space-around;
   align-items: center;
 }
@@ -25,31 +27,73 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 8px 12px;
-  min-width: 64px;
-  min-height: 48px; /* Minimum touch target */
+  padding: 6px 10px;
+  min-width: 56px;
+  min-height: 48px; /* WCAG minimum touch target */
   background: transparent;
   border: none;
-  color: var(--text-muted, #888);
+  color: var(--text-tertiary);
   cursor: pointer;
   position: relative;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .item:active {
-  transform: scale(0.95);
+  transform: scale(0.92);
   background: rgba(255, 255, 255, 0.05);
 }
 
 .active {
-  color: var(--primary, #22c55e);
+  color: var(--accent-primary);
+}
+
+/* Special action button (Deposit) */
+.action {
+  position: relative;
+  color: var(--bg-primary);
+  margin-top: -20px;
+}
+
+.action::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-hover) 100%);
+  border-radius: 50%;
+  box-shadow: 
+    0 4px 15px rgba(34, 197, 94, 0.4),
+    0 0 0 4px var(--bg-primary);
+  z-index: -1;
+  transition: all 0.2s ease;
+}
+
+.action:active::before {
+  transform: translate(-50%, -50%) scale(0.95);
+  box-shadow: 
+    0 2px 10px rgba(34, 197, 94, 0.3),
+    0 0 0 4px var(--bg-primary);
+}
+
+.action .icon {
+  font-size: 24px;
+  font-weight: 300;
+  transform: translateY(-2px);
+}
+
+.action .label {
+  color: var(--text-secondary);
+  font-size: 10px;
 }
 
 .icon {
   font-size: 20px;
   line-height: 1;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .active .icon {
@@ -60,17 +104,19 @@
   font-size: 11px;
   font-weight: 500;
   line-height: 1;
+  letter-spacing: 0.01em;
 }
 
 .indicator {
   position: absolute;
-  top: 4px;
+  bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
   width: 4px;
   height: 4px;
-  background: var(--primary, #22c55e);
+  background: var(--accent-primary);
   border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-primary);
 }
 
 /* Tablet adjustments */
@@ -84,7 +130,7 @@
 @media (max-width: 380px) {
   .item {
     padding: 6px 8px;
-    min-width: 56px;
+    min-width: 48px;
   }
   
   .label {
@@ -93,5 +139,22 @@
   
   .icon {
     font-size: 18px;
+  }
+  
+  .action::before {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* Landscape mode on mobile - hide bottom nav */
+@media (max-width: 768px) and (orientation: landscape) {
+  .container {
+    display: none;
+  }
+  
+  /* Add padding to main content since nav is hidden */
+  :global(.layout) :global(main) {
+    padding-bottom: 0;
   }
 }

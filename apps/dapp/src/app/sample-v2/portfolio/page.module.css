@@ -288,9 +288,187 @@
   color: var(--text-secondary);
 }
 
-/* Responsive */
+/* ========================================
+   MOBILE-FIRST ENHANCEMENTS (< 769px)
+   Industry-Standard Mobile UI/UX
+   ======================================== */
+
 @media (max-width: 768px) {
+  .page {
+    padding: var(--space-4) 0 var(--space-12);
+  }
+
+  .container {
+    padding: 0 var(--space-4);
+  }
+
+  /* Loading Mobile */
+  .loading {
+    min-height: 50vh;
+  }
+
+  /* Header Mobile */
+  .header {
+    margin-bottom: var(--space-5);
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-1);
+  }
+
+  .header p {
+    font-size: 0.875rem;
+  }
+
+  /* Alert Mobile */
+  .alert {
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    margin-bottom: var(--space-5);
+  }
+
+  .alertIcon {
+    width: 32px;
+    height: 32px;
+    align-self: flex-start;
+  }
+
+  .alertContent strong {
+    font-size: 0.9375rem;
+  }
+
+  .alertContent p {
+    font-size: 0.8125rem;
+  }
+
+  /* Section Mobile */
+  .section {
+    margin-bottom: var(--space-6);
+  }
+
+  .section h2 {
+    font-size: 1.125rem;
+    margin-bottom: var(--space-4);
+  }
+
+  /* Wallet Cards Mobile */
   .walletCards {
     grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .walletCard {
+    padding: var(--space-4);
+  }
+
+  .walletHeader {
+    margin-bottom: var(--space-3);
+  }
+
+  .walletIcon {
+    font-size: 1.25rem;
+  }
+
+  .walletType {
+    font-size: 0.8125rem;
+  }
+
+  .walletAddress {
+    font-size: 1rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .walletNote {
+    font-size: 0.6875rem;
+  }
+
+  .walletFull {
+    font-size: 0.6875rem;
+    padding: var(--space-2);
+  }
+
+  /* Message Mobile */
+  .message {
+    padding: var(--space-3);
+    font-size: 0.8125rem;
+  }
+
+  /* Form Mobile */
+  .form {
+    padding: var(--space-4);
+  }
+
+  .inputGroup {
+    margin-bottom: var(--space-4);
+  }
+
+  .inputGroup label {
+    font-size: 0.8125rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .input {
+    padding: var(--space-3);
+    font-size: 0.875rem;
+  }
+
+  .inputHelp {
+    font-size: 0.75rem;
+  }
+
+  .saveBtn {
+    padding: var(--space-3);
+    font-size: 0.875rem;
+    min-height: 52px;
+  }
+
+  /* Security List Mobile */
+  .securityList {
+    gap: var(--space-2);
+  }
+
+  .securityItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .securityIcon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8125rem;
+  }
+
+  .securityItem strong {
+    font-size: 0.9375rem;
+  }
+
+  .securityItem p {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 380px) {
+  .header h1 {
+    font-size: 1.25rem;
+  }
+
+  .walletAddress {
+    font-size: 0.875rem;
+  }
+
+  .section h2 {
+    font-size: 1rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (max-width: 768px) {
+  .saveBtn:active:not(:disabled) {
+    transform: scale(0.98);
   }
 }

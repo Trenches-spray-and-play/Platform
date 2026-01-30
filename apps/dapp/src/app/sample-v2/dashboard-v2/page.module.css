@@ -1019,7 +1019,7 @@
 
 .statsPreviewItem {
   text-align: center;
-  padding: var(--space-5);
+  padding: var(--space-4);
   background: var(--bg-card);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-lg);
@@ -1041,10 +1041,7 @@
   letter-spacing: 0.05em;
 }
 
-/* ========================================
-   LOADING STATE
-   ======================================== */
-
+/* Loading */
 .loading {
   display: flex;
   flex-direction: column;
@@ -1052,10 +1049,9 @@
   justify-content: center;
   min-height: 60vh;
   gap: var(--space-4);
-  color: var(--text-secondary);
 }
 
-.spinner {
+.loading .spinner {
   width: 40px;
   height: 40px;
   border: 3px solid var(--border-primary);
@@ -1069,7 +1065,7 @@
 }
 
 /* ========================================
-   RESPONSIVE
+   RESPONSIVE - DESKTOP FIRST
    ======================================== */
 
 @media (max-width: 1024px) {
@@ -1086,115 +1082,423 @@
   }
 }
 
+/* ========================================
+   MOBILE-FIRST ENHANCEMENTS (< 769px)
+   Industry-Standard Mobile UI/UX
+   ======================================== */
+
 @media (max-width: 768px) {
+  .page {
+    padding: var(--space-4) 0 var(--space-12);
+  }
+
   .container {
     padding: 0 var(--space-4);
   }
 
-  .page {
-    padding: var(--space-6) 0 var(--space-12);
+  /* Mobile Toast - Bottom positioned */
+  .statusToast {
+    top: auto;
+    bottom: calc(var(--bottom-nav-height) + var(--space-4));
+    left: var(--space-4);
+    right: var(--space-4);
+    padding: var(--space-3) var(--space-4);
   }
 
+  /* Welcome Section Mobile */
   .welcomeSection {
     flex-direction: column;
-    gap: var(--space-4);
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .welcomeLabel {
+    font-size: 0.75rem;
   }
 
   .welcomeTitle {
     font-size: 1.5rem;
   }
 
+  .depositBtn {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+  }
+
+  /* Balance Card Mobile */
+  .balanceCard {
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .balanceMain {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .balanceLabel {
+    font-size: 0.75rem;
+  }
+
   .balanceValue {
     font-size: 2rem;
   }
 
+  .walletAlert {
+    width: 100%;
+    font-size: 0.8125rem;
+    padding: var(--space-2) var(--space-3);
+  }
+
   .balanceStats {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-4);
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+  }
+
+  .balanceStat {
+    flex: 1;
+    min-width: calc(50% - var(--space-3));
+  }
+
+  .balanceStatLabel {
+    font-size: 0.625rem;
+  }
+
+  .balanceStatValue {
+    font-size: 1rem;
   }
 
   .balanceStatDivider {
-    width: 100%;
-    height: 1px;
+    display: none;
   }
 
+  /* Stats Grid Mobile - 2 columns */
   .statsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
   }
 
+  .statCard {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .statIconWrapper {
+    width: 44px;
+    height: 44px;
+    font-size: 1.125rem;
+  }
+
+  .statValue {
+    font-size: 1.25rem;
+  }
+
+  /* Info Section Mobile - Stacked */
   .infoSection {
     grid-template-columns: 1fr;
-  }
-
-  .sectionHeader {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .positionsGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .positionAmounts {
-    flex-direction: column;
     gap: var(--space-3);
+    margin-bottom: var(--space-6);
   }
 
-  .positionArrow {
-    transform: rotate(90deg);
+  .infoCard {
+    padding: var(--space-4);
   }
 
-  .positionMetrics {
-    grid-template-columns: 1fr;
-    gap: var(--space-3);
+  .infoCardHeader h3 {
+    font-size: 0.9375rem;
   }
 
-  .positionMetric {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  .walletRow {
+    padding: var(--space-3);
   }
 
-  .unauthHero {
-    padding: var(--space-8) 0;
+  .walletName {
+    font-size: 0.8125rem;
   }
 
-  .unauthTitle {
-    font-size: 2rem;
-  }
-
-  .featuresGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .statsPreview {
-    padding: var(--space-6);
-  }
-
-  .statsPreviewGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-3);
-  }
-
-  .statusToast {
-    left: var(--space-4);
-    right: var(--space-4);
-    top: auto;
-    bottom: 100px;
-  }
-}
-
-@media (max-width: 480px) {
-  .statsPreviewGrid {
-    grid-template-columns: 1fr;
+  .walletAddress {
+    font-size: 0.6875rem;
   }
 
   .referralCodeBox {
     flex-direction: column;
   }
 
+  .referralCode {
+    font-size: 0.75rem;
+  }
+
   .copyBtn {
+    width: 100%;
     justify-content: center;
+  }
+
+  /* Positions Section Mobile */
+  .positionsSection {
+    margin-top: var(--space-6);
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .sectionTitleWrap h2 {
+    font-size: 1.25rem;
+  }
+
+  .browseBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Positions Grid Mobile */
+  .positionsGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .positionCard {
+    padding: var(--space-4);
+  }
+
+  .positionCardHeader {
+    margin-bottom: var(--space-3);
+  }
+
+  .positionType,
+  .positionLevel,
+  .readyBadge {
+    font-size: 0.625rem;
+    padding: 2px var(--space-2);
+  }
+
+  .positionName {
+    font-size: 1rem;
+    margin-bottom: var(--space-3);
+  }
+
+  .positionAmounts {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .positionAmount {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .positionAmountLabel {
+    font-size: 0.625rem;
+  }
+
+  .positionAmountValue {
+    font-size: 1rem;
+  }
+
+  .positionArrow {
+    transform: rotate(90deg);
+    align-self: center;
+  }
+
+  .positionMetrics {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-3);
+  }
+
+  .positionMetricLabel {
+    font-size: 0.5625rem;
+  }
+
+  .positionMetricValue {
+    font-size: 0.8125rem;
+  }
+
+  .positionFooter {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .toggleLabel {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .boostLink {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Empty State Mobile */
+  .emptyState {
+    padding: var(--space-10) var(--space-4);
+  }
+
+  .emptyIcon {
+    font-size: 3rem;
+  }
+
+  .emptyState h3 {
+    font-size: 1.125rem;
+  }
+
+  .emptyActions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Unauth Hero Mobile */
+  .unauthHero {
+    padding: var(--space-8) 0;
+    margin-bottom: var(--space-6);
+  }
+
+  .unauthTitle {
+    font-size: 2rem;
+  }
+
+  .unauthHighlight {
+    font-size: 1.5rem;
+  }
+
+  .unauthSubtitle {
+    font-size: 0.9375rem;
+    padding: 0 var(--space-4);
+  }
+
+  .unauthCta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Features Grid Mobile - Horizontal scroll */
+  .featuresGrid {
+    display: flex;
+    gap: var(--space-3);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: var(--space-2);
+    margin-bottom: var(--space-8);
+  }
+
+  .featuresGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .featureCard {
+    flex-shrink: 0;
+    width: 260px;
+    padding: var(--space-4);
+  }
+
+  .featureIconWrapper {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+    margin-bottom: var(--space-3);
+  }
+
+  .featureCard h3 {
+    font-size: 0.9375rem;
+  }
+
+  .featureCard p {
+    font-size: 0.8125rem;
+  }
+
+  /* Stats Preview Mobile */
+  .statsPreview {
+    padding: var(--space-5);
+  }
+
+  .statsPreviewGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  .statsPreviewItem {
+    padding: var(--space-3);
+  }
+
+  .statsPreviewValue {
+    font-size: 1.25rem;
+  }
+
+  .statsPreviewLabel {
+    font-size: 0.625rem;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 380px) {
+  .welcomeTitle {
+    font-size: 1.25rem;
+  }
+
+  .balanceValue {
+    font-size: 1.75rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .positionMetrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statsPreviewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .featureCard {
+    width: 240px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (max-width: 768px) {
+  .statCard:active {
+    transform: scale(0.98);
+  }
+
+  .positionCard:active {
+    transform: scale(0.98);
+  }
+
+  .featureCard:active {
+    transform: scale(0.98);
+  }
+
+  .depositBtn:active,
+  .browseBtn:active,
+  .primaryBtn:active,
+  .secondaryBtn:active,
+  .unauthCta:active {
+    transform: scale(0.98);
   }
 }

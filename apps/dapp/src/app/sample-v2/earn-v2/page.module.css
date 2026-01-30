@@ -650,49 +650,330 @@
    ======================================== */
 
 @media (max-width: 768px) {
+  .page {
+    padding: var(--space-4) 0 var(--space-12);
+  }
+
   .container {
     padding: 0 var(--space-4);
   }
 
-  .header h1 {
-    font-size: 1.5rem;
+  /* Header Mobile */
+  .header {
+    margin-bottom: var(--space-5);
   }
 
+  .header h1 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-1);
+  }
+
+  .header p {
+    font-size: 0.875rem;
+  }
+
+  /* Tabs Mobile - Horizontal scroll */
   .tabs {
-    flex-direction: column;
-    width: 100%;
+    flex-direction: row;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: var(--space-2);
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
   }
 
   .tab {
-    width: 100%;
-    justify-content: center;
+    flex-shrink: 0;
+    padding: var(--space-2) var(--space-4);
+    font-size: 0.8125rem;
+    min-height: 44px;
   }
 
-  .taskGrid,
+  .tabCount {
+    font-size: 0.6875rem;
+  }
+
+  /* Content Mobile */
+  .content {
+    gap: var(--space-5);
+  }
+
+  .section h2 {
+    font-size: 1rem;
+    margin-bottom: var(--space-3);
+  }
+
+  /* Task Grid Mobile */
+  .taskGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .taskCard {
+    padding: var(--space-4);
+  }
+
+  .taskReward {
+    font-size: 0.6875rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .taskCard h3 {
+    font-size: 0.9375rem;
+  }
+
+  .taskCard p {
+    font-size: 0.8125rem;
+    margin-bottom: var(--space-3);
+  }
+
+  .taskBtn {
+    padding: var(--space-3);
+    font-size: 0.8125rem;
+    min-height: 44px;
+  }
+
+  /* Raid List Mobile */
+  .raidList {
+    gap: var(--space-2);
+  }
+
+  .raidCard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .raidPlatform {
+    font-size: 0.625rem;
+  }
+
+  .raidInfo h3 {
+    font-size: 0.9375rem;
+  }
+
+  .raidAction {
+    width: 100%;
+    justify-content: space-between;
+    flex-direction: row;
+    border-top: 1px solid var(--border-secondary);
+    padding-top: var(--space-3);
+    margin-top: var(--space-1);
+  }
+
+  .raidReward {
+    font-size: 0.8125rem;
+  }
+
+  .raidBtn {
+    padding: var(--space-2) var(--space-4);
+    font-size: 0.8125rem;
+    min-height: 40px;
+  }
+
+  /* Empty Mobile */
+  .empty {
+    padding: var(--space-8) var(--space-4);
+    font-size: 0.875rem;
+  }
+
+  /* Campaign Grid Mobile */
   .campaignGrid {
     grid-template-columns: 1fr;
+    gap: var(--space-3);
   }
 
-  .raidCard,
+  .contentCampaignCard {
+    padding: var(--space-4);
+  }
+
+  .campaignIcon {
+    font-size: 1.5rem;
+  }
+
+  .brandName {
+    font-size: 0.625rem;
+  }
+
+  .campaignBrand h3 {
+    font-size: 0.9375rem;
+  }
+
+  .campaignDescription {
+    font-size: 0.8125rem;
+  }
+
+  .platformTag {
+    font-size: 0.625rem;
+  }
+
+  .campaignReward {
+    flex-direction: row;
+    gap: var(--space-4);
+    padding: var(--space-3);
+  }
+
+  .rewardValue {
+    font-size: 1rem;
+  }
+
+  .rewardLabel {
+    font-size: 0.625rem;
+  }
+
+  .contentCampaignCard .submitBtn {
+    padding: var(--space-3);
+    font-size: 0.8125rem;
+    min-height: 44px;
+  }
+
+  /* Submissions Mobile */
+  .submissionsList {
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+  }
+
   .submissionCard {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-3);
   }
 
-  .raidAction,
+  .submissionBrand {
+    font-size: 0.625rem;
+  }
+
+  .submissionInfo h4 {
+    font-size: 0.9375rem;
+  }
+
+  .submissionPlatform {
+    font-size: 0.75rem;
+  }
+
   .submissionStatus,
   .submissionReward {
     width: 100%;
     justify-content: space-between;
     flex-direction: row;
+    border-top: 1px solid var(--border-secondary);
+    padding-top: var(--space-2);
+    margin-top: var(--space-1);
+  }
+
+  .beliefAwarded {
+    font-size: 0.8125rem;
+  }
+
+  .statusBadge {
+    font-size: 0.625rem;
+  }
+
+  /* Modal Mobile */
+  .modalOverlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    max-width: 100%;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .modalHeader {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .modalHeader h3 {
+    font-size: 1rem;
+  }
+
+  .modalClose {
+    width: 36px;
+    height: 36px;
+  }
+
+  .modalForm {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .formGroup label {
+    font-size: 0.75rem;
+  }
+
+  .formValue,
+  .select,
+  .input {
+    padding: var(--space-3);
+    font-size: 0.875rem;
+  }
+
+  .modalActions {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .cancelBtn,
+  .modalActions .submitBtn {
+    width: 100%;
+    padding: var(--space-3);
+    min-height: 48px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 380px) {
+  .header h1 {
+    font-size: 1.25rem;
+  }
+
+  .tab {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.75rem;
+  }
+
+  .taskCard,
+  .raidCard,
+  .contentCampaignCard,
+  .submissionCard {
+    padding: var(--space-3);
   }
 
   .campaignReward {
     flex-direction: column;
     gap: var(--space-2);
   }
+}
 
-  .modalActions {
-    flex-direction: column;
+/* Touch device optimizations */
+@media (hover: none) and (max-width: 768px) {
+  .tab:active {
+    transform: scale(0.98);
+  }
+
+  .taskBtn:active,
+  .raidBtn:active,
+  .contentCampaignCard .submitBtn:active {
+    transform: scale(0.98);
   }
 }

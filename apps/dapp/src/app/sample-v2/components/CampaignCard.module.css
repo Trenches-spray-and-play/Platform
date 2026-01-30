@@ -262,21 +262,106 @@
 
 @media (max-width: 640px) {
   .card {
-    padding: var(--space-5);
+    padding: var(--space-4);
+  }
+
+  .header {
+    margin-bottom: var(--space-4);
+  }
+
+  .badgeRow {
+    margin-bottom: var(--space-2);
+  }
+
+  .badge,
+  .phaseBadge {
+    font-size: 0.625rem;
+    padding: 2px var(--space-2);
+  }
+
+  .name {
+    font-size: 1.0625rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .tokenRow {
+    gap: var(--space-1);
+  }
+
+  .tokenSymbol {
+    font-size: 0.8125rem;
+  }
+
+  .chainName {
+    font-size: 0.75rem;
   }
 
   .stats {
     grid-template-columns: 1fr;
-    gap: var(--space-3);
+    gap: var(--space-2);
+    padding: var(--space-3) 0;
+    margin-bottom: var(--space-3);
   }
 
   .stat {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    gap: 0;
+  }
+
+  .statLabel {
+    font-size: 0.625rem;
+  }
+
+  .statValue {
+    font-size: 0.875rem;
+  }
+
+  .roiValue {
+    font-size: 1rem;
+  }
+
+  .progressSection {
+    margin-bottom: var(--space-3);
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .contract {
+    font-size: 0.6875rem;
+  }
+
+  .action {
+    width: 100%;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 380px) {
+  .card {
+    padding: var(--space-3);
   }
 
   .name {
-    font-size: 1.125rem;
+    font-size: 1rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (max-width: 640px) {
+  .card:active {
+    transform: scale(0.98);
+  }
+
+  .card:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
   }
 }

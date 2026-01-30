@@ -1,5 +1,5 @@
 /* ========================================
-   LAYOUT STYLES
+   LAYOUT STYLES - MOBILE-FIRST
    ======================================== */
 
 .layout {
@@ -10,7 +10,7 @@
 }
 
 /* ========================================
-   HEADER
+   HEADER - MOBILE OPTIMIZED
    ======================================== */
 
 .header {
@@ -19,33 +19,38 @@
   left: 0;
   right: 0;
   z-index: var(--z-sticky);
-  background: rgba(10, 10, 11, 0.8);
-  backdrop-filter: blur(12px);
+  background: rgba(10, 10, 11, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid transparent;
   transition: var(--transition-base);
+  height: var(--header-height-mobile);
 }
 
 .header.scrolled {
   border-bottom-color: var(--border-primary);
+  background: rgba(10, 10, 11, 0.95);
 }
 
 .headerContent {
   max-width: 1400px;
+  height: 100%;
   margin: 0 auto;
-  padding: var(--space-4) var(--space-6);
+  padding: 0 var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-6);
+  gap: var(--space-4);
 }
 
 /* Logo */
 .logo {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   text-decoration: none;
   transition: var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .logo:hover {
@@ -53,8 +58,8 @@
 }
 
 .logoSvg {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   color: var(--accent-primary);
   filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.4));
   transition: var(--transition-fast);
@@ -66,85 +71,37 @@
 }
 
 .logoText {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--text-primary);
 }
 
-/* Desktop Navigation */
+/* Desktop Navigation - Hidden on mobile */
 .desktopNav {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  background: var(--bg-secondary);
-  padding: var(--space-1);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-secondary);
-}
-
-.navLink {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: var(--radius-md);
-  transition: var(--transition-fast);
-}
-
-.navLink:hover {
-  color: var(--text-primary);
-  background: var(--bg-tertiary);
-}
-
-.navLink.active {
-  color: var(--accent-primary);
-  background: var(--success-light);
-}
-
-.navIcon {
-  font-size: 0.75rem;
-  opacity: 0.7;
+  display: none;
 }
 
 /* User Section */
 .userSection {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-}
-
-.userChip {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-full);
-  text-decoration: none;
-  transition: var(--transition-base);
-}
-
-.userChip:hover {
-  border-color: var(--border-accent);
-  background: var(--bg-tertiary);
+  gap: var(--space-2);
+  flex-shrink: 0;
 }
 
 .balanceChip {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   background: var(--success-light);
   border: 1px solid var(--border-accent);
   border-radius: var(--radius-md);
   text-decoration: none;
   transition: var(--transition-base);
+  min-height: 40px;
+  justify-content: center;
 }
 
 .balanceChip:hover {
@@ -152,29 +109,33 @@
 }
 
 .balanceLabel {
-  font-size: 0.625rem;
+  font-size: 0.5625rem;
   font-weight: 700;
   color: var(--accent-primary);
   font-family: var(--font-mono);
   letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .balanceValue {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--accent-primary);
   font-family: var(--font-mono);
 }
 
 .connectBtn {
-  padding: var(--space-3) var(--space-6);
+  padding: var(--space-2) var(--space-4);
   background: var(--accent-primary);
   color: var(--bg-primary);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   border-radius: var(--radius-md);
   text-decoration: none;
   transition: var(--transition-base);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
 }
 
 .connectBtn:hover {
@@ -184,37 +145,32 @@
 }
 
 .depositBtn {
-  padding: var(--space-2) var(--space-4);
-  background: transparent;
-  color: var(--accent-primary);
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: 1px solid var(--accent-primary);
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  transition: var(--transition-base);
-}
-
-.depositBtn:hover {
-  background: var(--accent-primary);
-  color: var(--bg-primary);
-  box-shadow: var(--shadow-glow);
-  transform: translateY(-1px);
+  display: none; /* Hidden on mobile - shown in bottom nav instead */
 }
 
 /* Mobile Menu Button */
 .menuBtn {
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: 5px;
   padding: var(--space-2);
   background: none;
   border: none;
   cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  transition: background 0.15s ease;
+}
+
+.menuBtn:active {
+  background: var(--bg-tertiary);
 }
 
 .menuLine {
-  width: 24px;
+  width: 22px;
   height: 2px;
   background: var(--text-primary);
   border-radius: 2px;
@@ -235,10 +191,16 @@
 
 /* Mobile Menu */
 .mobileMenu {
-  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   padding: var(--space-4);
-  background: var(--bg-secondary);
+  background: rgba(17, 17, 19, 0.98);
+  backdrop-filter: blur(20px);
   border-top: 1px solid var(--border-primary);
+  border-bottom: 1px solid var(--border-primary);
+  z-index: calc(var(--z-sticky) - 1);
 }
 
 .mobileNav {
@@ -256,14 +218,20 @@
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   transition: var(--transition-fast);
+  min-height: 56px;
 }
 
 .mobileNavLink:hover,
 .mobileNavLink.active {
   color: var(--accent-primary);
   background: var(--success-light);
+}
+
+.navIcon {
+  font-size: 1.125rem;
+  opacity: 0.8;
 }
 
 .mobileUser {
@@ -293,7 +261,8 @@
 
 .main {
   flex: 1;
-  padding-top: 80px;
+  padding-top: var(--header-height-mobile);
+  padding-bottom: var(--bottom-nav-height);
 }
 
 /* ========================================
@@ -303,6 +272,7 @@
 .footer {
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-primary);
+  display: none; /* Hidden on mobile - prioritize content */
 }
 
 .footerContent {
@@ -399,47 +369,176 @@
 }
 
 /* ========================================
-   RESPONSIVE
+   DESKTOP STYLES (md breakpoint and up)
    ======================================== */
 
-@media (max-width: 768px) {
+@media (min-width: 769px) {
+  .header {
+    height: 72px;
+  }
+
   .headerContent {
-    padding: var(--space-3) var(--space-4);
+    padding: 0 var(--space-6);
+  }
+
+  .logoSvg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logoText {
+    font-size: 1.25rem;
   }
 
   .desktopNav {
-    display: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    background: var(--bg-secondary);
+    padding: var(--space-1);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-secondary);
+  }
+
+  .navLink {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+  }
+
+  .navLink:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+  }
+
+  .navLink.active {
+    color: var(--accent-primary);
+    background: var(--success-light);
+  }
+
+  .userSection {
+    gap: var(--space-3);
+  }
+
+  .balanceChip {
+    padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .depositBtn {
+    display: flex;
+    padding: var(--space-2) var(--space-4);
+    background: transparent;
+    color: var(--accent-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid var(--accent-primary);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: var(--transition-base);
+  }
+
+  .depositBtn:hover {
+    background: var(--accent-primary);
+    color: var(--bg-primary);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-1px);
   }
 
   .menuBtn {
-    display: flex;
-  }
-
-  .mobileMenu {
-    display: block;
-  }
-
-  .userInfo {
     display: none;
   }
 
-  .userChip {
-    padding: var(--space-1);
+  .mobileMenu {
+    display: none;
   }
 
-  .footerContent {
-    flex-direction: column;
-    text-align: center;
-    gap: var(--space-6);
+  .main {
+    padding-top: 72px;
+    padding-bottom: 0;
   }
 
-  .footerBottom {
-    flex-direction: column;
-    gap: var(--space-2);
+  .footer {
+    display: block;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1024px) {
+  .navLink {
+    padding: var(--space-2) var(--space-5);
+  }
+}
+
+/* ========================================
+   LANDSCAPE MOBILE
+   ======================================== */
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .header {
+    height: 48px;
+  }
+
+  .main {
+    padding-top: 48px;
+    padding-bottom: 0;
+  }
+
+  /* Hide bottom nav in landscape - use hamburger menu instead */
+  :global(.mobileBottomNav) {
+    display: none !important;
+  }
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .logoSvg,
+  .menuLine,
+  .connectBtn,
+  .depositBtn,
+  .statusDot {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY - FOCUS STATES
+   ======================================== */
+
+.menuBtn:focus-visible,
+.navLink:focus-visible,
+.mobileNavLink:focus-visible,
+.connectBtn:focus-visible,
+.depositBtn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .header {
+    border-bottom-color: var(--border-primary);
   }
   
-  /* Add padding for mobile bottom nav */
-  .main {
-    padding-bottom: 80px;
+  .menuLine {
+    background: var(--text-primary);
+  }
+  
+  .active {
+    outline: 2px solid var(--accent-primary);
   }
 }
