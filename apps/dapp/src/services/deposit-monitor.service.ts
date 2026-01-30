@@ -525,12 +525,21 @@ async function scanChainForDeposits(chain: Chain, fromBlock: bigint, toBlock: bi
     }
 
     const state = evmChainStates[chain];
-    if (!state?.client) return;
+    if (!state?.client) {
+        console.warn(`[DepositMonitor] No client for ${chain}, skipping scan`);
+        return;
+    }
 
     const watchedAddresses = await getWatchedAddresses(chain);
-    if (watchedAddresses.length === 0) return;
+    console.log(`[DepositMonitor] Scanning ${chain} blocks ${fromBlock}-${toBlock}, watching ${watchedAddresses.length} addresses`);
+    
+    if (watchedAddresses.length === 0) {
+        console.warn(`[DepositMonitor] No watched addresses for ${chain}`);
+        return;
+    }
 
     const tokens = (TOKEN_ADDRESSES as any)[chain] || {};
+    console.log(`[DepositMonitor] Tokens to scan on ${chain}:`, Object.keys(tokens));
 
     // Scan for ERC20 transfers to our addresses
     for (const [asset, tokenAddress] of Object.entries(tokens)) {
@@ -538,6 +547,7 @@ async function scanChainForDeposits(chain: Chain, fromBlock: bigint, toBlock: bi
         if (!tokenAddress) continue;
 
         try {
+            console.log(`[DepositMonitor] Scanning ${asset} (${tokenAddress}) on ${chain}...`);
             const logs = await state.client.getLogs({
                 address: tokenAddress as Address,
                 event: ERC20_ABI[0],
@@ -545,9 +555,13 @@ async function scanChainForDeposits(chain: Chain, fromBlock: bigint, toBlock: bi
                 toBlock,
             });
 
+            console.log(`[DepositMonitor] Found ${logs.length} ${asset} transfers on ${chain}`);
+
             for (const log of logs) {
                 const toAddress = log.args.to?.toLowerCase();
+                console.log(`[DepositMonitor] Transfer to ${toAddress?.slice(0, 10)}... on ${chain}`);
                 if (toAddress && watchedAddresses.includes(toAddress)) {
+                    console.log(`[DepositMonitor] 🎯 MATCH! Deposit to watched address ${toAddress.slice(0, 10)}...`);
                     await processIncomingDeposit({
                         chain,
                         txHash: log.transactionHash,
@@ -559,7 +573,7 @@ async function scanChainForDeposits(chain: Chain, fromBlock: bigint, toBlock: bi
                 }
             }
         } catch (error) {
-            console.error(`Error scanning ${asset} on ${chain}:`, error);
+            console.error(`[DepositMonitor] Error scanning ${asset} on ${chain}:`, error);
         }
     }
 
@@ -885,7 +899,7 @@ export async function startChainMonitoring(chain: Chain): Promise<void> {
         pollInterval: null,
     };
 
-    console.log(`Starting ${chain} deposit monitoring from block ${currentBlock}`);
+    console.log(`[DepositMonitor] ✅ Starting ${chain} deposit monitoring from block ${currentBlock}, polling every ${config.pollingInterval}s`);
 
     // Poll for new blocks
     const pollInterval = setInterval(async () => {
