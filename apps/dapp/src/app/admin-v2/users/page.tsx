@@ -56,8 +56,8 @@ export default function UsersPage() {
     setLoading(false);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
     setPage(1);
     fetchUsers();
   };
