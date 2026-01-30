@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Layout from "./components/Layout";
 import CampaignCard from "./components/CampaignCard";
+import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
 
 interface Campaign {
@@ -121,7 +122,7 @@ export default function HomePage() {
                 </p>
                 <ul className={styles.featureList}>
                   <li>✅ <strong>No lock-in fees</strong> — Withdraw anytime after the lock period</li>
-                  <li>✅ <strong>Guaranteed returns</strong> — Know exactly what you&apos;ll earn upfront</li>
+                  <li>✅ <strong>Targeted settlement</strong> — Designed to deliver 1.5x rewards for active participants</li>
                   <li>✅ <strong>Boost your speed</strong> — Complete tasks to reduce wait time</li>
                   <li>✅ <strong>Full transparency</strong> — All transactions on-chain</li>
                 </ul>
@@ -277,6 +278,11 @@ export default function HomePage() {
               <a href="#campaigns" className={styles.ctaBtn}>Browse Campaigns →</a>
             </div>
           </div>
+        </section>
+
+        {/* Compliance Disclaimer */}
+        <section className={styles.container}>
+          <ComplianceDisclaimer variant="footer" />
         </section>
       </div>
     </Layout>

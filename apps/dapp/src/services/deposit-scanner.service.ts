@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { redis } from '@/lib/redis';
 import { prisma } from '@/lib/db';
 import { scanEvmChain } from './evm-scanner.service';
 import { scanSolana } from './solana-scanner.service';
@@ -30,7 +30,7 @@ export async function scanForDeposits(userId: string, requestedChain: string = '
     let lastCheck: number | null = null;
 
     try {
-        lastCheck = await kv.get<number>(rateLimitKey);
+        lastCheck = await redis.get<number>(rateLimitKey);
     } catch (err) {
         console.error('[DepositScanner] Vercel KV error (fail-closed):', err);
         // We prefer fail-closed for protection in this critical path
@@ -45,7 +45,7 @@ export async function scanForDeposits(userId: string, requestedChain: string = '
     }
 
     // Update rate limit immediately
-    await kv.set(rateLimitKey, startTime, { ex: 60 });
+    await redis.set(rateLimitKey, startTime, { ex: 60 });
 
     // 2. Identify deposit addresses to scan
     const depositAddresses = await prisma.depositAddress.findMany({

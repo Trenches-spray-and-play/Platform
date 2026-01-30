@@ -596,8 +596,8 @@ export default function DepositPage() {
                       <CheckDepositsButton
                         selectedChain={selectedChain}
                         onDepositsFound={() => {
-                          if (uid) {
-                            loadDeposits(uid);
+                          if (userId) {
+                            loadDeposits(userId);
                           }
                         }}
                       />

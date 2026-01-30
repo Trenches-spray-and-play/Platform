@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Layout from "../../components/Layout";
+import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
 
 interface Campaign {
@@ -288,7 +289,7 @@ export default function CampaignDetailPage() {
                 <div className={styles.infoList}>
                   <div className={styles.infoItem}>
                     <span className={styles.infoIcon}>✓</span>
-                    <span>Time-locked deposits with guaranteed ROI</span>
+                    <span>Time-locked deposits with targeted settlement multiplier</span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.infoIcon}>✓</span>
@@ -445,6 +446,9 @@ export default function CampaignDetailPage() {
                   <strong>${minEntry.toLocaleString()} - ${maxEntry.toLocaleString()}</strong>
                 </div>
               </div>
+
+              {/* Compliance Disclaimer */}
+              <ComplianceDisclaimer variant="footer" />
             </div>
           </div>
         </div>
