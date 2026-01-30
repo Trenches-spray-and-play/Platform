@@ -21,17 +21,12 @@ export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient(prismaConfig);
 
-globalForPrisma.prisma = prisma;
-
-// Log connection mode on startup (only once)
+// Log connection mode on startup (only once per instance)
 if (!globalForPrisma.prisma) {
   console.log(`[Prisma] Mode: ${isPgBouncer ? 'PgBouncer' : 'Direct'}, Connection limit: ${getConnectionLimit()}`);
 }
 
-// Handle connection errors gracefully
-prisma.$on('error' as any, (e: any) => {
-  console.error('[Prisma] Connection error:', e);
-});
+globalForPrisma.prisma = prisma;
 
 export * from '@prisma/client';
 export default prisma;
