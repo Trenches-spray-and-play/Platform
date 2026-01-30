@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { getCachedReserve, refreshReserveCache, ROUNDING_OPTIONS } from '@/services/reserve.service';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/db';
 
 // GET /api/reserves?campaignId=xxx - Get cached reserve balance
 export async function GET(request: Request) {

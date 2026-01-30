@@ -1,9 +1,7 @@
 import { ethers } from 'ethers';
-import { PrismaClient } from '@prisma/client';
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { getAccount, getAssociatedTokenAddress, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/db';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { getAccount, getAssociatedTokenAddress } from '@solana/spl-token';
 
 // ERC20 ABI - just need balanceOf
 const ERC20_ABI = ['function balanceOf(address) view returns (uint256)'];
