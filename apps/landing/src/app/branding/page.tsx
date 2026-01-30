@@ -2,7 +2,7 @@
 
 import React from "react";
 import styles from "./branding.module.css";
-import { Logo } from "@trenches/ui";
+import { Logo, ComplianceDisclaimer } from "@trenches/ui";
 import { Download, Copy, ExternalLink, ChevronLeft, ChevronRight, Shield, Zap, TrendingUp, Wallet, Clock, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -156,9 +156,9 @@ export default function BrandingPage() {
             info: "**Re-entering** keeps the system moving and creates long-term value for you and the community."
         },
         {
-            title: "THE_SAFETY_NET: GUARANTEED_FLOW",
+            title: "THE_SAFETY_NET: TARGETED_FLOW",
             subtitle: "TOTAL_SECURITY",
-            content: "The project backs the game with a dedicated allocation of supply. This reserve ensures the game stays fast and everyone gets their bonus, regardless of how many new people join. Your payout is guaranteed by the project's own marketing commitment.",
+            content: "The project backs the game with a dedicated allocation of supply. This reserve ensures the game stays fast and everyone gets their bonus, regardless of how many new people join. Your payout is structured by the project's own marketing commitment.",
             stats: [
                 { label: "BACKING", value: "LOCKED_SUPPLY" },
                 { label: "STATUS", value: "ALWAYS_ACTIVE" }
@@ -456,6 +456,8 @@ export default function BrandingPage() {
                 </div>
             </section>
 
+            <ComplianceDisclaimer variant="footer" />
+            
             <footer style={{ marginTop: '5rem', opacity: 0.3, fontSize: '0.7rem', fontFamily: 'var(--font-mono)' }}>
                 END_OF_INTEL_PACKAGE // TRB_SYS_01
             </footer>

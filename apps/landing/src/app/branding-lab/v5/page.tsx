@@ -2,7 +2,7 @@
 
 import React from "react";
 import styles from "../lab.module.css";
-import { Logo } from "@trenches/ui";
+import { Logo, ComplianceDisclaimer } from "@trenches/ui";
 import { motion } from "framer-motion";
 import { ArrowDown, Info, ArrowRight, Sun, Moon } from "lucide-react";
 
@@ -151,7 +151,7 @@ export default function MinimalVariation() {
         {
             title: "The Security",
             heading: "$100 In. $150 Out.",
-            text: "We protect your money. Your original deposit is pegged to the dollar. Even if the coin price changes while you wait, your 50% profit is guaranteed based on the dollars you started with.",
+            text: "We protect your money. Your original deposit is pegged to the dollar. Even if the coin price changes while you wait, your 50% targeted reward is structured for delivery when duties are completed.",
             stats: ["USD Normalized", "Anti Volatility"]
         },
         {
@@ -356,6 +356,7 @@ export default function MinimalVariation() {
                     </section>
 
                     <footer className={styles.v5Footer}>
+                        <ComplianceDisclaimer variant="footer" />
                         <div className={styles.v5FooterContent}>
                             <div className={styles.v5FooterLinks}>
                                 <a href="#" className={styles.v5FooterLink}>Documentation</a>

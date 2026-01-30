@@ -133,7 +133,7 @@ export default function WelcomePage() {
     // 6. Early Returns
     if (userSession) {
         return (
-            <>
+            <div className={styles.v6Container} data-theme={isDarkMode ? 'dark' : 'light'}>
                 <WaitlistDashboard userSession={userSession} onLogout={handleLogout} />
 
                 {/* Dashboard-level Theme Toggle for UX parity */}
@@ -145,7 +145,7 @@ export default function WelcomePage() {
                 >
                     {isDarkMode ? <Sun size={14} strokeWidth={1.5} /> : <Moon size={14} strokeWidth={1.5} />}
                 </button>
-            </>
+            </div>
         );
     }
 
@@ -153,7 +153,7 @@ export default function WelcomePage() {
     const platformName = config?.platformName || "TRENCHES";
 
     return (
-        <>
+        <div className={styles.v6Container} data-theme={isDarkMode ? 'dark' : 'light'}>
             <header className={styles.v6Meta}>
                 <Logo platformName={platformName} />
 
@@ -368,6 +368,6 @@ export default function WelcomePage() {
                 onClose={() => setIsOnboardingOpen(false)}
                 onComplete={handleOnboardingComplete}
             />
-        </>
+        </div>
     );
 }

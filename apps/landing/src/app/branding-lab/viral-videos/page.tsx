@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import styles from "./viral.module.css";
+import { ComplianceDisclaimer } from "@trenches/ui";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Play, 
@@ -166,7 +167,7 @@ const GetPaidVideo = ({ isPlaying, currentFrame }: { isPlaying: boolean; current
                 transition={{ delay: 0.5 }}
               >
                 <Shield size={18} />
-                <span>NOT TRADING. GUARANTEED.</span>
+                <span>NOT TRADING. STRUCTURED.</span>
               </motion.div>
             </motion.div>
             <motion.p 
@@ -714,6 +715,9 @@ export default function ViralVideosDemo() {
             ))}
           </div>
         </div>
+
+        {/* Compliance Disclaimer */}
+        <ComplianceDisclaimer variant="footer" />
 
         {/* Technical Notes */}
         <div className={styles.techNotes}>

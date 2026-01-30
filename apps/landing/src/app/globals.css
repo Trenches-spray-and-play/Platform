@@ -40,6 +40,24 @@
   --font-mono: 'Space Mono', 'JetBrains Mono', monospace;
 }
 
+[data-theme='light'] {
+  --bg-zenith: #FFFFFF;
+  --bg-secondary: #F8F8F8;
+  --bg-tertiary: #F0F0F0;
+
+  --text-primary: #000000;
+  --text-secondary: #444444;
+  --text-muted: #888888;
+
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-secondary: rgba(0, 0, 0, 0.15);
+
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.08);
+
+  --glow-white: 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
