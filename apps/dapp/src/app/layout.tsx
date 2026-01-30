@@ -45,6 +45,35 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Prevent wallet extension conflicts */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Store original ethereum before extensions can mess with it
+              if (typeof window !== 'undefined') {
+                window.__originalEthereum = window.ethereum;
+                
+                // Prevent extensions from redefining ethereum
+                try {
+                  Object.defineProperty(window, 'ethereum', {
+                    get() { return window.__originalEthereum; },
+                    set(v) { 
+                      if (!window.__originalEthereum) {
+                        window.__originalEthereum = v;
+                      }
+                    },
+                    configurable: true,
+                    enumerable: true
+                  });
+                } catch (e) {
+                  console.warn('Could not protect window.ethereum:', e);
+                }
+              }
+            `
+          }}
+        />
+      </head>
       <body className="antialiased">
         <AppLayoutWrapper>
           {children}

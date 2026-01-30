@@ -92,7 +92,80 @@
 .section h2 {
   font-size: 1.25rem;
   font-weight: 600;
+  margin: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin-bottom: var(--space-5);
+}
+
+/* Info Tooltip */
+.infoIcon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--text-tertiary);
+  cursor: help;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.infoIcon:hover {
+  color: var(--accent-primary);
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  margin-bottom: var(--space-2);
+  pointer-events: none;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--border-primary);
+}
+
+/* Security Badges - Condensed */
+.securityBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 /* Wallet Cards */
@@ -187,7 +260,9 @@
 }
 
 .inputGroup label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-size: 0.9375rem;
   font-weight: 500;
   margin-bottom: var(--space-2);
@@ -350,7 +425,33 @@
 
   .section h2 {
     font-size: 1.125rem;
+  }
+
+  .sectionHeader {
     margin-bottom: var(--space-4);
+  }
+
+  .tooltip {
+    width: 240px;
+    font-size: 0.75rem;
+    left: auto;
+    right: -10px;
+    transform: none;
+  }
+
+  .tooltip::after {
+    left: auto;
+    right: 14px;
+    transform: none;
+  }
+
+  .securityBadges {
+    gap: var(--space-2);
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: var(--space-1) var(--space-2);
   }
 
   /* Wallet Cards Mobile */

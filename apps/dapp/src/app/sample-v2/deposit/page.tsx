@@ -18,8 +18,54 @@ const CHAIN_CONFIG: Record<Chain, { name: string; icon: string; color: string; n
   solana: { name: "Solana", icon: "◎", color: "#14F195", nativeAsset: "SOL" },
 };
 
+// BLT Logo Component - Believe Trust Monolith of Conviction
+// Styled to blend with other coin icons (colored circular background)
+function BLTLogo({ size = 32 }: { size?: number }) {
+  const logoSize = Math.round(size * 0.75);
+  const offset = (size - logoSize) / 2;
+  return (
+    <div 
+      style={{ 
+        width: size, 
+        height: size, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, #00FF66 0%, #00CC52 100%)',
+        boxShadow: '0 2px 8px rgba(0, 255, 102, 0.3)'
+      }}
+    >
+      <svg 
+        width={logoSize} 
+        height={logoSize} 
+        viewBox="0 0 200 200" 
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ display: 'block' }}
+      >
+        <defs>
+          <linearGradient id="bltGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#0a0a0a" />
+            <stop offset="100%" stopColor="#050505" />
+          </linearGradient>
+        </defs>
+        <rect width="200" height="200" rx="28" fill="url(#bltGrad)"/>
+        <text 
+          x="100" 
+          y="142" 
+          fontFamily="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          fontSize="120" 
+          fontWeight="900" 
+          fill="#ffffff" 
+          textAnchor="middle"
+        >B</text>
+      </svg>
+    </div>
+  );
+}
+
 // Coin configurations - each coin lists which chains support it
-const COIN_CONFIG: Record<Coin, { name: string; icon: string; color: string; supportedChains: Chain[] }> = {
+const COIN_CONFIG: Record<Coin, { name: string; icon: string | React.ReactNode; color: string; supportedChains: Chain[] }> = {
   USDC: { 
     name: "USD Coin", 
     icon: "$", 
@@ -52,7 +98,7 @@ const COIN_CONFIG: Record<Coin, { name: string; icon: string; color: string; sup
   },
   BLT: { 
     name: "Believe Trust", 
-    icon: "●", 
+    icon: "BLT_LOGO", // Special marker, will be rendered as component
     color: "#00FF66", 
     supportedChains: ['hyperevm']
   },
@@ -399,15 +445,21 @@ export default function DepositPage() {
             >
               {selectedCoin ? (
                 <>
-                  <span 
-                    className={styles.chainIconWrapper}
-                    style={{ 
-                      color: COIN_CONFIG[selectedCoin].color,
-                      background: `${COIN_CONFIG[selectedCoin].color}15`
-                    }}
-                  >
-                    {COIN_CONFIG[selectedCoin].icon}
-                  </span>
+                  {selectedCoin === 'BLT' ? (
+                    <span className={styles.chainIconWrapper} style={{ background: 'transparent', padding: 0, overflow: 'visible' }}>
+                      <BLTLogo size={36} />
+                    </span>
+                  ) : (
+                    <span 
+                      className={styles.chainIconWrapper}
+                      style={{ 
+                        color: COIN_CONFIG[selectedCoin].color,
+                        background: `${COIN_CONFIG[selectedCoin].color}15`
+                      }}
+                    >
+                      {COIN_CONFIG[selectedCoin].icon}
+                    </span>
+                  )}
                   <div className={styles.chainSelectorInfo}>
                     <h3>{selectedCoin}</h3>
                     <p>{COIN_CONFIG[selectedCoin].name}</p>
@@ -600,15 +652,21 @@ export default function DepositPage() {
                       setSelectedChain(null);
                     }}
                   >
-                    <span 
-                      className={styles.chainIcon}
-                      style={{ 
-                        color: config.color,
-                        background: `${config.color}15`
-                      }}
-                    >
-                      {config.icon}
-                    </span>
+                    {coin === 'BLT' ? (
+                      <span className={styles.chainIcon} style={{ background: 'transparent', padding: 0, overflow: 'visible' }}>
+                        <BLTLogo size={32} />
+                      </span>
+                    ) : (
+                      <span 
+                        className={styles.chainIcon}
+                        style={{ 
+                          color: config.color,
+                          background: `${config.color}15`
+                        }}
+                      >
+                        {config.icon}
+                      </span>
+                    )}
                     <div className={styles.chainDetails}>
                       <span className={styles.chainName}>{coin}</span>
                       <span className={styles.chainSubtext}>
@@ -822,15 +880,21 @@ export default function DepositPage() {
                     setCoinSheetOpen(false);
                   }}
                 >
-                  <span 
-                    className={styles.chainIcon}
-                    style={{ 
-                      color: config.color,
-                      background: `${config.color}15`
-                    }}
-                  >
-                    {config.icon}
-                  </span>
+                  {coin === 'BLT' ? (
+                    <span className={styles.chainIcon} style={{ background: 'transparent', padding: 0, overflow: 'visible' }}>
+                      <BLTLogo size={32} />
+                    </span>
+                  ) : (
+                    <span 
+                      className={styles.chainIcon}
+                      style={{ 
+                        color: config.color,
+                        background: `${config.color}15`
+                      }}
+                    >
+                      {config.icon}
+                    </span>
+                  )}
                   <div className={styles.chainDetails}>
                     <span className={styles.chainName}>{coin}</span>
                     <span className={styles.chainSubtext}>

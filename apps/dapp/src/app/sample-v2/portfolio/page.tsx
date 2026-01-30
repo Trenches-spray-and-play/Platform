@@ -10,6 +10,25 @@ interface UserWallets {
   walletSol: string | null;
 }
 
+// Info Tooltip Component
+function InfoTooltip({ content }: { content: string }) {
+  const [show, setShow] = useState(false);
+  
+  return (
+    <span 
+      className={styles.infoIcon}
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+      onClick={() => setShow(!show)}
+    >
+      ⓘ
+      {show && (
+        <span className={styles.tooltip}>{content}</span>
+      )}
+    </span>
+  );
+}
+
 export default function WalletPage() {
   const [wallets, setWallets] = useState<UserWallets>({
     wallet: null,
@@ -53,7 +72,7 @@ export default function WalletPage() {
       
       if (evmInput.trim()) {
         if (!evmInput.startsWith("0x") || evmInput.length !== 42) {
-          setMessage({ type: "error", text: "Invalid EVM address format (must be 0x + 40 hex chars)" });
+          setMessage({ type: "error", text: "Invalid EVM address format" });
           setSaving(false);
           return;
         }
@@ -63,7 +82,7 @@ export default function WalletPage() {
 
       if (solInput.trim()) {
         if (solInput.length < 32 || solInput.length > 44 || solInput.startsWith("0x")) {
-          setMessage({ type: "error", text: "Invalid Solana address format" });
+          setMessage({ type: "error", text: "Invalid Solana address" });
           setSaving(false);
           return;
         }
@@ -82,10 +101,10 @@ export default function WalletPage() {
           setWallets(data.data);
           setEvmInput("");
           setSolInput("");
-          setMessage({ type: "success", text: "Wallets updated successfully!" });
+          setMessage({ type: "success", text: "Wallets updated!" });
         }
       } else {
-        setMessage({ type: "error", text: "Failed to update wallets" });
+        setMessage({ type: "error", text: "Failed to update" });
       }
     } catch (error) {
       setMessage({ type: "error", text: "An error occurred" });
@@ -106,35 +125,24 @@ export default function WalletPage() {
           {/* Header */}
           <div className={styles.header}>
             <h1>Withdrawal Wallets</h1>
-            <p>Set your personal wallet addresses where payouts will be sent</p>
-          </div>
-
-          {/* Info Alert */}
-          <div className={styles.alert}>
-            <div className={styles.alertIcon}>⚠</div>
-            <div className={styles.alertContent}>
-              <strong>Important</strong>
-              <p>
-                These are YOUR personal wallets where campaign payouts will be sent. 
-                Make sure you control these addresses. Payouts cannot be reversed once sent.
-              </p>
-            </div>
+            <p>Set where your payouts go</p>
           </div>
 
           {/* Current Wallets */}
           <section className={styles.section}>
-            <h2>Current Withdrawal Addresses</h2>
+            <div className={styles.sectionHeader}>
+              <h2>Your Addresses</h2>
+              <InfoTooltip content="These wallets receive your campaign payouts. Make sure you control them - payouts cannot be reversed." />
+            </div>
+            
             <div className={styles.walletCards}>
               <div className={styles.walletCard}>
                 <div className={styles.walletHeader}>
                   <span className={styles.walletIcon}>◈</span>
-                  <span className={styles.walletType}>EVM Address</span>
+                  <span className={styles.walletType}>EVM</span>
                 </div>
                 <div className={styles.walletAddress}>
                   {shortenAddress(wallets.walletEvm || wallets.wallet)}
-                </div>
-                <div className={styles.walletNote}>
-                  For Ethereum, Base, Arbitrum, HyperEVM payouts
                 </div>
                 {(wallets.walletEvm || wallets.wallet) && (
                   <div className={styles.walletFull}>
@@ -146,13 +154,10 @@ export default function WalletPage() {
               <div className={styles.walletCard}>
                 <div className={styles.walletHeader}>
                   <span className={styles.walletIcon}>◎</span>
-                  <span className={styles.walletType}>Solana Address</span>
+                  <span className={styles.walletType}>Solana</span>
                 </div>
                 <div className={styles.walletAddress}>
                   {shortenAddress(wallets.walletSol)}
-                </div>
-                <div className={styles.walletNote}>
-                  For Solana payouts
                 </div>
                 {wallets.walletSol && (
                   <div className={styles.walletFull}>
@@ -165,7 +170,9 @@ export default function WalletPage() {
 
           {/* Update Form */}
           <section className={styles.section}>
-            <h2>Update Withdrawal Addresses</h2>
+            <div className={styles.sectionHeader}>
+              <h2>Update Addresses</h2>
+            </div>
             
             {message && (
               <div className={`${styles.message} ${styles[message.type]}`}>
@@ -175,7 +182,10 @@ export default function WalletPage() {
 
             <div className={styles.form}>
               <div className={styles.inputGroup}>
-                <label>EVM Withdrawal Address (Ethereum, Base, Arbitrum, HyperEVM)</label>
+                <label>
+                  EVM Address
+                  <InfoTooltip content="Your EVM address works for Ethereum, Base, Arbitrum, and HyperEVM payouts. Must start with 0x and be 42 characters." />
+                </label>
                 <input
                   type="text"
                   value={evmInput}
@@ -184,21 +194,24 @@ export default function WalletPage() {
                   className={styles.input}
                 />
                 <span className={styles.inputHelp}>
-                  Leave empty to keep current: {shortenAddress(wallets.walletEvm || wallets.wallet)}
+                  Current: {shortenAddress(wallets.walletEvm || wallets.wallet)}
                 </span>
               </div>
 
               <div className={styles.inputGroup}>
-                <label>Solana Withdrawal Address</label>
+                <label>
+                  Solana Address
+                  <InfoTooltip content="Your Solana wallet address for SOL payouts. Must be 32-44 characters." />
+                </label>
                 <input
                   type="text"
                   value={solInput}
                   onChange={(e) => setSolInput(e.target.value)}
-                  placeholder="Enter Solana address..."
+                  placeholder="Enter address..."
                   className={styles.input}
                 />
                 <span className={styles.inputHelp}>
-                  Leave empty to keep current: {shortenAddress(wallets.walletSol)}
+                  Current: {shortenAddress(wallets.walletSol)}
                 </span>
               </div>
 
@@ -207,36 +220,21 @@ export default function WalletPage() {
                 onClick={saveWallets}
                 disabled={saving || (!evmInput.trim() && !solInput.trim())}
               >
-                {saving ? "Saving..." : "Save Withdrawal Addresses"}
+                {saving ? "Saving..." : "Save Addresses"}
               </button>
             </div>
           </section>
 
-          {/* Security Notes */}
+          {/* Security Notes - Condensed */}
           <section className={styles.section}>
-            <h2>Security Information</h2>
-            <div className={styles.securityList}>
-              <div className={styles.securityItem}>
-                <span className={styles.securityIcon}>✓</span>
-                <div>
-                  <strong>Double-check your addresses</strong>
-                  <p>Payouts are irreversible. Make sure you control the wallet.</p>
-                </div>
-              </div>
-              <div className={styles.securityItem}>
-                <span className={styles.securityIcon}>✓</span>
-                <div>
-                  <strong>Use a secure wallet</strong>
-                  <p>Hardware wallets or secure software wallets recommended.</p>
-                </div>
-              </div>
-              <div className={styles.securityItem}>
-                <span className={styles.securityIcon}>✓</span>
-                <div>
-                  <strong>Same address for all EVM chains</strong>
-                  <p>Your EVM address works for Ethereum, Base, Arbitrum, and HyperEVM.</p>
-                </div>
-              </div>
+            <div className={styles.sectionHeader}>
+              <h2>Security</h2>
+              <InfoTooltip content="Payouts are irreversible. Always double-check your addresses and use secure wallets. Your EVM address works across all EVM chains." />
+            </div>
+            <div className={styles.securityBadges}>
+              <span className={styles.badge}>✓ Verify addresses</span>
+              <span className={styles.badge}>✓ Use secure wallets</span>
+              <span className={styles.badge}>✓ One EVM address for all chains</span>
             </div>
           </section>
         </div>

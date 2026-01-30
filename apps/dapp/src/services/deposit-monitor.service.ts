@@ -123,13 +123,30 @@ function initializeChainClient(chain: Chain): PublicClient | null {
 
 /**
  * Get all watched addresses for a chain
+ * Cached to reduce DB load
  */
+let watchedAddressesCache: Map<string, { addresses: string[]; timestamp: number }> = new Map();
+const CACHE_TTL = 60000; // 60 seconds
+
 async function getWatchedAddresses(chain: Chain): Promise<string[]> {
-    const addresses = await prisma.depositAddress.findMany({
-        where: { chain },
-        select: { address: true },
-    });
-    return addresses.map(a => a.address);
+    const cached = watchedAddressesCache.get(chain);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        return cached.addresses;
+    }
+    
+    try {
+        const addresses = await prisma.depositAddress.findMany({
+            where: { chain },
+            select: { address: true },
+        });
+        const addressList = addresses.map(a => a.address);
+        watchedAddressesCache.set(chain, { addresses: addressList, timestamp: Date.now() });
+        return addressList;
+    } catch (error) {
+        console.error(`[DepositMonitor] Failed to get watched addresses for ${chain}:`, error);
+        // Return cached even if expired, or empty array
+        return cached?.addresses || [];
+    }
 }
 
 /**
@@ -899,7 +916,11 @@ export async function startChainMonitoring(chain: Chain): Promise<void> {
         pollInterval: null,
     };
 
-    console.log(`[DepositMonitor] ✅ Starting ${chain} deposit monitoring from block ${currentBlock}, polling every ${config.pollingInterval}s`);
+    // Use longer polling interval in production to reduce DB load
+    const isServerless = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    const pollIntervalMs = isServerless ? 30000 : config.pollingInterval * 1000; // 30s on Vercel, 10s local
+    
+    console.log(`[DepositMonitor] ✅ Starting ${chain} deposit monitoring from block ${currentBlock}, polling every ${pollIntervalMs/1000}s`);
 
     // Poll for new blocks
     const pollInterval = setInterval(async () => {
@@ -921,9 +942,13 @@ export async function startChainMonitoring(chain: Chain): Promise<void> {
             // Also update pending confirmations
             await updateEvmPendingConfirmations(chain);
         } catch (error) {
-            console.error(`Error polling ${chain}:`, error);
+            console.error(`[DepositMonitor] Error polling ${chain}:`, error);
+            // Don't crash on DB connection errors in serverless
+            if ((error as any)?.code === 'P2024') {
+                console.warn(`[DepositMonitor] DB pool exhausted for ${chain}, skipping this poll`);
+            }
         }
-    }, config.pollingInterval * 1000);
+    }, pollIntervalMs);
 
     evmChainStates[chain]!.pollInterval = pollInterval;
 }
@@ -994,16 +1019,31 @@ export function stopChainMonitoring(chain: Chain): void {
 
 /**
  * Start monitoring all supported chains
+ * Staggered start to prevent DB connection pool exhaustion
  */
 export async function startAllChainMonitoring(): Promise<void> {
-    const evmChains: Exclude<Chain, 'solana'>[] = ['ethereum', 'base', 'arbitrum', 'hyperevm', 'bsc'];
-
-    for (const chain of evmChains) {
-        await startChainMonitoring(chain);
+    // Only monitor chains that have deposit addresses
+    const watchedAddresses = await prisma.depositAddress.findMany({
+        select: { chain: true },
+        distinct: ['chain'],
+    });
+    
+    const activeChains = new Set(watchedAddresses.map(w => w.chain));
+    console.log(`[DepositMonitor] Active chains with deposit addresses:`, Array.from(activeChains));
+    
+    // Priority: hyperevm first (where BLT is), then others
+    const chainPriority: Chain[] = ['hyperevm', 'ethereum', 'base', 'arbitrum', 'bsc', 'solana'];
+    
+    for (const chain of chainPriority) {
+        if (activeChains.has(chain) || chain === 'hyperevm') { // Always monitor hyperevm
+            console.log(`[DepositMonitor] Starting ${chain} monitoring...`);
+            await startChainMonitoring(chain);
+            // Wait 2 seconds between chain starts to prevent connection spike
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        } else {
+            console.log(`[DepositMonitor] Skipping ${chain} - no deposit addresses yet`);
+        }
     }
-
-    // Start Solana monitoring
-    await startSolanaMonitoring();
 }
 
 /**
