@@ -27,17 +27,17 @@ export async function initializeBlockchainServices() {
     return;
   }
 
-  // Start monitoring for spray entries (legacy system)
-  await startMonitoring();
+  // Start monitoring for spray entries (legacy system) - DISABLED to save connections
+  // await startMonitoring();
 
   // Start deposit monitoring for all chains (deposit address system)
   await startAllChainMonitoring();
 
   // Start scheduled sweeps to consolidate deposits
-  startScheduledSweeps();
+  // startScheduledSweeps();
 
-  // Start reorg protection background checker
-  startReorgChecker();
+  // Start reorg protection background checker - DISABLED to save connections
+  // startReorgChecker();
 
   monitoringStarted = true;
 
@@ -47,10 +47,12 @@ export async function initializeBlockchainServices() {
     console.log(`Expired ${expiredCount} pending transactions on startup`);
   }
 
-  // Schedule periodic expiration check (every 5 minutes)
+  // Schedule periodic expiration check (every 5 minutes) - DISABLED for serverless
+  /*
   setInterval(async () => {
     await expirePendingTransactions();
   }, 5 * 60 * 1000);
+  */
 
   console.log('Blockchain services initialized');
 }

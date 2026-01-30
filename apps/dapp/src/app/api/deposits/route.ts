@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { config } from '@/lib/config';
 
+import { getSession } from '@/lib/auth';
+
 // Confirmation requirements per chain
 const CONFIRMATION_REQUIREMENTS: Record<string, { threshold: number; total: number }> = {
     ethereum: { threshold: 12, total: 24 },
@@ -18,17 +20,20 @@ const CONFIRMATION_REQUIREMENTS: Record<string, { threshold: number; total: numb
     solana: { threshold: 32, total: 48 },
 };
 
-// GET /api/deposits?userId=xxx
+// GET /api/deposits
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
-        const userId = searchParams.get('userId');
         const limit = parseInt(searchParams.get('limit') || '50', 10);
+
+        // ALWAYS use session ID for security and reliability
+        const session = await getSession();
+        const userId = session?.id;
 
         if (!userId) {
             return NextResponse.json(
-                { error: 'userId is required' },
-                { status: 400 }
+                { error: 'Unauthorized' },
+                { status: 401 }
             );
         }
 

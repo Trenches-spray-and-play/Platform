@@ -18,11 +18,9 @@ const CHAIN_CONFIG: Record<Chain, { name: string; icon: string; color: string; n
   solana: { name: "Solana", icon: "◎", color: "#14F195", nativeAsset: "SOL" },
 };
 
-// BLT Logo Component - Believe Trust Monolith of Conviction
-// Styled to blend with other coin icons (colored circular background)
+// BLT Logo Component - Believe Trust
+// White "B" directly on Solana green circular background
 function BLTLogo({ size = 32 }: { size?: number }) {
-  const logoSize = Math.round(size * 0.75);
-  const offset = (size - logoSize) / 2;
   return (
     <div 
       style={{ 
@@ -32,34 +30,22 @@ function BLTLogo({ size = 32 }: { size?: number }) {
         alignItems: 'center', 
         justifyContent: 'center',
         borderRadius: '50%',
-        background: 'linear-gradient(135deg, #00FF66 0%, #00CC52 100%)',
-        boxShadow: '0 2px 8px rgba(0, 255, 102, 0.3)'
+        background: '#14F195',
+        boxShadow: '0 2px 8px rgba(20, 241, 149, 0.3)'
       }}
     >
-      <svg 
-        width={logoSize} 
-        height={logoSize} 
-        viewBox="0 0 200 200" 
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ display: 'block' }}
+      <span 
+        style={{
+          fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontSize: Math.round(size * 0.55),
+          fontWeight: 900,
+          color: '#ffffff',
+          lineHeight: 1,
+          transform: 'translateY(-1px)'
+        }}
       >
-        <defs>
-          <linearGradient id="bltGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0a0a0a" />
-            <stop offset="100%" stopColor="#050505" />
-          </linearGradient>
-        </defs>
-        <rect width="200" height="200" rx="28" fill="url(#bltGrad)"/>
-        <text 
-          x="100" 
-          y="142" 
-          fontFamily="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-          fontSize="120" 
-          fontWeight="900" 
-          fill="#ffffff" 
-          textAnchor="middle"
-        >B</text>
-      </svg>
+        B
+      </span>
     </div>
   );
 }
@@ -99,7 +85,7 @@ const COIN_CONFIG: Record<Coin, { name: string; icon: string | React.ReactNode; 
   BLT: { 
     name: "Believe Trust", 
     icon: "BLT_LOGO", // Special marker, will be rendered as component
-    color: "#00FF66", 
+    color: "#14F195", // Same green as Solana
     supportedChains: ['hyperevm']
   },
   HYPE: { 
