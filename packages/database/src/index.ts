@@ -1,31 +1,37 @@
 import { PrismaClient } from '@prisma/client';
-import { getOptimizedDatabaseUrl, logDbConfig } from './utils';
 
-// Prevent multiple instances during development hot-reload
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
-// Log configuration on startup
-logDbConfig();
+// Detect if we're using PgBouncer
+const isPgBouncer = process.env.DATABASE_URL?.includes('pgbouncer=true') ||
+  process.env.DATABASE_URL?.includes(':6543');
 
-// Get optimized URL with connection parameters
-const optimizedUrl = getOptimizedDatabaseUrl();
+// Parse connection limit from URL or default to 1 for serverless
+const getConnectionLimit = () => {
+  const match = process.env.DATABASE_URL?.match(/connection_limit=(\d+)/);
+  return match ? parseInt(match[1], 10) : 1;
+};
 
-// Serverless-optimized Prisma client
+// Prisma Client configuration optimized for serverless + PgBouncer
+const prismaConfig = {
+  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+};
+
 export const prisma =
   globalForPrisma.prisma ||
-  new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-    datasources: {
-      db: {
-        url: optimizedUrl,
-      },
-    },
-  });
+  new PrismaClient(prismaConfig);
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+globalForPrisma.prisma = prisma;
 
-// Re-export types from Prisma client
+// Log connection mode on startup (only once)
+if (!globalForPrisma.prisma) {
+  console.log(`[Prisma] Mode: ${isPgBouncer ? 'PgBouncer' : 'Direct'}, Connection limit: ${getConnectionLimit()}`);
+}
+
+// Handle connection errors gracefully
+prisma.$on('error' as any, (e: any) => {
+  console.error('[Prisma] Connection error:', e);
+});
+
 export * from '@prisma/client';
-
-// Export the default client
 export default prisma;
