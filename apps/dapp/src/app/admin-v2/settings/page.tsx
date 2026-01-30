@@ -55,22 +55,24 @@ export default function SettingsPage() {
     try {
       const res = await fetch("/api/admin/config");
       const data = await res.json();
-      if (data.success && data.config) {
-        setConfig(data.config);
+      // Handle { success: true, config: {} } format
+      const config = data.config || data.data;
+      if (config) {
+        setConfig(config);
         setFormData({
-          deploymentDate: data.config.deploymentDate ? data.config.deploymentDate.slice(0, 16) : "",
-          telegramUrl: data.config.telegramUrl || "",
-          twitterUrl: data.config.twitterUrl || "",
-          twitterHandle: data.config.twitterHandle || "",
-          onboardingTweetText: data.config.onboardingTweetText || "",
-          platformName: data.config.platformName || "",
-          referralDomain: data.config.referralDomain || "",
-          docsUrl: data.config.docsUrl || "",
-          waitlistStatusMessage: data.config.waitlistStatusMessage || "",
-          deploymentStatusMessage: data.config.deploymentStatusMessage || "",
+          deploymentDate: config.deploymentDate ? config.deploymentDate.slice(0, 16) : "",
+          telegramUrl: config.telegramUrl || "",
+          twitterUrl: config.twitterUrl || "",
+          twitterHandle: config.twitterHandle || "",
+          onboardingTweetText: config.onboardingTweetText || "",
+          platformName: config.platformName || "",
+          referralDomain: config.referralDomain || "",
+          docsUrl: config.docsUrl || "",
+          waitlistStatusMessage: config.waitlistStatusMessage || "",
+          deploymentStatusMessage: config.deploymentStatusMessage || "",
         });
-        if (data.config.beliefTiers) {
-          setBeliefTiers(data.config.beliefTiers);
+        if (config.beliefTiers && Array.isArray(config.beliefTiers)) {
+          setBeliefTiers(config.beliefTiers);
         }
       }
     } catch (err) {
@@ -92,11 +94,16 @@ export default function SettingsPage() {
           updatedBy: "admin",
         }),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
         fetchConfig();
+        alert("Settings saved successfully");
+      } else {
+        alert(data.error || "Failed to save settings");
       }
     } catch (err) {
       console.error("Failed to save config:", err);
+      alert("Failed to save settings");
     }
     setSaving(false);
   };

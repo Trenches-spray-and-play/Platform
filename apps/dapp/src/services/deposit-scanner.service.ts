@@ -4,7 +4,7 @@ import { scanEvmChain } from './evm-scanner.service';
 import { scanSolana } from './solana-scanner.service';
 import { creditDeposits, FoundDeposit } from './deposit-credit.service';
 
-const SCAN_BLOCKS_COUNT = 1000; // Increased from 100 to catch older deposits (~15-20 min window)
+const SCAN_BLOCKS_COUNT = 5000; // Increased from 1000 to catch older deposits on fast chains (~1.5h window)
 const RATE_LIMIT_WINDOW_MS = 30000; // 30 seconds
 const CHAIN_SCAN_TIMEOUT_MS = 3000; // 3 seconds per chain
 

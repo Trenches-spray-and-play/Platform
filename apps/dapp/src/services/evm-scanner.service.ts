@@ -34,7 +34,8 @@ export async function scanEvmChain(
     depositAddress: string,
     blocksToScan: number = 100
 ): Promise<FoundDeposit[]> {
-    console.log(`[EvmScanner] Scanning ${chain} for ${depositAddress}...`);
+    const normalizedAddress = depositAddress.toLowerCase();
+    console.log(`[EvmScanner] Scanning ${chain} for ${normalizedAddress}...`);
 
     const client = getClient(chain);
     const foundDeposits: FoundDeposit[] = [];
@@ -52,7 +53,7 @@ export async function scanEvmChain(
                 const logs = await client.getLogs({
                     address: tokenAddress as Address,
                     event: ERC20_ABI[0],
-                    args: { to: depositAddress as Address },
+                    args: { to: normalizedAddress as Address },
                     fromBlock,
                     toBlock: currentBlock,
                 });
@@ -73,11 +74,11 @@ export async function scanEvmChain(
         // 2. Scan native asset balance (ETH, BNB, HYPE)
         const nativePromise = (async () => {
             try {
-                const balance = await client.getBalance({ address: depositAddress as Address });
+                const balance = await client.getBalance({ address: normalizedAddress as Address });
 
                 // Get cached balance from DB to detect increases
                 const da = await prisma.depositAddress.findFirst({
-                    where: { address: depositAddress, chain },
+                    where: { address: { equals: normalizedAddress, mode: 'insensitive' }, chain },
                     select: { cachedBalance: true }
                 });
 
@@ -89,7 +90,7 @@ export async function scanEvmChain(
 
                     // Native transfers don't have events, so we use a pseudo-tx-hash 
                     // that incorporates the block number to prevent double-crediting
-                    const pseudoTxHash = `native-${chain}-${depositAddress}-${currentBlock}`;
+                    const pseudoTxHash = `native-${chain}-${normalizedAddress}-${currentBlock}`;
 
                     return [{
                         txHash: pseudoTxHash,
@@ -110,7 +111,7 @@ export async function scanEvmChain(
         foundDeposits.push(...results.flat());
 
         if (foundDeposits.length > 0) {
-            console.log(`[EvmScanner] Found ${foundDeposits.length} deposits for ${depositAddress} on ${chain}`);
+            console.log(`[EvmScanner] Found ${foundDeposits.length} deposits for ${normalizedAddress} on ${chain}`);
         }
 
     } catch (error) {

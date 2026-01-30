@@ -63,8 +63,14 @@ export default function DepositsPage() {
       const depositsData = await depositsRes.json();
       const balanceData = await balanceRes.json();
 
-      if (depositsData.data) setDeposits(depositsData.data);
-      if (balanceData.data) setBalance(balanceData.data);
+      // Handle different API response formats
+      const deposits = depositsData.data || depositsData || [];
+      if (Array.isArray(deposits)) setDeposits(deposits);
+      
+      const balance = balanceData.data || balanceData;
+      if (balance && (balance.totals || balance.byChain)) {
+        setBalance(balance);
+      }
     } catch (err) {
       console.error("Failed to fetch deposits:", err);
     }
@@ -168,14 +174,14 @@ export default function DepositsPage() {
         <div className={styles.statsGrid}>
           <StatCard
             label="Total Deposits (USD)"
-            value={`$${balance?.totals?.totalDepositsUsd?.toFixed(2) || "0.00"}`}
+            value={`$${(balance?.totals?.totalDepositsUsd || 0).toFixed(2)}`}
             icon="💰"
             variant="accent"
             size="compact"
           />
           <StatCard
             label="Unswept Funds"
-            value={`$${balance?.totals?.unsweptUsd?.toFixed(2) || "0.00"}`}
+            value={`$${(balance?.totals?.unsweptUsd || 0).toFixed(2)}`}
             icon="⏳"
             variant="warning"
             size="compact"
@@ -183,21 +189,21 @@ export default function DepositsPage() {
           />
           <StatCard
             label="Swept Funds"
-            value={`$${balance?.totals?.sweptUsd?.toFixed(2) || "0.00"}`}
+            value={`$${(balance?.totals?.sweptUsd || 0).toFixed(2)}`}
             icon="✓"
             variant="info"
             size="compact"
           />
-          {balance?.byChain &&
-            Object.entries(balance.byChain).map(([chain, data]) => (
+          {balance?.byChain && typeof balance.byChain === 'object' &&
+            Object.entries(balance.byChain).map(([chain, data]: [string, any]) => (
               <StatCard
                 key={chain}
                 label={`${chain.toUpperCase()} Deposits`}
-                value={`$${data.totalDeposits.toFixed(2)}`}
+                value={`$${(data?.totalDeposits || 0).toFixed(2)}`}
                 icon="🔗"
                 variant="default"
                 size="compact"
-                subValue={`${data.depositCount} deposits`}
+                subValue={`${data?.depositCount || 0} deposits`}
               />
             ))}
         </div>

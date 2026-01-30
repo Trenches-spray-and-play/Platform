@@ -12,7 +12,8 @@ export default function AdminLoginPage() {
     const checkAuth = async () => {
       try {
         const res = await fetch("/api/admin/verify");
-        if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated) {
           // Already authenticated, redirect to dashboard
           router.push("/admin-v2");
         }

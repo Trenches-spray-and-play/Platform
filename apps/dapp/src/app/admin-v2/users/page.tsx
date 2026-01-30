@@ -46,9 +46,11 @@ export default function UsersPage() {
         `/api/admin/users?search=${encodeURIComponent(search)}&page=${page}&limit=${ITEMS_PER_PAGE}`
       );
       const data = await res.json();
-      if (data.data) {
-        setUsers(data.data);
-        setTotal(data.meta?.total || 0);
+      // Handle { data: [], meta: {} } format
+      const users = data.data || [];
+      if (Array.isArray(users)) {
+        setUsers(users);
+        setTotal(data.meta?.total || users.length);
       }
     } catch (err) {
       console.error("Failed to fetch users:", err);

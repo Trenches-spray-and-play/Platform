@@ -37,7 +37,9 @@ export default function TrenchesPage() {
     try {
       const res = await fetch("/api/admin/trenches");
       const data = await res.json();
-      if (data.data) setTrenches(data.data);
+      // Handle { data: [] } format
+      const trenches = data.data || [];
+      if (Array.isArray(trenches)) setTrenches(trenches);
     } catch (err) {
       console.error("Failed to fetch trenches:", err);
     }

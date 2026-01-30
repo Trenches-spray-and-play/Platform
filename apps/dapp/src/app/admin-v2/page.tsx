@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
   const fetchDashboardStats = async () => {
     try {
       // Fetch multiple stats in parallel
-      const [usersRes, campaignsRes, depositsRes, payoutsRes] = await Promise.all([
+      const [usersRes, campaignsRes, balanceRes, payoutsRes] = await Promise.all([
         fetch("/api/admin/users?limit=1"),
         fetch("/api/admin/campaigns"),
         fetch("/api/admin/balance"),
@@ -73,21 +73,24 @@ export default function AdminDashboardPage() {
 
       const usersData = await usersRes.json();
       const campaignsData = await campaignsRes.json();
-      const depositsData = await depositsRes.json();
+      const balanceData = await balanceRes.json();
       const payoutsData = await payoutsRes.json();
 
-      const campaigns = campaignsData.data || [];
-      const activeCampaigns = campaigns.filter((c: { isActive: boolean }) => c.isActive).length;
+      // Handle different API response formats
+      const campaigns = campaignsData.data || campaignsData || [];
+      const activeCampaigns = Array.isArray(campaigns) 
+        ? campaigns.filter((c: { isActive: boolean }) => c.isActive).length 
+        : 0;
 
       setStats({
         totalUsers: usersData.meta?.total || 0,
-        totalCampaigns: campaigns.length,
-        totalDeposits: depositsData.data?.totals?.totalDepositsUsd || 0,
+        totalCampaigns: Array.isArray(campaigns) ? campaigns.length : 0,
+        totalDeposits: balanceData.data?.totals?.totalDepositsUsd || balanceData.totals?.totalDepositsUsd || 0,
         totalPayouts: payoutsData.data?.totalPaidUsd || 0,
         activeCampaigns,
         pendingPayouts: payoutsData.data?.pending || 0,
-        recentUsers: 0, // Would need additional API
-        activeRaids: 0, // Would need additional API
+        recentUsers: 0,
+        activeRaids: 0,
       });
     } catch (error) {
       console.error("Failed to fetch dashboard stats:", error);

@@ -37,7 +37,9 @@ export default function SubmissionsPage() {
       const res = await fetch("/api/admin/content-submissions");
       if (res.ok) {
         const data = await res.json();
-        if (data.data) setSubmissions(data.data);
+        // Handle both { data: [] } and { success: true, data: [] }
+        const submissions = data.data || (data.success && data.data) || [];
+        if (Array.isArray(submissions)) setSubmissions(submissions);
       }
     } catch (err) {
       console.error("Failed to fetch submissions:", err);
@@ -47,19 +49,31 @@ export default function SubmissionsPage() {
 
   const handleApprove = async (submission: Submission) => {
     try {
-      await fetch(`/api/admin/content-submissions/${submission.id}/approve`, { method: "POST" });
-      fetchSubmissions();
+      const res = await fetch(`/api/admin/content-submissions/${submission.id}/approve`, { method: "POST" });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        fetchSubmissions();
+      } else {
+        alert(data.error || "Failed to approve submission");
+      }
     } catch (err) {
       console.error("Failed to approve submission:", err);
+      alert("Failed to approve submission");
     }
   };
 
   const handleReject = async (submission: Submission) => {
     try {
-      await fetch(`/api/admin/content-submissions/${submission.id}/reject`, { method: "POST" });
-      fetchSubmissions();
+      const res = await fetch(`/api/admin/content-submissions/${submission.id}/reject`, { method: "POST" });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        fetchSubmissions();
+      } else {
+        alert(data.error || "Failed to reject submission");
+      }
     } catch (err) {
       console.error("Failed to reject submission:", err);
+      alert("Failed to reject submission");
     }
   };
 

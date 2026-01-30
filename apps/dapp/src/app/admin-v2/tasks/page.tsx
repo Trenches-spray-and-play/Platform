@@ -44,7 +44,9 @@ export default function TasksPage() {
     try {
       const res = await fetch("/api/admin/tasks");
       const data = await res.json();
-      if (data.data) setTasks(data.data);
+      // Handle both { data: [] } and direct array formats
+      const tasks = data.data || data;
+      if (Array.isArray(tasks)) setTasks(tasks);
     } catch (err) {
       console.error("Failed to fetch tasks:", err);
     }
@@ -82,10 +84,16 @@ export default function TasksPage() {
   const handleDelete = async (task: Task) => {
     if (!confirm(`Delete task "${task.title}"? User completions will also be deleted.`)) return;
     try {
-      await fetch(`/api/admin/tasks/${task.id}`, { method: "DELETE" });
-      fetchTasks();
+      const res = await fetch(`/api/admin/tasks/${task.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        fetchTasks();
+      } else {
+        alert(data.error || "Failed to delete task");
+      }
     } catch (err) {
       console.error("Failed to delete task:", err);
+      alert("Failed to delete task");
     }
   };
 

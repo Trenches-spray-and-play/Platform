@@ -67,8 +67,10 @@ export default function CampaignsPage() {
     try {
       const res = await fetch("/api/admin/campaigns");
       const data = await res.json();
-      if (data.success) {
-        setCampaigns(data.data);
+      // Handle both { success: true, data: [] } and { data: [] } formats
+      const campaigns = data.data || data;
+      if (Array.isArray(campaigns)) {
+        setCampaigns(campaigns);
       }
     } catch (err) {
       console.error("Failed to fetch campaigns:", err);
@@ -120,11 +122,15 @@ export default function CampaignsPage() {
       const res = await fetch(`/api/admin/campaigns?id=${campaign.id}`, {
         method: "DELETE",
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
         fetchCampaigns();
+      } else {
+        alert(data.error || "Failed to delete campaign");
       }
     } catch (err) {
       console.error("Failed to delete campaign:", err);
+      alert("Failed to delete campaign");
     }
   };
 
@@ -135,11 +141,15 @@ export default function CampaignsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: campaign.id, isHidden: !campaign.isHidden }),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
         fetchCampaigns();
+      } else {
+        alert(data.error || "Failed to update visibility");
       }
     } catch (err) {
       console.error("Failed to toggle visibility:", err);
+      alert("Failed to update visibility");
     }
   };
 
@@ -151,6 +161,9 @@ export default function CampaignsPage() {
         ...formData,
         id: editingCampaign?.id,
         manualPrice: formData.manualPrice ? parseFloat(formData.manualPrice) : null,
+        tokenAddress: formData.tokenAddress || "0x0000000000000000000000000000000000000000",
+        tokenDecimals: 18,
+        acceptedTokens: [],
       };
 
       const res = await fetch("/api/admin/campaigns", {
@@ -159,12 +172,16 @@ export default function CampaignsPage() {
         body: JSON.stringify(body),
       });
 
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success || data.data) {
         setShowModal(false);
         fetchCampaigns();
+      } else {
+        alert(data.error || "Failed to save campaign");
       }
     } catch (err) {
       console.error("Failed to save campaign:", err);
+      alert("Failed to save campaign");
     }
     setSaving(false);
   };

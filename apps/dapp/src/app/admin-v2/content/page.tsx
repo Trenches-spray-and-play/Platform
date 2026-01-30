@@ -48,7 +48,10 @@ export default function ContentPage() {
     try {
       const res = await fetch("/api/admin/content-campaigns");
       const data = await res.json();
-      if (data.success) setCampaigns(data.data);
+      // Handle { success: true, data: [] } format
+      if (data.success && Array.isArray(data.data)) {
+        setCampaigns(data.data);
+      }
     } catch (err) {
       console.error("Failed to fetch content campaigns:", err);
     }
@@ -83,22 +86,32 @@ export default function ContentPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
         setShowModal(false);
         fetchCampaigns();
+      } else {
+        alert(data.error || "Failed to save campaign");
       }
     } catch (err) {
       console.error("Failed to save content campaign:", err);
+      alert("Failed to save campaign");
     }
   };
 
   const handleDelete = async (c: ContentCampaign) => {
     if (!confirm("Deactivate this campaign?")) return;
     try {
-      await fetch(`/api/admin/content-campaigns?id=${c.id}`, { method: "DELETE" });
-      fetchCampaigns();
+      const res = await fetch(`/api/admin/content-campaigns?id=${c.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        fetchCampaigns();
+      } else {
+        alert(data.error || "Failed to deactivate campaign");
+      }
     } catch (err) {
       console.error("Failed to delete campaign:", err);
+      alert("Failed to deactivate campaign");
     }
   };
 

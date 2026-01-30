@@ -133,13 +133,13 @@ async function getWatchedAddresses(chain: Chain): Promise<string[]> {
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
         return cached.addresses;
     }
-    
+
     try {
         const addresses = await prisma.depositAddress.findMany({
             where: { chain },
             select: { address: true },
         });
-        const addressList = addresses.map(a => a.address);
+        const addressList = addresses.map(a => a.address.toLowerCase());
         watchedAddressesCache.set(chain, { addresses: addressList, timestamp: Date.now() });
         return addressList;
     } catch (error) {
@@ -172,7 +172,7 @@ async function processIncomingDeposit(params: {
     }
 
     // Find the deposit address
-    const depositAddress = await getDepositAddressByAddress(toAddress);
+    const depositAddress = await getDepositAddressByAddress(toAddress.toLowerCase());
     if (!depositAddress) {
         console.log(`Address ${toAddress} not a deposit address, skipping`);
         return;
@@ -462,7 +462,7 @@ async function scanNativeTransfers(
 
             // Get deposit address info to check cached balance
             const depositAddress = await prisma.depositAddress.findFirst({
-                where: { address },
+                where: { address: { equals: address, mode: 'insensitive' } },
                 select: { id: true, userId: true, cachedBalance: true },
             });
 
@@ -549,7 +549,7 @@ async function scanChainForDeposits(chain: Chain, fromBlock: bigint, toBlock: bi
 
     const watchedAddresses = await getWatchedAddresses(chain);
     console.log(`[DepositMonitor] Scanning ${chain} blocks ${fromBlock}-${toBlock}, watching ${watchedAddresses.length} addresses`);
-    
+
     if (watchedAddresses.length === 0) {
         console.warn(`[DepositMonitor] No watched addresses for ${chain}`);
         return;
@@ -919,8 +919,8 @@ export async function startChainMonitoring(chain: Chain): Promise<void> {
     // Use longer polling interval in production to reduce DB load
     const isServerless = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
     const pollIntervalMs = isServerless ? 30000 : config.pollingInterval * 1000; // 30s on Vercel, 10s local
-    
-    console.log(`[DepositMonitor] ✅ Starting ${chain} deposit monitoring from block ${currentBlock}, polling every ${pollIntervalMs/1000}s`);
+
+    console.log(`[DepositMonitor] ✅ Starting ${chain} deposit monitoring from block ${currentBlock}, polling every ${pollIntervalMs / 1000}s`);
 
     // Poll for new blocks
     const pollInterval = setInterval(async () => {
@@ -1027,13 +1027,13 @@ export async function startAllChainMonitoring(): Promise<void> {
         select: { chain: true },
         distinct: ['chain'],
     });
-    
+
     const activeChains = new Set(watchedAddresses.map(w => w.chain));
     console.log(`[DepositMonitor] Active chains with deposit addresses:`, Array.from(activeChains));
-    
+
     // Priority: hyperevm first (where BLT is), then others
     const chainPriority: Chain[] = ['hyperevm', 'ethereum', 'base', 'arbitrum', 'bsc', 'solana'];
-    
+
     for (const chain of chainPriority) {
         if (activeChains.has(chain) || chain === 'hyperevm') { // Always monitor hyperevm
             console.log(`[DepositMonitor] Starting ${chain} monitoring...`);

@@ -41,7 +41,10 @@ export default function RaidsPage() {
     try {
       const res = await fetch("/api/admin/raids");
       const data = await res.json();
-      if (data.success) setRaids(data.data);
+      // Handle { success: true, data: [] } format
+      if (data.success && Array.isArray(data.data)) {
+        setRaids(data.data);
+      }
     } catch (err) {
       console.error("Failed to fetch raids:", err);
     }
@@ -57,22 +60,32 @@ export default function RaidsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
         setShowModal(false);
         fetchRaids();
+      } else {
+        alert(data.error || "Failed to save raid");
       }
     } catch (err) {
       console.error("Failed to save raid:", err);
+      alert("Failed to save raid");
     }
   };
 
   const handleDelete = async (raid: Raid) => {
     if (!confirm("Deactivate this raid?")) return;
     try {
-      await fetch(`/api/admin/raids?id=${raid.id}`, { method: "DELETE" });
-      fetchRaids();
+      const res = await fetch(`/api/admin/raids?id=${raid.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        fetchRaids();
+      } else {
+        alert(data.error || "Failed to deactivate raid");
+      }
     } catch (err) {
       console.error("Failed to delete raid:", err);
+      alert("Failed to deactivate raid");
     }
   };
 

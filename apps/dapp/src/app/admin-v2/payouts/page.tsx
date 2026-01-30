@@ -29,7 +29,10 @@ export default function PayoutsPage() {
     try {
       const res = await fetch("/api/payouts?stats=true");
       const data = await res.json();
-      if (data.success) setStats(data.data);
+      // Handle { success: true, data: {} } format
+      if (data.success && data.data) {
+        setStats(data.data);
+      }
     } catch (err) {
       console.error("Failed to fetch payout stats:", err);
     }
@@ -45,11 +48,16 @@ export default function PayoutsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "process", limit: 10 }),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
         fetchStats();
+        alert(`Processed ${data.data?.length || 0} payouts`);
+      } else {
+        alert(data.message || data.error || "Failed to process payouts");
       }
     } catch (err) {
       console.error("Failed to process payouts:", err);
+      alert("Failed to process payouts");
     }
     setProcessing(false);
   };

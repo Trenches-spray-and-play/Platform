@@ -43,18 +43,18 @@ export default function AdminLayout({ children, pageTitle }: AdminLayoutProps) {
     const verifyAdmin = async () => {
       try {
         const res = await fetch('/api/admin/verify');
-        if (!res.ok) {
+        const data = await res.json();
+        if (!data.authenticated) {
           window.location.href = '/admin-v2/login';
           return;
         }
-        // Get user info for display
-        const userRes = await fetch('/api/user');
-        const userData = await userRes.json();
-        if (userData.data) {
-          setAdminUser(userData.data);
+        // Use admin info from verify response
+        if (data.admin) {
+          setAdminUser({ handle: data.admin.handle || data.admin.email });
         }
       } catch (err) {
         console.error('Auth verification failed:', err);
+        window.location.href = '/admin-v2/login';
       }
     };
     verifyAdmin();
