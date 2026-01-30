@@ -221,7 +221,7 @@ export default function DepositPage() {
 
         // Store debug info
         setDebugInfo({
-          userId: uid,
+          userId: data.userId || uid,
           timestamp: new Date().toISOString(),
           rawResponse: data,
           depositsCount: data.deposits?.length || 0,
@@ -233,7 +233,9 @@ export default function DepositPage() {
         }
         if (data.pending?.summary) setPendingSummary(data.pending.summary);
       } else {
-        console.error('[Deposit Page] Failed to load deposits:', await res.text());
+        const errorText = await res.text();
+        console.error('[Deposit Page] Failed to load deposits:', errorText);
+        setGlobalError(`Error loading history: ${res.status}`);
       }
     } catch (err) {
       console.error("Failed to load deposits:", err);

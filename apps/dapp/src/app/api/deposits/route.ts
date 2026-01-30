@@ -20,6 +20,8 @@ const CONFIRMATION_REQUIREMENTS: Record<string, { threshold: number; total: numb
     solana: { threshold: 32, total: 48 },
 };
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/deposits
 export async function GET(request: NextRequest) {
     try {
@@ -31,8 +33,9 @@ export async function GET(request: NextRequest) {
         const userId = session?.id;
 
         if (!userId) {
+            console.warn('[Deposits API] GET requested but no session found');
             return NextResponse.json(
-                { error: 'Unauthorized' },
+                { error: 'Unauthorized', userId: null },
                 { status: 401 }
             );
         }
@@ -124,6 +127,7 @@ export async function GET(request: NextRequest) {
         });
 
         return NextResponse.json({
+            userId,
             deposits: completedDeposits.map(serializeDeposit),
             pending: {
                 deposits: enhancedPending.map(serializeDeposit),
