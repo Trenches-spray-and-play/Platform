@@ -14,7 +14,7 @@ const getConnectionLimit = () => {
 
 // Prisma Client configuration optimized for serverless + PgBouncer
 const prismaConfig = {
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  log: (process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error']) as any,
 };
 
 export const prisma =
