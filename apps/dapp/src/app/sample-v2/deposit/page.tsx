@@ -206,7 +206,9 @@ export default function DepositPage() {
 
   const loadDeposits = async (uid: string) => {
     try {
-      const res = await fetch(`/api/deposits?userId=${uid}`);
+      const url = `/api/deposits?userId=${uid}`;
+      console.log(`[Deposit Page] Fetching from ${url}`);
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         console.log('[Deposit Page] API response:', data);
@@ -794,7 +796,7 @@ export default function DepositPage() {
             <div className={styles.historySection}>
               <h3>📋 Recent Deposits</h3>
               <div className={styles.depositList}>
-                {deposits.slice(0, 5).map(deposit => (
+                {deposits.slice(0, 10).map(deposit => (
                   <div key={deposit.id} className={styles.depositRow}>
                     <div className={styles.depositInfo}>
                       <span className={styles.depositAsset}>{deposit.asset}</span>
@@ -832,19 +834,24 @@ export default function DepositPage() {
             {showDebug && debugInfo && (
               <div className={styles.debugContent}>
                 <h4>Debug Info</h4>
-                <p>User ID: {debugInfo.userId}</p>
+                <p>User ID (UI): {userId}</p>
+                <p>User ID (API): {debugInfo.userId}</p>
                 <p>Last Updated: {debugInfo.timestamp}</p>
                 <p>Completed Deposits: {debugInfo.depositsCount}</p>
                 <p>Pending Deposits: {debugInfo.pendingCount}</p>
+                <p>Global Error: {globalError || 'None'}</p>
                 <details>
                   <summary>Raw Response</summary>
-                  <pre>{JSON.stringify(debugInfo.rawResponse, null, 2)}</pre>
+                  <pre style={{ fontSize: '10px', maxHeight: '200px', overflow: 'auto' }}>
+                    {JSON.stringify(debugInfo.rawResponse, null, 2)}
+                  </pre>
                 </details>
                 <button
                   className={styles.refreshBtn}
                   onClick={() => userId && loadDeposits(userId)}
+                  style={{ marginTop: '10px' }}
                 >
-                  Refresh Deposits
+                  Force Refresh
                 </button>
               </div>
             )}

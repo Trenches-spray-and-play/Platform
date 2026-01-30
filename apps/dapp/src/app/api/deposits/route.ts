@@ -53,16 +53,22 @@ export async function GET(request: NextRequest) {
         });
 
         console.log(`[Deposits API] Found ${deposits.length} total deposits in DB for user ${userId}`);
+        if (deposits.length > 0) {
+            console.log(`[Deposits API] Sample statuses: ${deposits.slice(0, 3).map(d => d.status).join(', ')}`);
+        }
 
         // Separate pending/confirming from completed
+        // PENDING/CONFIRMING show in the "Incoming" section
         const pendingDeposits = deposits.filter(d =>
             d.status === 'PENDING' || d.status === 'CONFIRMING'
         );
+
+        // Everything else shows in the "History" section
         const completedDeposits = deposits.filter(d =>
-            d.status === 'SAFE' || d.status === 'CONFIRMED' || d.status === 'SWEPT'
+            !['PENDING', 'CONFIRMING'].includes(d.status)
         );
 
-        console.log(`[Deposits API] Filtered: ${pendingDeposits.length} pending, ${completedDeposits.length} completed`);
+        console.log(`[Deposits API] Filtered: ${pendingDeposits.length} pending, ${completedDeposits.length} history items`);
 
         if (deposits.length > 0) {
             console.log(`[Deposits API] Sample deposit: ID=${deposits[0].id}, status=${deposits[0].status}, asset=${deposits[0].asset}`);

@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './register.module.css';
 import { getReferralCode, clearReferralCode } from '@/lib/referral-cookie';
 
-export default function RegisterPage() {
+function RegisterPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const refApplied = searchParams.get('refApplied');
-    
+
     const [username, setUsername] = useState('');
     const [isChecking, setIsChecking] = useState(false);
     const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
@@ -75,7 +75,7 @@ export default function RegisterPage() {
         if (!isAvailable || isSubmitting) return;
 
         setIsSubmitting(true);
-        
+
         // Get referral code from storage (as backup in case cookie didn't work)
         const referralCode = getReferralCode();
 
@@ -93,7 +93,7 @@ export default function RegisterPage() {
             if (data.success) {
                 // Clear referral code from all storage after successful registration
                 clearReferralCode();
-                
+
                 router.push('/dashboard');
             } else {
                 setErrorMessage(data.error || 'Failed to set username');
@@ -118,7 +118,7 @@ export default function RegisterPage() {
                 <div className={styles.header}>
                     <h1 className={styles.title}>CHOOSE YOUR IDENTITY</h1>
                     <p className={styles.subtitle}>Pick a unique username to enter the trenches</p>
-                    
+
                     {referralInfo && (
                         <div style={{
                             marginTop: '1rem',
@@ -172,5 +172,21 @@ export default function RegisterPage() {
                 </form>
             </div>
         </main>
+    );
+}
+
+export default function RegisterPage() {
+    return (
+        <Suspense fallback={
+            <main className={styles.container}>
+                <div className={styles.card}>
+                    <div className={styles.loadingWrapper}>
+                        <span className="animate-spin text-4xl">⟳</span>
+                    </div>
+                </div>
+            </main>
+        }>
+            <RegisterPageContent />
+        </Suspense>
     );
 }
