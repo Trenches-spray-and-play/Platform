@@ -300,6 +300,48 @@ Login → Username Modal → Onboarding Tutorial → Dashboard
   - "All" shows all campaigns, others filter by trench level
 - **Status:** ✅ Complete
 
+### 2026-01-31 — Login Page: Complete Redesign
+- **Decision:** Redesigned login page with modern, clean aesthetic
+- **Rationale:** Previous design was cluttered and didn't match sample-v2 quality
+- **Changes:**
+  - Simplified layout: Centered card with clean hierarchy
+  - Better visual design: Subtle gradient background, glow effects
+  - Cleaner Google button: Colorful icon, better styling
+  - Removed cluttered features/security badges section
+  - Simplified to 3 key benefits with checkmarks
+  - Better typography and spacing
+  - "Protocol Live" pulse badge added
+  - Consistent with design system v2.0 tokens
+- **Before:** Busy layout with multiple sections, security badges, feature list
+- **After:** Minimalist card with clear CTA, subtle branding
+- **Status:** ✅ Complete
+
+### 2026-01-31 — Homepage Stats: Real Data
+- **Decision:** Replaced hardcoded "$2.4M+" volume with real trench group count
+- **Rationale:** Fake stats mislead users, better to show real available data
+- **Changes:**
+  - Removed fake `totalVolume: "$2.4M+"`
+  - Added real `totalTrenchGroups` count from API
+  - Stats bar now shows: Campaigns, Participants, Trench Categories
+- **Status:** ✅ Complete
+
+### 2026-01-31 — Campaign Detail Page Improvements
+- **Decision:** Softened tactical language and added progress bar
+- **Changes:**
+  - **Language softened:** 
+    - `// ENTER_CAMPAIGN` → `Enter Campaign`
+    - `AUTH_REQUIRED` → `Sign In Required`
+    - `CONNECT_WALLET` → `Sign In`
+    - `INSUFFICIENT_BALANCE` → `Insufficient Balance`
+    - `DEPOSIT_FUNDS` → `Deposit Funds`
+    - `ENABLE_AUTO_BOOST` → `Enable Auto-Boost`
+    - `CONFIRM_ENTRY` → `Confirm Entry`
+    - All caps labels → Title case
+  - **Progress bar added:** Shows trench fill percentage
+  - **Duration fixed:** Changed vague "1-3 days" to exact "1 day"
+  - **Auto-boost tooltip:** Added explanatory tooltip on hover
+- **Status:** ✅ Complete
+
 ### 2026-01-31 — Spray Modal: Trench Duration Added
 - **Decision:** Added duration badge to campaign cards in Spray Modal
 - **Rationale:** Users need to know lock-up period before selecting a trench

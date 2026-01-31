@@ -285,6 +285,54 @@
   color: var(--accent-primary);
 }
 
+/* Progress Section */
+.progressSection {
+  padding: var(--space-5);
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+  cursor: help;
+}
+
+.progressLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-3);
+  font-family: var(--font-mono);
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 1s ease-out;
+}
+
+.progressFill.levelRapid {
+  background: var(--accent-rapid);
+}
+
+.progressFill.levelMid {
+  background: var(--accent-mid);
+}
+
+.progressFill.levelDeep {
+  background: var(--accent-deep);
+}
+
 .section {
   padding: var(--space-6);
   background: var(--bg-card);

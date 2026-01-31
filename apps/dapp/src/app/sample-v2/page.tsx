@@ -51,7 +51,7 @@ export default function HomePage() {
   const [stats, setStats] = useState({
     totalCampaigns: 0,
     activeParticipants: 0,
-    totalVolume: "$0",
+    totalTrenchGroups: 0,
   });
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function HomePage() {
         setStats({
           totalCampaigns,
           activeParticipants,
-          totalVolume: "$2.4M+", // Would come from API in real app
+          totalTrenchGroups: data.data.length,
         });
       }
     } catch (error) {
@@ -132,8 +132,8 @@ export default function HomePage() {
           </div>
           <div className={styles.statDivider} />
           <div className={styles.statItem}>
-            <span className={styles.statValue}>{stats.totalVolume}</span>
-            <span className={styles.statLabel}>Total Volume</span>
+            <span className={styles.statValue}>{stats.totalTrenchGroups}</span>
+            <span className={styles.statLabel}>Trench Categories</span>
           </div>
         </div>
       </section>

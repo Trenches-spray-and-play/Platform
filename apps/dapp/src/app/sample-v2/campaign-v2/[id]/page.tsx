@@ -99,10 +99,15 @@ export default function CampaignDetailPage() {
   const roi = parseFloat(campaign.roiMultiplier) || 1.5;
   const minEntry = (campaign as any).entryRange?.min || (level === "RAPID" ? 5 : level === "MID" ? 100 : 1000);
   const maxEntry = (campaign as any).entryRange?.max || (level === "RAPID" ? 1000 : level === "MID" ? 10000 : 100000);
-  const waitTime = level === "RAPID" ? "1-3 days" : level === "MID" ? "7-14 days" : "30-60 days";
+  const duration = level === "RAPID" ? "1 day" : level === "MID" ? "7 days" : "30 days";
   const amountNum = parseFloat(amount) || 0;
   const isValidAmount = amountNum >= minEntry && amountNum <= maxEntry && amountNum <= userBalance;
   const isSubmitting = sprayMutation.isPending;
+  
+  // Calculate fill percentage for progress bar
+  const participantCount = (campaign as any).participantCount || 0;
+  const reserves = (campaign as any).reserveCachedBalance || "0";
+  const fillPercentage = Math.min(participantCount * 5, 100); // Estimate: each participant ~5% fill
 
   return (
     <>
@@ -152,16 +157,30 @@ export default function CampaignDetailPage() {
                   <span className={`${styles.statValue} ${styles.roiValue}`}>{roi.toFixed(1)}x</span>
                 </div>
                 <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Wait Time</span>
-                  <span className={styles.statValue}>{waitTime}</span>
+                  <span className={styles.statLabel}>Lock Duration</span>
+                  <span className={styles.statValue}>{duration}</span>
                 </div>
                 <div className={styles.statCard}>
                   <span className={styles.statLabel}>Reserves</span>
-                  <span className={styles.statValue}>{(campaign as any).reserveCachedBalance || "0"}</span>
+                  <span className={styles.statValue}>{reserves}</span>
                 </div>
                 <div className={styles.statCard}>
                   <span className={styles.statLabel}>Participants</span>
-                  <span className={styles.statValue}>{(campaign as any).participantCount || 0}</span>
+                  <span className={styles.statValue}>{participantCount}</span>
+                </div>
+              </div>
+              
+              {/* Trench Fill Progress */}
+              <div className={styles.progressSection} title={`${fillPercentage}% filled - Hover to see fill level`}>
+                <div className={styles.progressLabel}>
+                  <span>Trench Fill</span>
+                  <span>{fillPercentage}%</span>
+                </div>
+                <div className={styles.progressBar}>
+                  <div 
+                    className={`${styles.progressFill} ${getLevelColor(level)}`}
+                    style={{ width: `${fillPercentage}%` }}
+                  />
                 </div>
               </div>
 
@@ -217,35 +236,35 @@ export default function CampaignDetailPage() {
 
             <div className={styles.depositColumn}>
               <div className={styles.depositCard}>
-                <h3>// ENTER_CAMPAIGN</h3>
-                <p className={styles.entrySubtitle}>Deploy funds to secure position</p>
+                <h3>Enter Campaign</h3>
+                <p className={styles.entrySubtitle}>Deposit funds to secure your position</p>
 
                 {!user ? (
                   <div className={styles.authPrompt}>
-                    <p className={styles.promptText}>AUTH_REQUIRED</p>
-                    <p>Connect wallet to enter this campaign</p>
+                    <p className={styles.promptText}>Sign In Required</p>
+                    <p>Please sign in to participate in this campaign</p>
                     <Link href="/login" className={styles.connectBtn}>
-                      CONNECT_WALLET
+                      Sign In
                     </Link>
                   </div>
                 ) : userBalance < minEntry ? (
                   <div className={styles.depositPrompt}>
-                    <p className={styles.promptText}>INSUFFICIENT_BALANCE</p>
+                    <p className={styles.promptText}>Insufficient Balance</p>
                     <p>Your balance: <strong>${userBalance.toFixed(2)}</strong></p>
-                    <p className={styles.minRequired}>Min required: ${minEntry.toLocaleString()}</p>
+                    <p className={styles.minRequired}>Minimum required: ${minEntry.toLocaleString()}</p>
                     <Link href="/sample-v2/deposit" className={styles.depositLinkBtn}>
-                      DEPOSIT_FUNDS
+                      Deposit Funds
                     </Link>
                   </div>
                 ) : (
                   <>
                     <div className={styles.balanceDisplay}>
-                      <span className={styles.balanceLabel}>AVAILABLE_BALANCE</span>
+                      <span className={styles.balanceLabel}>Available Balance</span>
                       <strong className={styles.balanceAmount}>${userBalance.toFixed(2)} USDC</strong>
                     </div>
 
                     <div className={styles.inputGroup}>
-                      <label className={styles.inputLabel}>ENTRY_AMOUNT (USDC)</label>
+                      <label className={styles.inputLabel}>Entry Amount (USDC)</label>
                       <div className={styles.inputWrapper}>
                         <span className={styles.currency}>$</span>
                         <input
@@ -261,13 +280,13 @@ export default function CampaignDetailPage() {
                         />
                       </div>
                       <div className={styles.inputMeta}>
-                        <span>MIN: ${minEntry.toLocaleString()}</span>
-                        <span>MAX: ${maxEntry.toLocaleString()}</span>
+                        <span>Min: ${minEntry.toLocaleString()}</span>
+                        <span>Max: ${maxEntry.toLocaleString()}</span>
                       </div>
                     </div>
 
                     <div className={styles.autoBoostSection}>
-                      <label className={styles.toggleRow}>
+                      <label className={styles.toggleRow} title="Automatically reinvest your returns when the campaign matures">
                         <input
                           type="checkbox"
                           checked={useAutoBoost}
@@ -276,7 +295,7 @@ export default function CampaignDetailPage() {
                         />
                         <span className={styles.toggleSwitch} />
                         <span className={styles.toggleLabel}>
-                          ENABLE_AUTO_BOOST
+                          Enable Auto-Boost
                           <small>Auto-reinvest rewards on maturity</small>
                         </span>
                       </label>
@@ -285,16 +304,16 @@ export default function CampaignDetailPage() {
                     {amountNum > 0 && (
                       <div className={styles.projection}>
                         <div className={styles.projectionRow}>
-                          <span>YOU_DEPLOY</span>
+                          <span>You Deploy</span>
                           <span>${amountNum.toFixed(2)}</span>
                         </div>
                         <div className={styles.projectionRow}>
-                          <span>ROI_MULTIPLIER</span>
+                          <span>ROI Multiplier</span>
                           <span>{roi.toFixed(1)}x</span>
                         </div>
                         <div className={styles.projectionDivider} />
                         <div className={`${styles.projectionRow} ${styles.total}`}>
-                          <span>YOU_RECEIVE</span>
+                          <span>You Receive</span>
                           <span className={styles.projectedReturn}>${Math.floor(amountNum * roi).toLocaleString()}</span>
                         </div>
                       </div>
@@ -305,7 +324,7 @@ export default function CampaignDetailPage() {
                       onClick={handleSpraySubmit}
                       disabled={!isValidAmount || (campaign as any).isPaused || isSubmitting}
                     >
-                      {isSubmitting ? "PROCESSING..." : (campaign as any).isPaused ? "CAMPAIGN_PAUSED" : "CONFIRM_ENTRY"}
+                      {isSubmitting ? "Processing..." : (campaign as any).isPaused ? "Campaign Paused" : "Confirm Entry"}
                     </button>
 
                     <div className={styles.entryNote}>
