@@ -52,9 +52,78 @@
   text-decoration: underline;
 }
 
+/* Bulk Actions Bar */
+.bulkActionsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--bg-tertiary, #1a1a1d);
+  border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-md, 10px);
+  margin-bottom: 1rem;
+}
+
+.bulkCount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #fafafa);
+}
+
+.bulkButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.bulkBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--bg-elevated, #212124);
+  border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-secondary, #a1a1aa);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bulkBtn:hover:not(:disabled) {
+  background: var(--bg-secondary, #111113);
+  border-color: var(--border-accent, rgba(34, 197, 94, 0.3));
+  color: var(--text-primary, #fafafa);
+}
+
+.bulkBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bulkBtnDanger {
+  border-color: var(--danger, #ef4444);
+  color: var(--danger, #ef4444);
+}
+
+.bulkBtnDanger:hover:not(:disabled) {
+  background: var(--danger, #ef4444);
+  color: white;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .searchBar {
     flex-direction: column;
+  }
+  
+  .bulkActionsBar {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .bulkButtons {
+    width: 100%;
+  }
+  
+  .bulkBtn {
+    flex: 1;
   }
 }

@@ -35,6 +35,10 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
 
   const ITEMS_PER_PAGE = 20;
 
@@ -91,7 +95,96 @@ export default function UsersPage() {
     });
   };
 
+  // Bulk selection handlers
+  const toggleSelectAll = () => {
+    if (selectedIds.size === users.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(users.map((u) => u.id)));
+    }
+  };
+
+  const toggleSelectUser = (userId: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(userId)) {
+      newSelected.delete(userId);
+    } else {
+      newSelected.add(userId);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleBulkBan = async () => {
+    if (selectedIds.size === 0) return;
+    const reason = prompt(`Enter ban reason for ${selectedIds.size} users:`);
+    if (!reason) return;
+
+    setBulkActionLoading(true);
+    try {
+      const res = await fetch("/api/admin/users/bulk-ban", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userIds: Array.from(selectedIds), reason }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`${selectedIds.size} users banned successfully`);
+        setSelectedIds(new Set());
+        fetchUsers();
+      } else {
+        alert(data.error || "Failed to ban users");
+      }
+    } catch (err) {
+      alert("Failed to ban users");
+    }
+    setBulkActionLoading(false);
+  };
+
+  const handleExportCSV = () => {
+    const headers = ["ID", "Handle", "Email", "Balance", "Belief Score", "Positions", "Waitlists", "Joined"];
+    const rows = users.map((u) => [
+      u.id,
+      u.handle,
+      u.email || "",
+      u.balance,
+      u.beliefScore,
+      u._count.participants,
+      u._count.campaignWaitlists,
+      new Date(u.createdAt).toISOString(),
+    ]);
+
+    const csv = [headers.join(","), ...rows.map((r) => r.map((v) => `"${v}"`).join(","))].join("\n");
+    
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `users-export-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
   const columns = [
+    {
+      key: "select",
+      header: (
+        <input
+          type="checkbox"
+          checked={users.length > 0 && selectedIds.size === users.length}
+          onChange={toggleSelectAll}
+        />
+      ),
+      width: "40px",
+      render: (u: User) => (
+        <input
+          type="checkbox"
+          checked={selectedIds.has(u.id)}
+          onChange={() => toggleSelectUser(u.id)}
+        />
+      ),
+    },
     {
       key: "handle",
       header: "Handle",
@@ -139,7 +232,37 @@ export default function UsersPage() {
         <PageHeader
           title="User Management"
           subtitle={`${total.toLocaleString()} total users`}
+          actions={[
+            {
+              label: "📥 Export CSV",
+              variant: "secondary",
+              onClick: handleExportCSV,
+            },
+          ]}
         />
+
+        {/* Bulk Actions Bar */}
+        {selectedIds.size > 0 && (
+          <div className={styles.bulkActionsBar}>
+            <span className={styles.bulkCount}>{selectedIds.size} selected</span>
+            <div className={styles.bulkButtons}>
+              <button
+                className={styles.bulkBtn}
+                onClick={() => setSelectedIds(new Set())}
+                disabled={bulkActionLoading}
+              >
+                Clear
+              </button>
+              <button
+                className={`${styles.bulkBtn} ${styles.bulkBtnDanger}`}
+                onClick={handleBulkBan}
+                disabled={bulkActionLoading}
+              >
+                {bulkActionLoading ? "..." : "Ban Selected"}
+              </button>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div style={{ 

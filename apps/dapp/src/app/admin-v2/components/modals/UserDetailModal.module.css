@@ -341,6 +341,75 @@
   margin-left: 0.5rem;
 }
 
+/* Edit Form Styles */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.editInput {
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-primary, #0a0a0b);
+  border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-primary, #fafafa);
+  font-size: 0.875rem;
+}
+
+.editInput:focus {
+  outline: none;
+  border-color: var(--accent-primary, #22c55e);
+}
+
+.editActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.editBtn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--accent-primary, #22c55e);
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  color: var(--bg-primary, #0a0a0b);
+  cursor: pointer;
+}
+
+.editBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.editBtnCancel {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--bg-tertiary, #1a1a1d);
+  border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-secondary, #a1a1aa);
+  cursor: pointer;
+}
+
+.editLink {
+  background: none;
+  border: none;
+  color: var(--accent-primary, #22c55e);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 0.5rem;
+  text-decoration: underline;
+}
+
+.editLink:hover {
+  color: var(--accent-primary-hover, #16a34a);
+}
+
 @media (max-width: 640px) {
   .statsGrid {
     grid-template-columns: repeat(2, 1fr);

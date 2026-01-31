@@ -75,6 +75,14 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
   const [adjustmentReason, setAdjustmentReason] = useState("");
   const [adjusting, setAdjusting] = useState(false);
   const [banning, setBanning] = useState(false);
+  
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    handle: "",
+    email: "",
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -156,6 +164,52 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
     setBanning(false);
   };
 
+  const startEditing = () => {
+    if (user) {
+      setEditForm({
+        handle: user.handle,
+        email: user.email || "",
+      });
+      setIsEditing(true);
+    }
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditForm({ handle: "", email: "" });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editForm.handle.trim()) {
+      alert("Handle is required");
+      return;
+    }
+    
+    setSavingEdit(true);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          handle: editForm.handle.trim(),
+          email: editForm.email.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsEditing(false);
+        fetchUserDetails();
+        alert("User updated successfully");
+      } else {
+        alert(data.error || "Failed to update user");
+      }
+    } catch (err) {
+      console.error("Failed to update user:", err);
+      alert("Failed to update user");
+    }
+    setSavingEdit(false);
+  };
+
   if (!userId) return null;
 
   const formatDate = (date: string) => new Date(date).toLocaleDateString();
@@ -176,12 +230,48 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
             <div className={styles.userHeader}>
               <div className={styles.avatar}>{user.handle.charAt(0).toUpperCase()}</div>
               <div className={styles.userInfo}>
-                <h3>
-                  @{user.handle}
-                  {user.isBanned && <span className={styles.bannedBadge}>BANNED</span>}
-                </h3>
-                <p>{user.email || "No email"}</p>
-                <p className={styles.meta}>Joined {formatDate(user.createdAt)}</p>
+                {isEditing ? (
+                  <div className={styles.editForm}>
+                    <input
+                      type="text"
+                      className={styles.editInput}
+                      value={editForm.handle}
+                      onChange={(e) => setEditForm({ ...editForm, handle: e.target.value })}
+                      placeholder="Handle"
+                    />
+                    <input
+                      type="email"
+                      className={styles.editInput}
+                      value={editForm.email}
+                      onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                      placeholder="Email"
+                    />
+                    <div className={styles.editActions}>
+                      <button
+                        className={styles.editBtn}
+                        onClick={handleSaveEdit}
+                        disabled={savingEdit}
+                      >
+                        {savingEdit ? "Saving..." : "Save"}
+                      </button>
+                      <button className={styles.editBtnCancel} onClick={cancelEditing}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h3>
+                      @{user.handle}
+                      {user.isBanned && <span className={styles.bannedBadge}>BANNED</span>}
+                    </h3>
+                    <p>{user.email || "No email"}</p>
+                    <p className={styles.meta}>Joined {formatDate(user.createdAt)}</p>
+                    <button className={styles.editLink} onClick={startEditing}>
+                      ✎ Edit
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
