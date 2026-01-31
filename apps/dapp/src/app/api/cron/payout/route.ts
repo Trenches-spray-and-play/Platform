@@ -9,7 +9,7 @@
  */
 
 import { NextResponse } from 'next/server';
-
+export const dynamic = 'force-dynamic';
 import { processPayoutQueue, getPendingPayouts, getPayoutStats } from '@/services/payout.service';
 import { payoutConfig, validatePayoutConfig } from '@/lib/payout-config';
 import {
