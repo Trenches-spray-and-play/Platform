@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Campaign, CampaignSchema, UserSchema, Position, PositionSchema } from "@/lib/schemas";
+import { Campaign, CampaignSchema, UserSchema, UserPosition, UserPositionSchema } from "@/lib/schemas";
 import { validateApiResponse } from "@/lib/validation";
 import { useUIStore } from "@/store/uiStore";
 import { z } from "zod";
@@ -37,9 +37,9 @@ async function fetchUser(): Promise<User | null> {
     return validateApiResponse(UserSchema, res);
 }
 
-async function fetchPositions(): Promise<Position[]> {
+async function fetchPositions(): Promise<UserPosition[]> {
     const res = await fetch("/api/user/positions");
-    return validateApiResponse(z.array(PositionSchema), res).then(data => data || []);
+    return validateApiResponse(z.array(UserPositionSchema), res).then(data => data || []);
 }
 
 async function fetchCampaigns(): Promise<Campaign[]> {
@@ -120,7 +120,7 @@ export function useUser(initialData?: User | null) {
 /**
  * Fetch and cache the user's positions.
  */
-export function usePositions(initialData?: Position[]) {
+export function usePositions(initialData?: UserPosition[]) {
     return useQuery({
         queryKey: queryKeys.positions,
         queryFn: fetchPositions,

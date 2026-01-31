@@ -55,15 +55,15 @@ export const UserUpdateSchema = z.object({
     walletSol: z.string().min(32).max(44).optional(),
 });
 
-// Position Schema
-export const PositionSchema = z.object({
+// UserPosition Schema (for dashboard/portfolio display)
+export const UserPositionSchema = z.object({
     id: z.string(),
     type: z.enum(['active', 'secured', 'enlisted']),
     trenchId: z.string().optional(),
     trenchName: z.string().optional(),
     trenchLevel: z.string().optional(),
     status: z.string(),
-    joinedAt: z.string().optional(), // Made optional to fix build error
+    joinedAt: z.string().optional(),
     entryAmount: z.number().optional(),
     maxPayout: z.number().optional(),
     roiMultiplier: z.number().optional(),
@@ -91,6 +91,6 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
 // Types exported for convenience
 export type Campaign = z.infer<typeof CampaignSchema>;
 export type User = z.infer<typeof UserSchema>;
-export type Position = z.infer<typeof PositionSchema>;
+export type UserPosition = z.infer<typeof UserPositionSchema>;
 export type SprayRequest = z.infer<typeof SprayRequestSchema>;
 export type UserUpdate = z.infer<typeof UserUpdateSchema>;

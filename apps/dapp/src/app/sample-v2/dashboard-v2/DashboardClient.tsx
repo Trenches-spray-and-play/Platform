@@ -6,7 +6,7 @@ import styles from "./page.module.css";
 import { useUser, usePositions, useInvalidateQueries } from "@/hooks/useQueries";
 import { useMutation } from "@tanstack/react-query";
 import { useUIStore } from "@/store/uiStore";
-import { Position, User } from "@/lib/schemas";
+import { UserPosition, User } from "@/lib/schemas";
 
 
 
@@ -21,7 +21,7 @@ export default function DashboardClient({
     initialPositions
 }: {
     initialUser: User;
-    initialPositions: Position[];
+    initialPositions: UserPosition[];
 }) {
     // Use initialData to prevent duplicate fetches when SSR provides data
     const { data: user = initialUser } = useUser(initialUser);
@@ -62,7 +62,7 @@ export default function DashboardClient({
         toggleBoostMutation.mutate({ positionId, enabled: !currentValue });
     };
 
-    const formatTime = (pos: Position) => {
+    const formatTime = (pos: UserPosition) => {
         if (pos.remainingTime?.isReady) return "Ready";
         if (!pos.remainingTime) return "--";
         const { days, hours, minutes } = pos.remainingTime;
