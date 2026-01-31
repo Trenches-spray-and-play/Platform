@@ -190,26 +190,85 @@ export default function DashboardClient({
                         <p className={styles.emptyText}>No active positions.</p>
                     ) : (
                         <div className={styles.positionsGrid}>
-                            {activePositions.map((pos) => (
-                                <div key={pos.id} className={styles.positionCard}>
-                                    <div className={styles.positionCardHeader}>
-                                        <h3>{pos.campaignName || "Campaign"}</h3>
-                                        <span className={`${styles.positionType} ${styles[pos.type]}`}>{pos.type}</span>
+                            {activePositions.map((pos) => {
+                                const entry = pos.entryAmount || 0;
+                                const exit = pos.maxPayout || Math.floor(entry * (pos.roiMultiplier || 1.5));
+                                const isReady = pos.remainingTime?.isReady;
+                                
+                                return (
+                                    <div key={pos.id} className={styles.positionCard}>
+                                        {/* Header: Type Badge + Level */}
+                                        <div className={styles.positionCardHeader}>
+                                            <div className={styles.positionBadges}>
+                                                <span className={`${styles.positionType} ${styles[pos.type]}`}>
+                                                    {pos.type === 'active' ? 'Active' : pos.type === 'secured' ? 'Queued' : 'Waitlisted'}
+                                                </span>
+                                                {pos.trenchLevel && (
+                                                    <span className={styles.positionLevel}>{pos.trenchLevel}</span>
+                                                )}
+                                            </div>
+                                            {isReady && (
+                                                <span className={styles.readyBadge}>Ready</span>
+                                            )}
+                                        </div>
+                                        
+                                        {/* Campaign Name */}
+                                        <h3 className={styles.positionName}>{pos.campaignName || "Campaign"}</h3>
+                                        
+                                        {/* Amounts: Invested → Receive */}
+                                        <div className={styles.positionAmounts}>
+                                            <div className={styles.positionAmount}>
+                                                <span className={styles.positionAmountLabel}>You Invested</span>
+                                                <span className={styles.positionAmountValue}>${entry.toLocaleString()}</span>
+                                            </div>
+                                            <div className={styles.positionArrow}>→</div>
+                                            <div className={styles.positionAmount}>
+                                                <span className={styles.positionAmountLabel}>You&apos;ll Receive</span>
+                                                <span className={`${styles.positionAmountValue} ${styles.highlight}`}>${exit.toLocaleString()}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Metrics: ROI, Time Left, Queue */}
+                                        <div className={styles.positionMetrics}>
+                                            <div className={styles.positionMetric}>
+                                                <span className={styles.positionMetricLabel}>ROI</span>
+                                                <span className={styles.positionMetricValue}>{pos.roiMultiplier?.toFixed(1) || '1.5'}x</span>
+                                            </div>
+                                            <div className={styles.positionMetric}>
+                                                <span className={styles.positionMetricLabel}>Time Left</span>
+                                                <span className={`${styles.positionMetricValue} ${isReady ? styles.ready : ''}`}>
+                                                    {formatTime(pos)}
+                                                </span>
+                                            </div>
+                                            {pos.queueNumber ? (
+                                                <div className={styles.positionMetric}>
+                                                    <span className={styles.positionMetricLabel}>Queue</span>
+                                                    <span className={styles.positionMetricValue}>#{pos.queueNumber}</span>
+                                                </div>
+                                            ) : (
+                                                <div className={styles.positionMetric}>
+                                                    <span className={styles.positionMetricLabel}>Status</span>
+                                                    <span className={styles.positionMetricValue}>{pos.status}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        {/* Footer: Auto-Boost Toggle */}
+                                        <div className={styles.positionFooter}>
+                                            <label className={styles.toggleLabel}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={pos.autoBoost || false}
+                                                    onChange={() => toggleAutoBoost(pos.id, pos.autoBoost || false)}
+                                                    disabled={toggleBoostMutation.isPending && toggleBoostMutation.variables?.positionId === pos.id}
+                                                />
+                                                <span className={styles.toggle} />
+                                                <span className={styles.toggleText}>Auto-Boost</span>
+                                            </label>
+                                        </div>
                                     </div>
-                                    <div className={styles.positionFooter}>
-                                        <label className={styles.toggleLabel}>
-                                            <input
-                                                type="checkbox"
-                                                checked={pos.autoBoost || false}
-                                                onChange={() => toggleAutoBoost(pos.id, pos.autoBoost || false)}
-                                                disabled={toggleBoostMutation.isPending && toggleBoostMutation.variables?.positionId === pos.id}
-                                            />
-                                            <span className={styles.toggle} />
-                                            <span className={styles.toggleText}>Auto-Boost</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>
