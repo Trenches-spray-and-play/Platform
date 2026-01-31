@@ -130,6 +130,10 @@ export default function DashboardClient({
                         <h1 className={styles.welcomeTitle}>{formatHandle(user.handle)}</h1>
                     </div>
                     <div className={styles.welcomeActions}>
+                        <Link href="/sample-v2/spray" className={styles.sprayBtn}>
+                            <span>◆</span>
+                            Spray
+                        </Link>
                         <Link href="/sample-v2/deposit" className={styles.depositBtn}>
                             <span>+</span>
                             Deposit

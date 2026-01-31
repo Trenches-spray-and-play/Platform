@@ -117,6 +117,32 @@
   letter-spacing: -0.02em;
 }
 
+.welcomeActions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.sprayBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  background: var(--accent-zenith);
+  color: var(--bg-primary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: var(--transition-base);
+}
+
+.sprayBtn:hover {
+  background: var(--accent-zenith-hover);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  transform: translateY(-1px);
+}
+
 .depositBtn {
   display: flex;
   align-items: center;
@@ -1121,6 +1147,12 @@
     font-size: 1.5rem;
   }
 
+  .welcomeActions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .sprayBtn,
   .depositBtn {
     width: 100%;
     justify-content: center;

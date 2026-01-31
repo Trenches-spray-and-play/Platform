@@ -1,0 +1,80 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.chainBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    text-align: left;
+}
+
+.chainBtn:hover:not(.disabled) {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+.chainBtn.active {
+    background: rgba(0, 255, 102, 0.05);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.1);
+}
+
+.chainBtn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.checkmark {
+    position: absolute;
+    right: 0.75rem;
+    color: var(--primary);
+    font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+    .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
