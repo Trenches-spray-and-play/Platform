@@ -37,19 +37,6 @@ const CHAIN_OPTIONS = [
   { id: 0, name: "Solana" },
 ];
 
-// Preset tokens for quick selection
-const PRESET_TOKENS = [
-  { symbol: "BLT", address: "0xFEF20Fd2422a9d47Fe1a8C355A1AE83F04025EDF", chainId: 999, chainName: "HyperEVM", decimals: 18 },
-  { symbol: "HYPE", address: "0x0000000000000000000000000000000000000000", chainId: 999, chainName: "HyperEVM", decimals: 18 },
-  { symbol: "USDC", address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", chainId: 1, chainName: "Ethereum", decimals: 6 },
-  { symbol: "USDC", address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", chainId: 8453, chainName: "Base", decimals: 6 },
-  { symbol: "USDT", address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", chainId: 1, chainName: "Ethereum", decimals: 6 },
-  { symbol: "ETH", address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", chainId: 1, chainName: "Ethereum", decimals: 18 },
-  { symbol: "ETH", address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", chainId: 8453, chainName: "Base", decimals: 18 },
-  { symbol: "SOL", address: "So11111111111111111111111111111111111111112", chainId: 0, chainName: "Solana", decimals: 9 },
-  { symbol: "USDC", address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", chainId: 0, chainName: "Solana", decimals: 6 },
-];
-
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
@@ -199,15 +186,6 @@ export default function CampaignsPage() {
       console.error(`Failed to ${action} campaign:`, err);
       alert(`Failed to ${action} campaign`);
     }
-  };
-
-  const selectPresetToken = (token: typeof PRESET_TOKENS[0]) => {
-    setFormData((prev) => ({
-      ...prev,
-      tokenSymbol: token.symbol,
-      tokenAddress: token.address,
-      chainId: token.chainId,
-    }));
   };
 
   const handleSave = async () => {
@@ -435,29 +413,14 @@ export default function CampaignsPage() {
                     />
                   </div>
 
-                  <div className={styles.formGroupFull}>
-                    <label className={styles.formLabel}>Token</label>
-                    <div className={styles.trenchTags}>
-                      {PRESET_TOKENS.map((token, idx) => (
-                        <button
-                          key={`${token.symbol}-${token.chainId}-${idx}`}
-                          type="button"
-                          className={`${styles.trenchTag} ${
-                            formData.tokenSymbol === token.symbol && formData.chainId === token.chainId
-                              ? styles.trenchTagActive
-                              : ""
-                          }`}
-                          onClick={() => selectPresetToken(token)}
-                          title={`${token.symbol} on ${token.chainName}`}
-                        >
-                          {token.symbol} ({token.chainName})
-                        </button>
-                      ))}
-                    </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Token Symbol</label>
                     <input
-                      type="hidden"
-                      value={formData.tokenAddress}
-                      onChange={(e) => setFormData({ ...formData, tokenAddress: e.target.value })}
+                      type="text"
+                      className={styles.formInput}
+                      value={formData.tokenSymbol}
+                      onChange={(e) => setFormData({ ...formData, tokenSymbol: e.target.value })}
+                      placeholder="e.g., BLT"
                     />
                   </div>
 
