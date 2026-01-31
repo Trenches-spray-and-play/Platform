@@ -10,11 +10,11 @@
 
 ### Recent Commits (Last 5)
 ```
+85b4125 fix(userService): add campaignName and roiMultiplier to active positions
 5eb120c perf(fonts): remove duplicate Google Font imports
 162a3e3 fix(dashboard): restore full position card details
 2f61c2e fix(userService): filter hidden campaigns from user positions
 b217ef2 docs: add comprehensive job descriptions for 10 key roles
-908584b chore(deps): add zod and zustand dependencies  
 ```
 
 ### Key Files Created/Modified This Session
@@ -73,6 +73,7 @@ docs/             # Documentation
 | Hidden campaigns in dashboard | Filter in userService.ts | 2f61c2e |
 | Dashboard missing position details | Restored full card in DashboardClient | 162a3e3 |
 | Duplicate font loading | Removed @import from globals.css | 5eb120c |
+| Active positions missing campaignName | Added mapping in userService | 85b4125 |
 
 ### 🔴 Critical - Build Status
 - **Status:** Last build failed (commit 0f4ba15) due to missing files
@@ -176,6 +177,8 @@ const waitlistEntries = await prisma.campaignWaitlist.findMany({
 - `.positionArrow` - Arrow between amounts
 - `.positionMetrics` - ROI/Time/Queue grid
 - `.positionFooter` - Auto-boost toggle
+
+**Note:** Active positions (from Participant table) need campaignName mapped via trenchId->campaign lookup since Participants link to Trenches, not Campaigns directly.
 
 ### 6. Performance Fixes (Quick Actions)
 
