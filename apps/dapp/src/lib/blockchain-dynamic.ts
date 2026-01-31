@@ -18,8 +18,3 @@ export const getSolana = async () => {
     return solana;
 };
 
-// Component for wallet interactions that can be lazy loaded
-export const DynamicWalletProvider = dynamic(() => import("@/components/WalletProvider"), {
-    ssr: false,
-    loading: () => null
-});
