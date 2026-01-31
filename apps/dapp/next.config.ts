@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96],
   },
   experimental: {
-    ppr: true,
+    cacheComponents: true,
     optimizePackageImports: [
       'lucide-react',
       'framer-motion',
