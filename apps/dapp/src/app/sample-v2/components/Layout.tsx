@@ -1,175 +1,23 @@
-"use client";
+import LayoutClient from "./components/LayoutClient";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import styles from "./Layout.module.css";
-import { MobileBottomNav } from "./MobileBottomNav";
-
-interface User {
-  id: string;
-  handle: string;
-  beliefScore: number;
-  balance: string;
+async function getUser() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/user`, { cache: 'no-store' });
+    const data = await res.json();
+    return data.data || null;
+  } catch (error) {
+    console.error("Failed to fetch user for layout:", error);
+    return null;
+  }
 }
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const navItems = [
-  { path: "/sample-v2", label: "Campaigns", icon: "◆" },
-  { path: "/sample-v2/dashboard-v2", label: "Dashboard", icon: "□" },
-  { path: "/sample-v2/portfolio", label: "Portfolio", icon: "◈" },
-  { path: "/sample-v2/earn-v2", label: "Earn", icon: "▲" },
-];
-
-export default function Layout({ children }: LayoutProps) {
-  const pathname = usePathname();
-  const [user, setUser] = useState<User | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/user")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.data) setUser(data.data);
-      })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const isActive = (path: string) => pathname === path;
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const user = await getUser();
 
   return (
-    <div className={styles.layout}>
-      <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
-        <div className={styles.headerContent}>
-          <Link href="/sample-v2" className={styles.logo}>
-            <svg 
-              width="32" 
-              height="32" 
-              viewBox="0 0 100 100" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              className={styles.logoSvg}
-            >
-              {/* T-Shape Logo - Top bar */}
-              <rect x="20" y="20" width="60" height="8" rx="2" fill="currentColor" />
-              {/* T-Shape Logo - Middle accent bar */}
-              <rect x="35" y="36" width="30" height="6" rx="2" fill="currentColor" opacity="0.6" />
-              {/* T-Shape Logo - Vertical stem */}
-              <rect x="44" y="48" width="12" height="32" rx="2" fill="currentColor" opacity="0.4" />
-            </svg>
-            <span className={styles.logoText}>TRENCHES</span>
-          </Link>
-
-          <nav className={styles.desktopNav}>
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={`${styles.navLink} ${isActive(item.path) ? styles.active : ""}`}
-              >
-                <span className={styles.navIcon}>{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className={styles.userSection}>
-            {user ? (
-              <>
-                <Link href="/sample-v2/deposit" className={styles.depositBtn}>
-                  + Deposit
-                </Link>
-                <Link href="/sample-v2/dashboard-v2" className={styles.balanceChip}>
-                  <span className={styles.balanceLabel}>BALANCE</span>
-                  <span className={styles.balanceValue}>${parseFloat(user.balance || "0").toFixed(2)}</span>
-                </Link>
-              </>
-            ) : (
-              <Link href="/login" className={styles.connectBtn}>Connect</Link>
-            )}
-          </div>
-
-          <button
-            className={styles.menuBtn}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <span className={`${styles.menuLine} ${mobileMenuOpen ? styles.open : ""}`} />
-            <span className={`${styles.menuLine} ${mobileMenuOpen ? styles.open : ""}`} />
-            <span className={`${styles.menuLine} ${mobileMenuOpen ? styles.open : ""}`} />
-          </button>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className={styles.mobileMenu}>
-            <nav className={styles.mobileNav}>
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  className={`${styles.mobileNavLink} ${isActive(item.path) ? styles.active : ""}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className={styles.navIcon}>{item.icon}</span>
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
-      </header>
-
-      <main className={styles.main}>{children}</main>
-      
-      <MobileBottomNav />
-
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <div className={styles.footerLeft}>
-            <div className={styles.footerLogo}>
-              <svg 
-                width="24" 
-                height="24" 
-                viewBox="0 0 100 100" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-                className={styles.footerLogoSvg}
-              >
-                {/* T-Shape Logo - Top bar */}
-                <rect x="20" y="20" width="60" height="8" rx="2" fill="currentColor" />
-                {/* T-Shape Logo - Middle accent bar */}
-                <rect x="35" y="36" width="30" height="6" rx="2" fill="currentColor" opacity="0.6" />
-                {/* T-Shape Logo - Vertical stem */}
-                <rect x="44" y="48" width="12" height="32" rx="2" fill="currentColor" opacity="0.4" />
-              </svg>
-              <span>TRENCHES</span>
-            </div>
-            <span className={styles.footerTag}>Powered by Belief</span>
-          </div>
-          <div className={styles.footerLinks}>
-            <a href="https://docs.playtrenches.xyz" target="_blank" rel="noopener noreferrer">Docs</a>
-            <a href="https://x.com/traboraofficial" target="_blank" rel="noopener noreferrer">Twitter</a>
-            <a href="https://t.me/trenchesprotocol" target="_blank" rel="noopener noreferrer">Telegram</a>
-          </div>
-        </div>
-        <div className={styles.footerBottom}>
-          <span>v2.0.0-BETA</span>
-          <span className={styles.statusIndicator}>
-            <span className={styles.statusDot} />
-            System Operational
-          </span>
-        </div>
-      </footer>
-    </div>
+    <LayoutClient initialUser={user}>
+      {children}
+    </LayoutClient>
   );
 }

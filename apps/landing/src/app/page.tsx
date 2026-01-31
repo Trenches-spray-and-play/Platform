@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import styles from "./page.module.css";
 import { Shield, Zap, Cpu, Activity, Sun, Moon, X, ChevronRight } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
-import OnboardingModal from "@/components/OnboardingModal";
-import WaitlistDashboard from "@/components/WaitlistDashboard";
 import {
     Logo,
     useTheme,
@@ -15,6 +13,11 @@ import {
     CountdownTimer,
     RadialProgress
 } from "@trenches/ui";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+
+const OnboardingModal = dynamic(() => import("@/components/OnboardingModal"), { ssr: false });
+const WaitlistDashboard = dynamic(() => import("@/components/WaitlistDashboard"), { ssr: false });
 
 /**
  * [UI] Standardized Animation Presets

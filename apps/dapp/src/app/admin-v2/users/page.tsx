@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../components/AdminLayout";
 import PageHeader from "../components/PageHeader";
 import DataTable from "../components/DataTable";
 import UserDetailModal from "../components/modals/UserDetailModal";
 import styles from "./page.module.css";
+import { parseApiError, debounce } from "../lib/errors";
 
 interface User {
   id: string;
@@ -29,6 +30,7 @@ interface User {
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -36,16 +38,29 @@ export default function UsersPage() {
 
   const ITEMS_PER_PAGE = 20;
 
-  useEffect(() => {
-    fetchUsers();
-  }, [page, search]);
+  // Debounced search function
+  const debouncedFetchUsers = useCallback(
+    debounce((searchTerm: string, currentPage: number) => {
+      fetchUsers(searchTerm, currentPage);
+    }, 300),
+    []
+  );
 
-  const fetchUsers = async () => {
+  useEffect(() => {
+    debouncedFetchUsers(search, page);
+  }, [page, search, debouncedFetchUsers]);
+
+  const fetchUsers = async (searchTerm = search, currentPage = page) => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(
-        `/api/admin/users?search=${encodeURIComponent(search)}&page=${page}&limit=${ITEMS_PER_PAGE}`
+        `/api/admin/users?search=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${ITEMS_PER_PAGE}`
       );
+      if (!res.ok) {
+        const errorMsg = await parseApiError(res);
+        throw new Error(errorMsg);
+      }
       const data = await res.json();
       // Handle { data: [], meta: {} } format
       const users = data.data || [];
@@ -54,15 +69,18 @@ export default function UsersPage() {
         setTotal(data.meta?.total || users.length);
       }
     } catch (err) {
-      console.error("Failed to fetch users:", err);
+      const message = err instanceof Error ? err.message : "Failed to load users";
+      setError(message);
+      setUsers([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
     setPage(1);
-    fetchUsers();
+    fetchUsers(search, 1);
   };
 
   const formatDate = (dateString: string) => {
@@ -122,6 +140,25 @@ export default function UsersPage() {
           title="User Management"
           subtitle={`${total.toLocaleString()} total users`}
         />
+
+        {error && (
+          <div style={{ 
+            padding: "1rem", 
+            background: "rgba(239, 68, 68, 0.1)", 
+            border: "1px solid var(--danger)",
+            borderRadius: "var(--radius-md)",
+            color: "var(--danger)",
+            marginBottom: "1rem"
+          }}>
+            ⚠️ {error}
+            <button 
+              onClick={() => fetchUsers()}
+              style={{ marginLeft: "1rem", textDecoration: "underline", cursor: "pointer" }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         <form className={styles.searchBar} onSubmit={handleSearch}>
           <input

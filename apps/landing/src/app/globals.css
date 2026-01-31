@@ -1,6 +1,5 @@
 @import "@trenches/ui/styles/tokens.css";
 @import "@trenches/ui/styles/shims.css";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap');
 
 :root {
   /* Core Colors - Zenith Obsidian Palette */
@@ -36,8 +35,8 @@
   --glass-border-accent: rgba(57, 255, 20, 0.2);
   --glass-blur: blur(12px);
 
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'Space Mono', 'JetBrains Mono', monospace;
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
 }
 
 [data-theme='light'] {
