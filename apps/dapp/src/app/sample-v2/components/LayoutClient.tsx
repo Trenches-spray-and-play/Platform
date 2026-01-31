@@ -5,6 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./Layout.module.css";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { useUser } from "@/hooks/useQueries";
+import { useUIStore } from "@/store/uiStore";
+import { useAuthStore } from "@/store/authStore";
 
 interface User {
     id: string;
@@ -27,9 +30,24 @@ const navItems = [
 
 export default function LayoutClient({ children, initialUser }: LayoutClientProps) {
     const pathname = usePathname();
-    const [user, setUser] = useState<User | null>(initialUser);
+    // Use initialData to prevent duplicate fetch when SSR provides data
+    const { data: user } = useUser(initialUser);
+    const setUser = useAuthStore((state) => state.setUser);
+
+    // UI Store states
+    const activeModal = useUIStore((state) => state.activeModal);
+    const closeModal = useUIStore((state) => state.closeModal);
+
+    // Local state for layout-specific UI is still fine, 
+    // but we can move mobile menu to store if we want it global
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        if (user) {
+            setUser(user as any);
+        }
+    }, [user, setUser]);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 10);

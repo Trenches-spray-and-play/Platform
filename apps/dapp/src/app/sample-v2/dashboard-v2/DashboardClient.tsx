@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import styles from "./page.module.css";
+import { useUser, usePositions, useInvalidateQueries } from "@/hooks/useQueries";
+import { useMutation } from "@tanstack/react-query";
+import { useUIStore } from "@/store/uiStore";
 
 interface Position {
     id: string;
@@ -30,16 +33,6 @@ interface UserProfile {
     stats?: { referrals: number };
 }
 
-// Status toast component
-function StatusToast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
-    return (
-        <div className={`${styles.statusToast} ${styles[type]}`}>
-            <span className={styles.statusIcon}>{type === 'success' ? '✓' : '✕'}</span>
-            <span className={styles.statusMessage}>{message}</span>
-            <button className={styles.statusClose} onClick={onClose}>×</button>
-        </div>
-    );
-}
 
 // Helper to format handle without double @
 function formatHandle(handle: string | undefined): string {
@@ -54,45 +47,43 @@ export default function DashboardClient({
     initialUser: UserProfile;
     initialPositions: Position[];
 }) {
-    const [user, setUser] = useState<UserProfile>(initialUser);
-    const [positions, setPositions] = useState<Position[]>(initialPositions);
+    // Use initialData to prevent duplicate fetches when SSR provides data
+    const { data: user = initialUser } = useUser(initialUser);
+    const { data: positions = initialPositions } = usePositions(initialPositions);
+    const { invalidatePositions } = useInvalidateQueries();
+    const addToast = useUIStore((state) => state.addToast);
+
     const [copied, setCopied] = useState(false);
-    const [togglingBoost, setTogglingBoost] = useState<string | null>(null);
-    const [status, setStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
     const handleCopyReferral = () => {
         if (!user?.referralCode) return;
         navigator.clipboard.writeText(`https://playtrenches.xyz/ref/${user.referralCode}`);
         setCopied(true);
-        setStatus({ message: 'Referral link copied to clipboard', type: 'success' });
+        addToast('Referral link copied to clipboard', 'success');
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const toggleAutoBoost = async (positionId: string, currentValue: boolean) => {
-        setTogglingBoost(positionId);
-        try {
+    const toggleBoostMutation = useMutation({
+        mutationFn: async ({ positionId, enabled }: { positionId: string; enabled: boolean }) => {
             const res = await fetch(`/api/user/positions/${positionId}/auto-boost`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ enabled: !currentValue }),
+                body: JSON.stringify({ enabled }),
             });
-
-            if (res.ok) {
-                setStatus({
-                    message: `Auto-boost ${!currentValue ? 'enabled' : 'disabled'}`,
-                    type: 'success'
-                });
-                setPositions(prev => prev.map(p =>
-                    p.id === positionId ? { ...p, autoBoost: !currentValue } : p
-                ));
-            } else {
-                throw new Error("Failed to toggle auto-boost");
-            }
-        } catch (error) {
-            setStatus({ message: 'Failed to update auto-boost', type: 'error' });
-        } finally {
-            setTogglingBoost(null);
+            if (!res.ok) throw new Error("Failed to toggle auto-boost");
+            return res.json();
+        },
+        onSuccess: (_, variables) => {
+            addToast(`Auto-boost ${variables.enabled ? 'enabled' : 'disabled'}`, 'success');
+            invalidatePositions();
+        },
+        onError: () => {
+            addToast('Failed to update auto-boost', 'error');
         }
+    });
+
+    const toggleAutoBoost = (positionId: string, currentValue: boolean) => {
+        toggleBoostMutation.mutate({ positionId, enabled: !currentValue });
     };
 
     const formatTime = (pos: Position) => {
@@ -114,14 +105,6 @@ export default function DashboardClient({
     return (
         <div className={styles.page}>
             <div className={styles.container}>
-                {/* Status Toast */}
-                {status && (
-                    <StatusToast
-                        message={status.message}
-                        type={status.type}
-                        onClose={() => setStatus(null)}
-                    />
-                )}
 
                 {/* Welcome Header */}
                 <div className={styles.welcomeSection}>
@@ -243,7 +226,7 @@ export default function DashboardClient({
                                                 type="checkbox"
                                                 checked={pos.autoBoost || false}
                                                 onChange={() => toggleAutoBoost(pos.id, pos.autoBoost || false)}
-                                                disabled={togglingBoost === pos.id}
+                                                disabled={toggleBoostMutation.isPending && toggleBoostMutation.variables?.positionId === pos.id}
                                             />
                                             <span className={styles.toggle} />
                                             <span className={styles.toggleText}>Auto-Boost</span>

@@ -9,13 +9,13 @@ async function getDashboardData() {
   const cookieStore = await cookies();
   const token = cookieStore.get('sb-access-token'); // Assuming Supabase or similar
 
-  // Mocking internal API call for SSR
-  // In a real app, you'd call a service directly or use fetch with headers
+  // Use Next.js caching to prevent duplicate requests
+  // Data is cached for 60 seconds and reused across renders
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const [positionsRes, profileRes] = await Promise.all([
-      fetch(`${baseUrl}/api/user/positions`, { cache: 'no-store' }),
-      fetch(`${baseUrl}/api/user`, { cache: 'no-store' }),
+      fetch(`${baseUrl}/api/user/positions`, { next: { revalidate: 60 } }),
+      fetch(`${baseUrl}/api/user`, { next: { revalidate: 60 } }),
     ]);
 
     const positionsData = await positionsRes.json();

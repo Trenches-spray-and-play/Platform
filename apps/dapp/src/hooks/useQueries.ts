@@ -1,6 +1,11 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Campaign, CampaignSchema, UserSchema } from "@/lib/schemas";
+import { validateApiResponse } from "@/lib/validation";
+import { z } from "zod";
+
+type User = z.infer<typeof UserSchema>;
 
 // ============================================
 // Query Keys
@@ -11,33 +16,14 @@ export const queryKeys = {
     campaigns: ["campaigns"] as const,
     trenches: ["trenches"] as const,
     tasks: ["tasks"] as const,
+    raids: ["raids"] as const,
+    contentCampaigns: ["contentCampaigns"] as const,
+    submissions: ["submissions"] as const,
     deposits: (userId?: string) => ["deposits", userId] as const,
     campaign: (id: string) => ["campaign", id] as const,
     sprayEntry: (id: string) => ["sprayEntry", id] as const,
 };
 
-// ============================================
-// Types
-// ============================================
-interface User {
-    id: string;
-    handle: string;
-    balance: string;
-    beliefScore: number;
-    boostPoints: number;
-}
-
-interface Campaign {
-    id: string;
-    name: string;
-    level: "RAPID" | "MID" | "DEEP";
-    tokenSymbol: string;
-    tokenAddress: string;
-    chainName: string;
-    roiMultiplier: string;
-    reserves: string | null;
-    entryRange: { min: number; max: number };
-}
 
 interface Position {
     id: string;
@@ -58,9 +44,7 @@ interface Position {
 // ============================================
 async function fetchUser(): Promise<User | null> {
     const res = await fetch("/api/user");
-    if (!res.ok) throw new Error("Failed to fetch user");
-    const data = await res.json();
-    return data.data || null;
+    return validateApiResponse(UserSchema, res);
 }
 
 async function fetchPositions(): Promise<Position[]> {
@@ -72,11 +56,11 @@ async function fetchPositions(): Promise<Position[]> {
 
 async function fetchCampaigns(): Promise<Campaign[]> {
     const res = await fetch("/api/trenches");
-    if (!res.ok) throw new Error("Failed to fetch campaigns");
-    const data = await res.json();
+    const data = await validateApiResponse(z.array(z.any()), res); // API returns trench groups
+
     // Flatten trench groups
     return (
-        data.data?.flatMap((group: any) =>
+        data?.flatMap((group: any) =>
             group.campaigns.map((c: any) => ({
                 ...c,
                 level: group.level,
@@ -93,6 +77,27 @@ async function fetchTasks(): Promise<any[]> {
     return data.data || [];
 }
 
+async function fetchRaids(): Promise<any[]> {
+    const res = await fetch("/api/raids");
+    if (!res.ok) throw new Error("Failed to fetch raids");
+    const data = await res.json();
+    return data.data || [];
+}
+
+async function fetchContentCampaigns(): Promise<any[]> {
+    const res = await fetch("/api/content-campaigns");
+    if (!res.ok) throw new Error("Failed to fetch content campaigns");
+    const data = await res.json();
+    return data.data || [];
+}
+
+async function fetchSubmissions(): Promise<any[]> {
+    const res = await fetch("/api/user/content-submissions");
+    if (!res.ok) throw new Error("Failed to fetch submissions");
+    const data = await res.json();
+    return data.data || [];
+}
+
 // ============================================
 // Hooks
 // ============================================
@@ -100,23 +105,25 @@ async function fetchTasks(): Promise<any[]> {
 /**
  * Fetch and cache the current user profile.
  */
-export function useUser() {
+export function useUser(initialData?: User | null) {
     return useQuery({
         queryKey: queryKeys.user,
         queryFn: fetchUser,
         staleTime: 60 * 1000, // 1 minute
         retry: 1,
+        initialData: initialData || undefined,
     });
 }
 
 /**
  * Fetch and cache the user's positions.
  */
-export function usePositions() {
+export function usePositions(initialData?: Position[]) {
     return useQuery({
         queryKey: queryKeys.positions,
         queryFn: fetchPositions,
         staleTime: 30 * 1000, // 30 seconds
+        initialData: initialData || undefined,
     });
 }
 
@@ -143,6 +150,148 @@ export function useTasks() {
 }
 
 /**
+ * Mutation to update current user profile (e.g. wallets).
+ */
+export function useUpdateUser() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (updateData: any) => {
+            const res = await fetch("/api/user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updateData),
+            });
+            if (!res.ok) throw new Error("Failed to update user");
+            return res.json();
+        },
+        onSuccess: (data) => {
+            if (data.success) {
+                queryClient.setQueryData(queryKeys.user, data.data);
+            } else {
+                queryClient.invalidateQueries({ queryKey: queryKeys.user });
+            }
+        },
+    });
+}
+
+export function useRaids() {
+    return useQuery({
+        queryKey: queryKeys.raids,
+        queryFn: fetchRaids,
+        staleTime: 5 * 60 * 1000,
+    });
+}
+
+export function useContentCampaigns() {
+    return useQuery({
+        queryKey: queryKeys.contentCampaigns,
+        queryFn: fetchContentCampaigns,
+        staleTime: 5 * 60 * 1000,
+    });
+}
+
+export function useSubmissions() {
+    return useQuery({
+        queryKey: queryKeys.submissions,
+        queryFn: fetchSubmissions,
+        staleTime: 1 * 60 * 1000,
+    });
+}
+
+export function useSubmitContent() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (submitData: { campaignId: string; url: string; platform: string }) => {
+            const res = await fetch("/api/user/content-submissions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(submitData),
+            });
+            if (!res.ok) throw new Error("Failed to submit content");
+            return res.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.submissions });
+        },
+    });
+}
+
+/**
+ * Fetch a single campaign by ID.
+ */
+export function useCampaign(id: string) {
+    const { data: campaigns, ...rest } = useCampaigns();
+    const campaign = campaigns?.find((c) => c.id === id);
+    return { data: campaign, ...rest };
+}
+
+/**
+ * Mutation for the full spray flow: create -> finalize -> optional auto-boost.
+ */
+export function useApplySpray() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({
+            trenchId,
+            amount,
+            level,
+            useAutoBoost,
+        }: {
+            trenchId: string;
+            amount: number;
+            level: string;
+            useAutoBoost?: boolean;
+        }) => {
+            // Step 1: Create spray entry
+            const sprayRes = await fetch("/api/spray", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ trenchId, amount, level }),
+            });
+            const sprayData = await sprayRes.json();
+            if (!sprayRes.ok) throw new Error(sprayData.error || "Failed to create spray entry");
+
+            const sprayEntryId = sprayData.data.sprayEntryId;
+
+            // Step 2: Finalize
+            const finalizeRes = await fetch("/api/spray/finalize", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sprayEntryId }),
+            });
+            const finalizeData = await finalizeRes.json();
+            if (!finalizeRes.ok) {
+                if (finalizeData.remainingTasks) {
+                    throw { type: "TASKS_REQUIRED", remaining: finalizeData.remainingTasks };
+                }
+                throw new Error(finalizeData.error || "Failed to finalize entry");
+            }
+
+            // Step 3: Optional Auto-Boost
+            if (useAutoBoost && finalizeData.data?.participantId) {
+                try {
+                    await fetch(`/api/user/positions/${finalizeData.data.participantId}/auto-boost`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ enabled: true }),
+                    });
+                } catch (e) {
+                    console.error("Auto-boost failed:", e);
+                }
+            }
+
+            return finalizeData.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.user });
+            queryClient.invalidateQueries({ queryKey: queryKeys.positions });
+        },
+    });
+}
+
+/**
  * Hook for custom cache invalidation.
  */
 export function useInvalidateQueries() {
@@ -153,6 +302,9 @@ export function useInvalidateQueries() {
         invalidatePositions: () => queryClient.invalidateQueries({ queryKey: queryKeys.positions }),
         invalidateCampaigns: () => queryClient.invalidateQueries({ queryKey: queryKeys.campaigns }),
         invalidateTasks: () => queryClient.invalidateQueries({ queryKey: queryKeys.tasks }),
+        invalidateRaids: () => queryClient.invalidateQueries({ queryKey: queryKeys.raids }),
+        invalidateContent: () => queryClient.invalidateQueries({ queryKey: queryKeys.contentCampaigns }),
+        invalidateSubmissions: () => queryClient.invalidateQueries({ queryKey: queryKeys.submissions }),
         invalidateAll: () => queryClient.invalidateQueries(),
     };
 }
