@@ -10,20 +10,20 @@
 
 ### Recent Commits (Last 5)
 ```
+162a3e3 fix(dashboard): restore full position card details
 2f61c2e fix(userService): filter hidden campaigns from user positions
 b217ef2 docs: add comprehensive job descriptions for 10 key roles
 908584b chore(deps): add zod and zustand dependencies  
 91c2364 fix(build): add missing schemas, validation, and store files
-0f4ba15 fix(performance): prevent request spam with initialData and caching
 ```
 
 ### Key Files Created/Modified This Session
+- `apps/dapp/src/app/sample-v2/dashboard-v2/DashboardClient.tsx` - Restored full position card details
 - `apps/dapp/src/services/userService.ts` - Fixed hidden campaign filtering
 - `docs/JOB_DESCRIPTIONS.md` - 10 role descriptions with compensation
 - `apps/dapp/src/hooks/useQueries.ts` - React Query hooks with initialData
 - `apps/dapp/src/app/sample-v2/components/LayoutClient.tsx` - Client layout
 - `apps/dapp/src/app/sample-v2/dashboard-v2/page.tsx` - Server component
-- `apps/dapp/src/app/sample-v2/dashboard-v2/DashboardClient.tsx` - Client dashboard
 - `apps/dapp/src/lib/schemas.ts` - Zod schemas
 - `apps/dapp/src/lib/validation.ts` - API validation
 - `apps/dapp/src/store/` - Zustand stores (auth, ui, campaign)
@@ -71,6 +71,7 @@ docs/             # Documentation
 | Missing zod/zustand deps | Updated package.json + lock | 908584b |
 | Performance: request spam | initialData threading + caching | 0f4ba15 |
 | Hidden campaigns in dashboard | Filter in userService.ts | 2f61c2e |
+| Dashboard missing position details | Restored full card in DashboardClient | 162a3e3 |
 
 ### 🔴 Critical - Build Status
 - **Status:** Last build failed (commit 0f4ba15) due to missing files
@@ -145,6 +146,35 @@ const waitlistEntries = await prisma.campaignWaitlist.findMany({
 ```
 
 **Note:** Trench-to-Campaign relation is indirect (CampaignConfig.trenchIds is String[])
+
+### 5. Position Card Structure
+**Location:** `DashboardClient.tsx` (sample-v2/dashboard-v2)
+
+**Required Card Elements:**
+```
+┌─────────────────────────────────────┐
+│ [Active] [RAPID]         [Ready]    │  ← Type badge + Level + Ready badge
+│ Campaign Name                       │  ← Campaign name
+│                                     │
+│  You Invested    →   You'll Receive │  ← Amounts section
+│  $1,000              $1,500         │
+│                                     │
+│  ROI      Time Left    Queue        │  ← Metrics row
+│  1.5x     2d 4h        #5           │
+│                                     │
+│  [Toggle] Auto-Boost                │  ← Footer with toggle
+└─────────────────────────────────────┘
+```
+
+**CSS Classes Available:**
+- `.positionCard` - Card container
+- `.positionCardHeader` - Badges row
+- `.positionType` / `.positionLevel` / `.readyBadge` - Badges
+- `.positionName` - Campaign name
+- `.positionAmounts` - Invested/Receive section
+- `.positionArrow` - Arrow between amounts
+- `.positionMetrics` - ROI/Time/Queue grid
+- `.positionFooter` - Auto-boost toggle
 
 ---
 
