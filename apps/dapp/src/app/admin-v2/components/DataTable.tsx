@@ -24,7 +24,7 @@ function getActionBtnClass(variant?: string): string {
 
 interface Action<T> {
   label: string | ((item: T) => string);
-  variant?: "primary" | "danger" | "sm";
+  variant?: "primary" | "danger" | "sm" | ((item: T) => "primary" | "danger" | "sm" | undefined);
   onClick: (item: T) => void;
   condition?: (item: T) => boolean;
 }
@@ -109,7 +109,11 @@ export default function DataTable<T>({
                         .map((action, idx) => (
                           <button
                             key={idx}
-                            className={getActionBtnClass(action.variant)}
+                            className={getActionBtnClass(
+                              typeof action.variant === "function" 
+                                ? action.variant(item) 
+                                : action.variant
+                            )}
                             onClick={() => action.onClick(item)}
                           >
                             {typeof action.label === "function" ? action.label(item) : action.label}

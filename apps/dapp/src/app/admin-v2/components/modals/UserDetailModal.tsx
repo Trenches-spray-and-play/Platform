@@ -12,6 +12,8 @@ interface UserDetail {
   beliefScore: number;
   balance: number;
   createdAt: string;
+  isBanned?: boolean;
+  banReason?: string | null;
   referralCode: string | null;
   referrer: { id: string; handle: string } | null;
   referrals: { id: string; handle: string; createdAt: string }[];
@@ -69,6 +71,10 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
   const [user, setUser] = useState<UserDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "deposits" | "positions" | "tasks" | "referrals">("overview");
+  const [balanceAdjustment, setBalanceAdjustment] = useState("");
+  const [adjustmentReason, setAdjustmentReason] = useState("");
+  const [adjusting, setAdjusting] = useState(false);
+  const [banning, setBanning] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -91,6 +97,65 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
     setLoading(false);
   };
 
+  const handleAdjustBalance = async () => {
+    const amount = parseFloat(balanceAdjustment);
+    if (isNaN(amount) || amount === 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+    if (!adjustmentReason.trim()) {
+      alert("Please provide a reason for the adjustment");
+      return;
+    }
+    setAdjusting(true);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/adjust-balance`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount, reason: adjustmentReason }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBalanceAdjustment("");
+        setAdjustmentReason("");
+        fetchUserDetails();
+        alert(`Balance adjusted by $${amount.toFixed(2)}`);
+      } else {
+        alert(data.error || "Failed to adjust balance");
+      }
+    } catch (err) {
+      console.error("Failed to adjust balance:", err);
+      alert("Failed to adjust balance");
+    }
+    setAdjusting(false);
+  };
+
+  const handleBanUnban = async () => {
+    const action = user?.isBanned ? "unban" : "ban";
+    const reason = action === "ban" ? prompt("Enter ban reason:") : null;
+    if (action === "ban" && !reason) return;
+    
+    setBanning(true);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: reason ? JSON.stringify({ reason }) : undefined,
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchUserDetails();
+        alert(`User ${action === "ban" ? "banned" : "unbanned"} successfully`);
+      } else {
+        alert(data.error || `Failed to ${action} user`);
+      }
+    } catch (err) {
+      console.error(`Failed to ${action} user:`, err);
+      alert(`Failed to ${action} user`);
+    }
+    setBanning(false);
+  };
+
   if (!userId) return null;
 
   const formatDate = (date: string) => new Date(date).toLocaleDateString();
@@ -111,10 +176,51 @@ export default function UserDetailModal({ userId, onClose }: UserDetailModalProp
             <div className={styles.userHeader}>
               <div className={styles.avatar}>{user.handle.charAt(0).toUpperCase()}</div>
               <div className={styles.userInfo}>
-                <h3>@{user.handle}</h3>
+                <h3>
+                  @{user.handle}
+                  {user.isBanned && <span className={styles.bannedBadge}>BANNED</span>}
+                </h3>
                 <p>{user.email || "No email"}</p>
                 <p className={styles.meta}>Joined {formatDate(user.createdAt)}</p>
               </div>
+            </div>
+
+            {/* Admin Actions */}
+            <div className={styles.adminActions}>
+              <div className={styles.balanceForm}>
+                <span style={{ fontSize: "0.8125rem", color: "var(--text-secondary)" }}>Adjust Balance:</span>
+                <input
+                  type="number"
+                  className={styles.balanceInput}
+                  placeholder="+/-"
+                  value={balanceAdjustment}
+                  onChange={(e) => setBalanceAdjustment(e.target.value)}
+                  disabled={adjusting}
+                />
+                <input
+                  type="text"
+                  className={styles.balanceInput}
+                  style={{ width: "150px" }}
+                  placeholder="Reason"
+                  value={adjustmentReason}
+                  onChange={(e) => setAdjustmentReason(e.target.value)}
+                  disabled={adjusting}
+                />
+                <button
+                  className={`${styles.actionBtn} ${styles.actionBtnPrimary}`}
+                  onClick={handleAdjustBalance}
+                  disabled={adjusting || !balanceAdjustment || !adjustmentReason}
+                >
+                  {adjusting ? "..." : "Apply"}
+                </button>
+              </div>
+              <button
+                className={`${styles.actionBtn} ${user.isBanned ? styles.actionBtnPrimary : styles.actionBtnDanger}`}
+                onClick={handleBanUnban}
+                disabled={banning}
+              >
+                {banning ? "..." : user.isBanned ? "Unban User" : "Ban User"}
+              </button>
             </div>
 
             <div className={styles.statsGrid}>

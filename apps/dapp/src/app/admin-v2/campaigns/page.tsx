@@ -37,6 +37,19 @@ const CHAIN_OPTIONS = [
   { id: 0, name: "Solana" },
 ];
 
+// Preset tokens for quick selection
+const PRESET_TOKENS = [
+  { symbol: "BLT", address: "0xFEF20Fd2422a9d47Fe1a8C355A1AE83F04025EDF", chainId: 999, chainName: "HyperEVM", decimals: 18 },
+  { symbol: "HYPE", address: "0x0000000000000000000000000000000000000000", chainId: 999, chainName: "HyperEVM", decimals: 18 },
+  { symbol: "USDC", address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", chainId: 1, chainName: "Ethereum", decimals: 6 },
+  { symbol: "USDC", address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", chainId: 8453, chainName: "Base", decimals: 6 },
+  { symbol: "USDT", address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", chainId: 1, chainName: "Ethereum", decimals: 6 },
+  { symbol: "ETH", address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", chainId: 1, chainName: "Ethereum", decimals: 18 },
+  { symbol: "ETH", address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", chainId: 8453, chainName: "Base", decimals: 18 },
+  { symbol: "SOL", address: "So11111111111111111111111111111111111111112", chainId: 0, chainName: "Solana", decimals: 9 },
+  { symbol: "USDC", address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", chainId: 0, chainName: "Solana", decimals: 6 },
+];
+
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
@@ -163,6 +176,38 @@ export default function CampaignsPage() {
       console.error("Failed to toggle visibility:", err);
       alert("Failed to update visibility");
     }
+  };
+
+  const handlePauseResume = async (campaign: Campaign) => {
+    const action = campaign.isPaused ? "resume" : "pause";
+    if (!confirm(`${action === "pause" ? "Pause" : "Resume"} campaign "${campaign.name}"?`)) {
+      return;
+    }
+    try {
+      const res = await fetch("/api/admin/campaigns", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: campaign.id, isPaused: !campaign.isPaused }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchCampaigns();
+      } else {
+        alert(data.error || `Failed to ${action} campaign`);
+      }
+    } catch (err) {
+      console.error(`Failed to ${action} campaign:`, err);
+      alert(`Failed to ${action} campaign`);
+    }
+  };
+
+  const selectPresetToken = (token: typeof PRESET_TOKENS[0]) => {
+    setFormData((prev) => ({
+      ...prev,
+      tokenSymbol: token.symbol,
+      tokenAddress: token.address,
+      chainId: token.chainId,
+    }));
   };
 
   const handleSave = async () => {
@@ -293,9 +338,16 @@ export default function CampaignsPage() {
       key: "status",
       header: "Status",
       render: (c: Campaign) => (
-        <span className={`${styles.statusBadge} ${c.isHidden ? styles.statusHidden : styles.statusActive}`}>
-          {c.isHidden ? "Hidden" : "Visible"}
-        </span>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <span className={`${styles.statusBadge} ${c.isHidden ? styles.statusHidden : styles.statusActive}`}>
+            {c.isHidden ? "Hidden" : "Visible"}
+          </span>
+          {c.isPaused && (
+            <span className={`${styles.statusBadge} ${styles.statusPaused}`}>
+              Paused
+            </span>
+          )}
+        </div>
       ),
     },
   ];
@@ -308,6 +360,11 @@ export default function CampaignsPage() {
     {
       label: (c: Campaign) => c.isHidden ? "Show" : "Hide",
       onClick: handleToggleVisibility,
+    },
+    {
+      label: (c: Campaign) => c.isPaused ? "Resume" : "Pause",
+      variant: (c: Campaign) => c.isPaused ? "primary" : ("danger" as const),
+      onClick: handlePauseResume,
     },
     {
       label: "Edit",
@@ -378,14 +435,29 @@ export default function CampaignsPage() {
                     />
                   </div>
 
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Token Symbol</label>
+                  <div className={styles.formGroupFull}>
+                    <label className={styles.formLabel}>Token</label>
+                    <div className={styles.trenchTags}>
+                      {PRESET_TOKENS.map((token, idx) => (
+                        <button
+                          key={`${token.symbol}-${token.chainId}-${idx}`}
+                          type="button"
+                          className={`${styles.trenchTag} ${
+                            formData.tokenSymbol === token.symbol && formData.chainId === token.chainId
+                              ? styles.trenchTagActive
+                              : ""
+                          }`}
+                          onClick={() => selectPresetToken(token)}
+                          title={`${token.symbol} on ${token.chainName}`}
+                        >
+                          {token.symbol} ({token.chainName})
+                        </button>
+                      ))}
+                    </div>
                     <input
-                      type="text"
-                      className={styles.formInput}
-                      value={formData.tokenSymbol}
-                      onChange={(e) => setFormData({ ...formData, tokenSymbol: e.target.value })}
-                      placeholder="e.g., BLT"
+                      type="hidden"
+                      value={formData.tokenAddress}
+                      onChange={(e) => setFormData({ ...formData, tokenAddress: e.target.value })}
                     />
                   </div>
 
