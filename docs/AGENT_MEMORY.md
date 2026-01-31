@@ -10,11 +10,11 @@
 
 ### Recent Commits (Last 5)
 ```
+5eb120c perf(fonts): remove duplicate Google Font imports
 162a3e3 fix(dashboard): restore full position card details
 2f61c2e fix(userService): filter hidden campaigns from user positions
 b217ef2 docs: add comprehensive job descriptions for 10 key roles
 908584b chore(deps): add zod and zustand dependencies  
-91c2364 fix(build): add missing schemas, validation, and store files
 ```
 
 ### Key Files Created/Modified This Session
@@ -72,6 +72,7 @@ docs/             # Documentation
 | Performance: request spam | initialData threading + caching | 0f4ba15 |
 | Hidden campaigns in dashboard | Filter in userService.ts | 2f61c2e |
 | Dashboard missing position details | Restored full card in DashboardClient | 162a3e3 |
+| Duplicate font loading | Removed @import from globals.css | 5eb120c |
 
 ### 🔴 Critical - Build Status
 - **Status:** Last build failed (commit 0f4ba15) due to missing files
@@ -175,6 +176,23 @@ const waitlistEntries = await prisma.campaignWaitlist.findMany({
 - `.positionArrow` - Arrow between amounts
 - `.positionMetrics` - ROI/Time/Queue grid
 - `.positionFooter` - Auto-boost toggle
+
+### 6. Performance Fixes (Quick Actions)
+
+**Font Loading Optimization**
+- Removed duplicate `@import` for Inter and JetBrains Mono from `globals.css`
+- Fonts already loaded via `next/font` in `layout.tsx`
+- Impact: ~50KB saved, removes render-blocking request
+
+**QR Loading States**
+- Location: `SprayForm.tsx`
+- Implementation: Shows spinner when `isGeneratingAddress` is true
+- CSS: `.spinner` with `animation: spin 1s linear infinite`
+- Status: ✅ Already correctly implemented
+
+**Pending: Lighthouse Audit**
+- Target: Performance >70, LCP <4s
+- Must be run manually in Chrome DevTools
 
 ---
 
