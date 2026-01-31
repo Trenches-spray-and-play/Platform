@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { storeReferralCode } from '@/lib/referral-cookie';
 
-export default function ReferralRedirect() {
+function ReferralRedirectContent() {
     const params = useParams();
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -60,5 +60,28 @@ export default function ReferralRedirect() {
                 SYNCING REFERRAL PROTOCOL...
             </p>
         </main>
+    );
+}
+
+export default function ReferralRedirect() {
+    return (
+        <Suspense fallback={
+            <main style={{
+                minHeight: '100vh',
+                background: '#000',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                padding: '2rem',
+            }}>
+                <p style={{ letterSpacing: '2px', fontWeight: 700, textTransform: 'uppercase' }}>
+                    INITIALIZING...
+                </p>
+            </main>
+        }>
+            <ReferralRedirectContent />
+        </Suspense>
     );
 }
