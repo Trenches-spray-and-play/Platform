@@ -59,6 +59,9 @@ export default function CampaignsPage() {
     oracleSource: "manual",
     isActive: true,
     isHidden: false,
+    startsAt: "" as string,
+    acceptDepositsBeforeStart: false,
+    payoutIntervalSeconds: 5,
   });
 
   useEffect(() => {
@@ -95,6 +98,9 @@ export default function CampaignsPage() {
       oracleSource: "manual",
       isActive: true,
       isHidden: false,
+      startsAt: "",
+      acceptDepositsBeforeStart: false,
+      payoutIntervalSeconds: 5,
     });
     setShowModal(true);
   };
@@ -113,6 +119,9 @@ export default function CampaignsPage() {
       oracleSource: campaign.oracleSource || "manual",
       isActive: campaign.isActive,
       isHidden: campaign.isHidden,
+      startsAt: "",
+      acceptDepositsBeforeStart: false,
+      payoutIntervalSeconds: 5,
     });
     setShowModal(true);
   };
@@ -167,6 +176,7 @@ export default function CampaignsPage() {
         tokenAddress: formData.tokenAddress || "0x0000000000000000000000000000000000000000",
         tokenDecimals: 18,
         acceptedTokens: [],
+        startsAt: formData.startsAt || null,
       };
 
       const res = await fetch("/api/admin/campaigns", {
@@ -470,6 +480,48 @@ export default function CampaignsPage() {
                           onChange={(e) => setFormData({ ...formData, isHidden: e.target.checked })}
                         />
                         Hidden from homepage
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className={styles.formGroupFull}>
+                    <label className={styles.formLabel}>Waitlist Settings</label>
+                    <div className={styles.formGrid} style={{ marginTop: "0.5rem" }}>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>
+                          Campaign Starts At <span>(optional)</span>
+                        </label>
+                        <input
+                          type="datetime-local"
+                          className={styles.formInput}
+                          value={formData.startsAt}
+                          onChange={(e) => setFormData({ ...formData, startsAt: e.target.value })}
+                        />
+                        <span className={styles.formHint}>Leave empty to start immediately</span>
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Payout Interval (seconds)</label>
+                        <input
+                          type="number"
+                          min={1}
+                          className={styles.formInput}
+                          value={formData.payoutIntervalSeconds}
+                          onChange={(e) =>
+                            setFormData({ ...formData, payoutIntervalSeconds: parseInt(e.target.value) || 5 })
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className={styles.checkboxGroup} style={{ marginTop: "0.75rem" }}>
+                      <label className={styles.checkboxLabel}>
+                        <input
+                          type="checkbox"
+                          checked={formData.acceptDepositsBeforeStart}
+                          onChange={(e) =>
+                            setFormData({ ...formData, acceptDepositsBeforeStart: e.target.checked })
+                          }
+                        />
+                        Accept deposits before campaign starts (ACCEPTING phase)
                       </label>
                     </div>
                   </div>

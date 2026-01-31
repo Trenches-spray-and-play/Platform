@@ -28,9 +28,9 @@ export const ComplianceDisclaimer = ({
   className = ''
 }: ComplianceDisclaimerProps) => {
   const baseStyles = {
-    default: 'text-xs text-zinc-500 mt-4 max-w-2xl',
-    minimal: 'text-[10px] text-zinc-600 uppercase tracking-wider',
-    footer: 'text-[10px] text-zinc-600 mt-8 text-center',
+    default: 'text-xs text-zinc-400 mt-4 max-w-2xl leading-relaxed',
+    minimal: 'text-[10px] text-zinc-500 uppercase tracking-wider',
+    footer: 'text-[11px] text-zinc-500 mt-6 pt-4 pb-2 text-center border-t border-zinc-800/50 leading-relaxed max-w-3xl mx-auto px-4',
   };
 
   return (
