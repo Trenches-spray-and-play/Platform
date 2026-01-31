@@ -107,14 +107,23 @@ export async function getUserPositions(userId: string) {
                 isActive: true,
             },
             select: {
+                id: true,
+                name: true,
                 trenchIds: true,
+                roiMultiplier: true,
             },
         });
         
+        // Create a map of trenchId -> campaign name for lookup
+        const trenchToCampaign: Map<string, { name: string; campaignId: string }> = new Map();
+        visibleCampaigns.forEach(campaign => {
+            campaign.trenchIds.forEach(trenchId => {
+                trenchToCampaign.set(trenchId, { name: campaign.name, campaignId: campaign.id });
+            });
+        });
+        
         // Flatten all visible trench IDs into a set for efficient lookup
-        const visibleTrenchIds = new Set(
-            visibleCampaigns.flatMap(c => c.trenchIds)
-        );
+        const visibleTrenchIds = new Set(trenchToCampaign.keys());
 
         // 1. Fetch Active Participants (only for non-hidden campaigns)
         const participants = await prisma.participant.findMany({
@@ -189,18 +198,28 @@ export async function getUserPositions(userId: string) {
                 displayStatus = 'waiting';
             }
 
+            // Get campaign info from trench mapping
+            const campaignInfo = trenchToCampaign.get(p.trenchId);
+            
+            // Find the full campaign to get roiMultiplier
+            const campaign = visibleCampaigns.find(c => c.trenchIds.includes(p.trenchId));
+            const roiMultiplier = campaign ? Number(campaign.roiMultiplier) : 1.5;
+
             return {
                 id: p.id,
                 type: 'active' as const,
                 trenchId: p.trenchId,
                 trenchName: p.trench.name,
                 trenchLevel: p.trench.level,
+                campaignName: campaignInfo?.name || p.trench.name, // Use campaign name if available
+                campaignId: campaignInfo?.campaignId,
                 status: displayStatus,
                 joinedAt: p.joinedAt.toISOString(),
                 boostPoints: p.boostPoints,
                 entryAmount: p.entryAmount,
                 maxPayout: p.maxPayout,
                 receivedAmount: p.receivedAmount,
+                roiMultiplier: roiMultiplier,
                 expiresAt: p.expiresAt?.toISOString() || null,
                 expectedPayoutAt: expectedPayoutAt.toISOString(),
                 remainingTime: {
