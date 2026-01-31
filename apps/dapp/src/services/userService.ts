@@ -114,6 +114,11 @@ export async function getUserPositions(userId: string) {
             },
         });
         
+        // DEBUG LOGGING
+        console.log('[DEBUG] getUserPositions - UserId:', userId);
+        console.log('[DEBUG] getUserPositions - Visible campaigns count:', visibleCampaigns.length);
+        console.log('[DEBUG] getUserPositions - Campaigns:', visibleCampaigns.map(c => ({ id: c.id, name: c.name, trenchIds: c.trenchIds })));
+        
         // Create a map of trenchId -> campaign name for lookup
         const trenchToCampaign: Map<string, { name: string; campaignId: string }> = new Map();
         visibleCampaigns.forEach(campaign => {
@@ -124,6 +129,9 @@ export async function getUserPositions(userId: string) {
         
         // Flatten all visible trench IDs into a set for efficient lookup
         const visibleTrenchIds = new Set(trenchToCampaign.keys());
+        
+        // DEBUG LOGGING
+        console.log('[DEBUG] getUserPositions - Visible trench IDs:', Array.from(visibleTrenchIds));
 
         // 1. Fetch Active Participants (only for non-hidden campaigns)
         const participants = await prisma.participant.findMany({
@@ -144,11 +152,21 @@ export async function getUserPositions(userId: string) {
             },
             orderBy: { joinedAt: 'desc' },
         });
+        
+        // DEBUG LOGGING
+        console.log('[DEBUG] getUserPositions - All participants count:', participants.length);
+        console.log('[DEBUG] getUserPositions - Participants:', participants.map(p => ({ id: p.id, trenchId: p.trenchId, status: p.status })));
 
         // Filter participants to only include those in visible campaigns
-        const visibleParticipants = participants.filter(
-            p => visibleTrenchIds.has(p.trenchId)
-        );
+        // DEBUG: Temporarily disable filtering to see all participants
+        const visibleParticipants = visibleTrenchIds.size > 0 
+            ? participants.filter(p => visibleTrenchIds.has(p.trenchId))
+            : participants; // If no visible campaigns, show all (for debugging)
+        
+        // DEBUG LOGGING
+        console.log('[DEBUG] getUserPositions - Visible trench IDs count:', visibleTrenchIds.size);
+        console.log('[DEBUG] getUserPositions - Visible participants count:', visibleParticipants.length);
+        console.log('[DEBUG] getUserPositions - Filtered out count:', participants.length - visibleParticipants.length);
 
         // 2. Fetch Waitlist Entries (Enlisted & Secured) - only for non-hidden campaigns
         const waitlistEntries = await prisma.campaignWaitlist.findMany({
