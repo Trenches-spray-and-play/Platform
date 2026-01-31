@@ -1,291 +1,137 @@
-"use client";
-
-import { useEffect, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Metadata } from "next";
 import Layout from "../../components/Layout";
-import styles from "./finalize.module.css";
-import { ComplianceDisclaimer } from "@trenches/ui";
+import FinalizeClient from "./FinalizeClient";
+import ErrorBoundary from "../../components/ErrorBoundary";
+import styles from "../page.module.css";
+import { prisma } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 
-interface Task {
-  id: string;
-  title: string;
-  description: string | null;
-  reward: number;
-  taskType: "ONE_TIME" | "RECURRING";
-  completed?: boolean;
-}
+export const metadata: Metadata = {
+  title: "Finalize Entry | Trenches v2",
+  description: "Complete your protocol missions to activate your position.",
+};
 
-interface SprayEntry {
-  id: string;
-  amount: number;
-  status: string;
-  trench: {
-    level: string;
-  };
-}
-
-function FinalizeContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const entryId = searchParams.get("entryId");
-
-  const [entry, setEntry] = useState<SprayEntry | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [finalizing, setFinalizing] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [result, setResult] = useState<{
-    queuePosition: number;
-    maxPayout: number;
-    participantId: string;
-  } | null>(null);
-
-  useEffect(() => {
-    if (!entryId) {
-      router.push("/sample-v2/dashboard-v2");
-      return;
-    }
-    fetchData();
-  }, [entryId]);
-
-  const fetchData = async () => {
-    try {
-      // Fetch spray entry details
-      const entryRes = await fetch(`/api/user/spray-entries/${entryId}`);
-      if (!entryRes.ok) {
-        throw new Error("Entry not found");
-      }
-      const entryData = await entryRes.json();
-      setEntry(entryData.data);
-
-      // Fetch tasks
-      const tasksRes = await fetch("/api/tasks");
-      if (tasksRes.ok) {
-        const tasksData = await tasksRes.json();
-        // Check which tasks are completed
-        const tasksWithStatus = await Promise.all(
-          (tasksData.data || []).map(async (task: Task) => {
-            const checkRes = await fetch(`/api/user/tasks/${task.id}/status`);
-            const checkData = await checkRes.json();
-            return { ...task, completed: checkData.data?.completed || false };
-          })
-        );
-        setTasks(tasksWithStatus);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFinalize = async () => {
-    if (!entryId) return;
-
-    setFinalizing(true);
-    setError(null);
-
-    try {
-      const res = await fetch("/api/spray/finalize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sprayEntryId: entryId }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        // Handle incomplete tasks error specifically
-        if (data.remainingTasks) {
-          throw new Error(
-            `Complete all ${data.remainingTasks} tasks first: ${data.remainingTaskNames?.join(", ")}`
-          );
+async function getSprayEntry(id: string, userId: string) {
+  try {
+    const entry = await prisma.sprayEntry.findUnique({
+      where: { id },
+      include: {
+        trench: {
+          select: {
+            level: true,
+            durationHours: true,
+          }
         }
-        throw new Error(data.error || "Failed to finalize");
       }
+    });
 
-      setResult(data.data);
-      setSuccess(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to finalize");
-    } finally {
-      setFinalizing(false);
-    }
-  };
+    if (!entry || entry.userId !== userId) return null;
 
-  const incompleteTasks = tasks.filter((t) => !t.completed);
-  const allTasksComplete = incompleteTasks.length === 0;
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className={styles.container}>
-          <div className={styles.loading}>Loading entry details...</div>
-        </div>
-        <ComplianceDisclaimer variant="footer" />
-      </Layout>
-    );
+    return {
+      id: entry.id,
+      amount: entry.amount.toString(),
+      trench: entry.trench
+    };
+  } catch (error) {
+    console.error("Failed to fetch spray entry:", error);
+    return null;
   }
+}
 
-  if (success && result) {
+async function getTasks() {
+  try {
+    const tasks = await prisma.task.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+    });
+    return tasks;
+  } catch (error) {
+    console.error("Failed to fetch tasks:", error);
+    return [];
+  }
+}
+
+async function getUserTaskCompletions(userId: string, sprayEntryId: string) {
+  try {
+    const completions = await prisma.userTask.findMany({
+      where: {
+        userId,
+        sprayEntryId,
+      },
+      select: {
+        taskId: true,
+        completedAt: true,
+      }
+    });
+    return completions.map(c => ({
+      taskId: c.taskId,
+      completedAt: c.completedAt.toISOString()
+    }));
+  } catch (error) {
+    console.error("Failed to fetch user tasks:", error);
+    return [];
+  }
+}
+
+export default async function FinalizePage({
+  searchParams,
+}: {
+  searchParams: { id?: string };
+}) {
+  const session = await getSession();
+
+  if (!session || !searchParams.id) {
     return (
       <Layout>
-        <div className={styles.container}>
-          <div className={styles.successCard}>
-            <div className={styles.successIcon}>✓</div>
-            <h1 className={styles.successTitle}>Entry Confirmed!</h1>
-            <p className={styles.successMessage}>
-              Your position has been created in the {entry?.trench.level} trench.
-            </p>
-
-            <div className={styles.resultBox}>
-              <div className={styles.resultRow}>
-                <span>Queue Position</span>
-                <span className={styles.resultValue}>#{result.queuePosition}</span>
-              </div>
-              <div className={styles.resultRow}>
-                <span>Entry Amount</span>
-                <span className={styles.resultValue}>
-                  ${entry?.amount.toFixed(2)}
-                </span>
-              </div>
-              <div className={styles.resultRow}>
-                <span>Max Payout</span>
-                <span className={`${styles.resultValue} ${styles.highlight}`}>
-                  ${result.maxPayout.toFixed(2)}
-                </span>
-              </div>
+        <div className={styles.page}>
+          <div className={styles.container}>
+            <div className={styles.card} style={{ textAlign: "center", padding: "3rem" }}>
+              <h3>Invalid Session or Entry ID</h3>
+              <p>Please try again from the Spray portal.</p>
             </div>
-
-            <button
-              className={styles.dashboardBtn}
-              onClick={() => router.push("/sample-v2/dashboard-v2")}
-            >
-              View Dashboard
-            </button>
           </div>
         </div>
-        <ComplianceDisclaimer variant="footer" />
       </Layout>
     );
   }
+
+  const [sprayEntry, allTasks, completions] = await Promise.all([
+    getSprayEntry(searchParams.id, session.id),
+    getTasks(),
+    getUserTaskCompletions(session.id, searchParams.id)
+  ]);
 
   return (
     <Layout>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Complete Tasks</h1>
-          <p className={styles.subtitle}>
-            Finish all tasks to finalize your {entry?.trench.level} entry
-          </p>
-        </div>
-
-        {error && (
-          <div className={styles.errorBanner}>
-            <span>⚠️ {error}</span>
-            <button onClick={() => setError(null)} className={styles.errorClose}>
-              ×
-            </button>
-          </div>
-        )}
-
-        <div className={styles.card}>
-          {/* Entry Summary */}
-          <div className={styles.entrySummary}>
-            <div className={styles.entryRow}>
-              <span>Entry Amount</span>
-              <span className={styles.entryValue}>
-                ${entry?.amount.toFixed(2)}
-              </span>
-            </div>
-            <div className={styles.entryRow}>
-              <span>Status</span>
-              <span className={styles.statusBadge}>{entry?.status}</span>
+      <div className={styles.page}>
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <div className={styles.headerContent}>
+              <span className={styles.category}>Security Clearance</span>
+              <h1 className={styles.title}>Mission Hub</h1>
+              <p className={styles.subtitle}>
+                Your funds are secured. Complete the missions below to finalize your deployment.
+              </p>
             </div>
           </div>
 
-          {/* Tasks List */}
-          <div className={styles.tasksSection}>
-            <h2 className={styles.tasksTitle}>
-              Required Tasks ({tasks.filter((t) => t.completed).length}/{tasks.length})
-            </h2>
-
-            {tasks.length === 0 ? (
-              <p className={styles.emptyTasks}>Loading tasks...</p>
-            ) : (
-              <div className={styles.taskList}>
-                {tasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className={`${styles.taskCard} ${task.completed ? styles.completed : ""}`}
-                  >
-                    <div className={styles.taskInfo}>
-                      <div className={styles.taskHeader}>
-                        <h3>{task.title}</h3>
-                        {task.completed ? (
-                          <span className={styles.completedBadge}>✓ Done</span>
-                        ) : (
-                          <span className={styles.pendingBadge}>Pending</span>
-                        )}
-                      </div>
-                      {task.description && (
-                        <p className={styles.taskDesc}>{task.description}</p>
-                      )}
-                      <span className={styles.taskReward}>+{task.reward} BP</span>
-                    </div>
-                    {!task.completed && (
-                      <a
-                        href={`/sample-v2/earn-v2?task=${task.id}`}
-                        className={styles.taskAction}
-                      >
-                        Complete →
-                      </a>
-                    )}
-                  </div>
-                ))}
+          <ErrorBoundary>
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <div className={styles.statusDot} />
+                <h3>MISSION_CHECKLIST_#{(searchParams.id || "").slice(0, 8)}</h3>
               </div>
-            )}
-          </div>
-
-          {/* Finalize Button */}
-          <button
-            className={styles.finalizeBtn}
-            onClick={handleFinalize}
-            disabled={finalizing || !allTasksComplete}
-          >
-            {finalizing
-              ? "Finalizing..."
-              : allTasksComplete
-              ? "Finalize Entry"
-              : `Complete ${incompleteTasks.length} Task${incompleteTasks.length !== 1 ? "s" : ""}`}
-          </button>
-
-          {!allTasksComplete && (
-            <p className={styles.helpText}>
-              Complete all tasks above to activate your entry
-            </p>
-          )}
+              <div className={styles.cardContent}>
+                <FinalizeClient
+                  sprayEntry={sprayEntry}
+                  initialTasks={allTasks as any}
+                  initialCompletions={completions}
+                />
+              </div>
+            </div>
+          </ErrorBoundary>
         </div>
       </div>
-      <ComplianceDisclaimer variant="footer" />
     </Layout>
-  );
-}
-
-export default function FinalizePage() {
-  return (
-    <Suspense
-      fallback={
-        <Layout>
-          <div className={styles.container}>
-            <div className={styles.loading}>Loading...</div>
-          </div>
-          <ComplianceDisclaimer variant="footer" />
-        </Layout>
-      }
-    >
-      <FinalizeContent />
-    </Suspense>
   );
 }
