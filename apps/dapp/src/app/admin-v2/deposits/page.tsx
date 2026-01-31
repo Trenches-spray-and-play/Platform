@@ -6,6 +6,7 @@ import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
 import DataTable from "../components/DataTable";
 import styles from "./page.module.css";
+import { parseApiError } from "../lib/errors";
 
 interface Deposit {
   id: string;
@@ -42,39 +43,56 @@ interface PlatformBalance {
   };
 }
 
+const ITEMS_PER_PAGE = 50;
+
 export default function DepositsPage() {
   const [deposits, setDeposits] = useState<Deposit[]>([]);
   const [balance, setBalance] = useState<PlatformBalance | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page]);
 
   const fetchData = async () => {
     setLoading(true);
+    setError(null);
     try {
       const [depositsRes, balanceRes] = await Promise.all([
-        fetch("/api/admin/deposits"),
+        fetch(`/api/admin/deposits?page=${page}&limit=${ITEMS_PER_PAGE}`),
         fetch("/api/admin/balance"),
       ]);
+
+      if (!depositsRes.ok) {
+        const errorMsg = await parseApiError(depositsRes);
+        throw new Error(errorMsg);
+      }
 
       const depositsData = await depositsRes.json();
       const balanceData = await balanceRes.json();
 
       // Handle different API response formats
       const deposits = depositsData.data || depositsData || [];
-      if (Array.isArray(deposits)) setDeposits(deposits);
+      if (Array.isArray(deposits)) {
+        setDeposits(deposits);
+        setTotal(depositsData.meta?.total || deposits.length);
+      }
       
       const balance = balanceData.data || balanceData;
       if (balance && (balance.totals || balance.byChain)) {
         setBalance(balance);
       }
     } catch (err) {
-      console.error("Failed to fetch deposits:", err);
+      const message = err instanceof Error ? err.message : "Failed to load deposits";
+      setError(message);
+      setDeposits([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleRefresh = async () => {
@@ -158,7 +176,7 @@ export default function DepositsPage() {
       <div className={styles.page}>
         <PageHeader
           title="Deposit Management"
-          subtitle="Track and monitor platform deposits"
+          subtitle={`${total.toLocaleString()} total deposits`}
           actions={[
             {
               label: refreshing ? "Refreshing..." : "Refresh",
@@ -169,6 +187,25 @@ export default function DepositsPage() {
             },
           ]}
         />
+
+        {error && (
+          <div style={{ 
+            padding: "1rem", 
+            background: "rgba(239, 68, 68, 0.1)", 
+            border: "1px solid var(--danger)",
+            borderRadius: "var(--radius-md)",
+            color: "var(--danger)",
+            marginBottom: "1rem"
+          }}>
+            ⚠️ {error}
+            <button 
+              onClick={fetchData}
+              style={{ marginLeft: "1rem", textDecoration: "underline", cursor: "pointer" }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         {/* Balance Stats */}
         <div className={styles.statsGrid}>
@@ -215,6 +252,13 @@ export default function DepositsPage() {
           loading={loading}
           emptyMessage="No deposits yet"
           emptySubtitle="Deposits will appear here when users make deposits"
+          pagination={{
+            currentPage: page,
+            totalPages: Math.ceil(total / ITEMS_PER_PAGE),
+            onPageChange: setPage,
+            totalItems: total,
+            itemsPerPage: ITEMS_PER_PAGE,
+          }}
         />
       </div>
     </AdminLayout>
