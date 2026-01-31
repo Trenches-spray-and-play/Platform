@@ -1,7 +1,7 @@
 # Agent Memory Document
 
 > **Purpose:** Track work progress, decisions, and context across sessions  
-> **Last Updated:** 2026-01-30  
+> **Last Updated:** 2026-01-31  
 > **Project:** Trenches dApp
 
 ---
@@ -10,14 +10,15 @@
 
 ### Recent Commits (Last 5)
 ```
+2f61c2e fix(userService): filter hidden campaigns from user positions
 b217ef2 docs: add comprehensive job descriptions for 10 key roles
 908584b chore(deps): add zod and zustand dependencies  
 91c2364 fix(build): add missing schemas, validation, and store files
 0f4ba15 fix(performance): prevent request spam with initialData and caching
-348df90 fix(admin-v2): allow ReactNode in DataTable column header
 ```
 
 ### Key Files Created/Modified This Session
+- `apps/dapp/src/services/userService.ts` - Fixed hidden campaign filtering
 - `docs/JOB_DESCRIPTIONS.md` - 10 role descriptions with compensation
 - `apps/dapp/src/hooks/useQueries.ts` - React Query hooks with initialData
 - `apps/dapp/src/app/sample-v2/components/LayoutClient.tsx` - Client layout
@@ -69,6 +70,7 @@ docs/             # Documentation
 | Missing store/schemas files | Added untracked files | 91c2364 |
 | Missing zod/zustand deps | Updated package.json + lock | 908584b |
 | Performance: request spam | initialData threading + caching | 0f4ba15 |
+| Hidden campaigns in dashboard | Filter in userService.ts | 2f61c2e |
 
 ### 🔴 Critical - Build Status
 - **Status:** Last build failed (commit 0f4ba15) due to missing files
@@ -114,6 +116,35 @@ refetchOnReconnect: false,
 // Using Next.js revalidation instead of no-store
 { next: { revalidate: 60 } }
 ```
+
+### 4. Hidden Campaign Filtering
+**Problem:** User dashboard showed positions from hidden campaigns (isHidden: true)
+
+**Solution in `userService.ts`:**
+```typescript
+// 1. Get all visible campaign trench IDs
+const visibleCampaigns = await prisma.campaignConfig.findMany({
+    where: { isHidden: false, isActive: true },
+    select: { trenchIds: true },
+});
+const visibleTrenchIds = new Set(visibleCampaigns.flatMap(c => c.trenchIds));
+
+// 2. Filter participants to visible trenches only
+const visibleParticipants = participants.filter(
+    p => visibleTrenchIds.has(p.trenchId)
+);
+
+// 3. Filter waitlist entries
+const waitlistEntries = await prisma.campaignWaitlist.findMany({
+    where: { 
+        userId,
+        campaign: { isHidden: false, isActive: true }
+    },
+    ...
+});
+```
+
+**Note:** Trench-to-Campaign relation is indirect (CampaignConfig.trenchIds is String[])
 
 ---
 
