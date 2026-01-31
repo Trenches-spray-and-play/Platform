@@ -71,7 +71,14 @@ export default function DashboardClient({
         return `${minutes}m`;
     };
 
+    // DEBUG LOGGING
+    console.log('[DEBUG] DashboardClient - initialPositions:', initialPositions);
+    console.log('[DEBUG] DashboardClient - positions from hook:', positions);
+    
     const activePositions = positions.filter((p) => p.status !== "paid");
+    
+    // DEBUG LOGGING
+    console.log('[DEBUG] DashboardClient - activePositions:', activePositions);
     const totalInvested = activePositions.reduce((sum, p) => sum + (p.entryAmount || 0), 0);
     const totalReturn = activePositions.reduce((sum, p) => {
         const entry = p.entryAmount || 0;

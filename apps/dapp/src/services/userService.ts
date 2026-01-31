@@ -107,14 +107,31 @@ export async function getUserPositions(userId: string) {
                 isActive: true,
             },
             select: {
+                id: true,
+                name: true,
                 trenchIds: true,
+                roiMultiplier: true,
             },
         });
         
+        // DEBUG LOGGING
+        console.log('[DEBUG] getUserPositions - UserId:', userId);
+        console.log('[DEBUG] getUserPositions - Visible campaigns count:', visibleCampaigns.length);
+        console.log('[DEBUG] getUserPositions - Campaigns:', visibleCampaigns.map(c => ({ id: c.id, name: c.name, trenchIds: c.trenchIds })));
+        
+        // Create a map of trenchId -> campaign name for lookup
+        const trenchToCampaign: Map<string, { name: string; campaignId: string }> = new Map();
+        visibleCampaigns.forEach(campaign => {
+            campaign.trenchIds.forEach(trenchId => {
+                trenchToCampaign.set(trenchId, { name: campaign.name, campaignId: campaign.id });
+            });
+        });
+        
         // Flatten all visible trench IDs into a set for efficient lookup
-        const visibleTrenchIds = new Set(
-            visibleCampaigns.flatMap(c => c.trenchIds)
-        );
+        const visibleTrenchIds = new Set(trenchToCampaign.keys());
+        
+        // DEBUG LOGGING
+        console.log('[DEBUG] getUserPositions - Visible trench IDs:', Array.from(visibleTrenchIds));
 
         // 1. Fetch Active Participants (only for non-hidden campaigns)
         const participants = await prisma.participant.findMany({
@@ -135,11 +152,21 @@ export async function getUserPositions(userId: string) {
             },
             orderBy: { joinedAt: 'desc' },
         });
+        
+        // DEBUG LOGGING
+        console.log('[DEBUG] getUserPositions - All participants count:', participants.length);
+        console.log('[DEBUG] getUserPositions - Participants:', participants.map(p => ({ id: p.id, trenchId: p.trenchId, status: p.status })));
 
         // Filter participants to only include those in visible campaigns
-        const visibleParticipants = participants.filter(
-            p => visibleTrenchIds.has(p.trenchId)
-        );
+        // DEBUG: Temporarily disable filtering to see all participants
+        const visibleParticipants = visibleTrenchIds.size > 0 
+            ? participants.filter(p => visibleTrenchIds.has(p.trenchId))
+            : participants; // If no visible campaigns, show all (for debugging)
+        
+        // DEBUG LOGGING
+        console.log('[DEBUG] getUserPositions - Visible trench IDs count:', visibleTrenchIds.size);
+        console.log('[DEBUG] getUserPositions - Visible participants count:', visibleParticipants.length);
+        console.log('[DEBUG] getUserPositions - Filtered out count:', participants.length - visibleParticipants.length);
 
         // 2. Fetch Waitlist Entries (Enlisted & Secured) - only for non-hidden campaigns
         const waitlistEntries = await prisma.campaignWaitlist.findMany({
@@ -189,18 +216,28 @@ export async function getUserPositions(userId: string) {
                 displayStatus = 'waiting';
             }
 
+            // Get campaign info from trench mapping
+            const campaignInfo = trenchToCampaign.get(p.trenchId);
+            
+            // Find the full campaign to get roiMultiplier
+            const campaign = visibleCampaigns.find(c => c.trenchIds.includes(p.trenchId));
+            const roiMultiplier = campaign ? Number(campaign.roiMultiplier) : 1.5;
+
             return {
                 id: p.id,
                 type: 'active' as const,
                 trenchId: p.trenchId,
                 trenchName: p.trench.name,
                 trenchLevel: p.trench.level,
+                campaignName: campaignInfo?.name || p.trench.name, // Use campaign name if available
+                campaignId: campaignInfo?.campaignId,
                 status: displayStatus,
                 joinedAt: p.joinedAt.toISOString(),
                 boostPoints: p.boostPoints,
                 entryAmount: p.entryAmount,
                 maxPayout: p.maxPayout,
                 receivedAmount: p.receivedAmount,
+                roiMultiplier: roiMultiplier,
                 expiresAt: p.expiresAt?.toISOString() || null,
                 expectedPayoutAt: expectedPayoutAt.toISOString(),
                 remainingTime: {

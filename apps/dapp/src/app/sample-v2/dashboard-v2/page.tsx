@@ -1,34 +1,40 @@
 import { cookies } from 'next/headers';
-import Layout from "../components/Layout";
 
-export const dynamic = "force-dynamic";
 import DashboardClient from "./DashboardClient";
 import Link from "next/link";
+export const dynamic = "force-dynamic";
 import styles from "./page.module.css";
 import { ComplianceDisclaimer } from "@trenches/ui";
 
+import { getSession } from "@/lib/auth";
+import { getUserProfile, getUserPositions } from "@/services/userService";
+
 async function getDashboardData() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('sb-access-token'); // Assuming Supabase or similar
+  console.log('[DEBUG] getDashboardData: starting...');
+  const session = await getSession();
+  console.log('[DEBUG] getDashboardData: session:', session?.id);
+  
+  if (!session) {
+    console.log('[DEBUG] getDashboardData: no session, returning empty');
+    return { user: null, positions: [] };
+  }
 
-  // Use Next.js caching to prevent duplicate requests
-  // Data is cached for 60 seconds and reused across renders
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const [positionsRes, profileRes] = await Promise.all([
-      fetch(`${baseUrl}/api/user/positions`, { next: { revalidate: 60 } }),
-      fetch(`${baseUrl}/api/user`, { next: { revalidate: 60 } }),
+    console.log('[DEBUG] getDashboardData: fetching user and positions for', session.id);
+    const [user, positions] = await Promise.all([
+      getUserProfile(session.id),
+      getUserPositions(session.id)
     ]);
-
-    const positionsData = await positionsRes.json();
-    const profileData = await profileRes.json();
+    
+    console.log('[DEBUG] getDashboardData: user:', user?.handle);
+    console.log('[DEBUG] getDashboardData: positions count:', positions?.length);
 
     return {
-      user: profileData.data || null,
-      positions: positionsData.data || []
+      user,
+      positions: positions || []
     };
   } catch (error) {
-    console.error("Failed to fetch dashboard data:", error);
+    console.error("[DEBUG] getDashboardData: Failed to fetch dashboard data:", error);
     return { user: null, positions: [] };
   }
 }
@@ -53,17 +59,17 @@ export default async function DashboardPage() {
 
   if (!user) {
     return (
-      <Layout>
+      <>
         <UnauthenticatedDashboard />
         <ComplianceDisclaimer variant="footer" />
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <DashboardClient initialUser={user} initialPositions={positions} />
       <ComplianceDisclaimer variant="footer" />
-    </Layout>
+    </>
   );
 }
