@@ -4,7 +4,7 @@ import styles from "./DataTable.module.css";
 
 interface Column<T> {
   key: string;
-  header: string;
+  header: string | React.ReactNode;
   width?: string;
   render?: (item: T) => React.ReactNode;
 }
