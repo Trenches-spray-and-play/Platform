@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Campaign, CampaignSchema, UserSchema, Position, PositionSchema } from "@/lib/schemas";
 import { validateApiResponse } from "@/lib/validation";
+import { useUIStore } from "@/store/uiStore";
 import { z } from "zod";
 
 type User = z.infer<typeof UserSchema>;
@@ -22,6 +23,8 @@ export const queryKeys = {
     deposits: (userId?: string) => ["deposits", userId] as const,
     campaign: (id: string) => ["campaign", id] as const,
     sprayEntry: (id: string) => ["sprayEntry", id] as const,
+    userTasks: ["userTasks"] as const,
+    userRaids: ["userRaids"] as const,
 };
 
 
@@ -79,6 +82,20 @@ async function fetchContentCampaigns(): Promise<any[]> {
 async function fetchSubmissions(): Promise<any[]> {
     const res = await fetch("/api/user/content-submissions");
     if (!res.ok) throw new Error("Failed to fetch submissions");
+    const data = await res.json();
+    return data.data || [];
+}
+
+async function fetchUserTasks(): Promise<any[]> {
+    const res = await fetch("/api/user/tasks");
+    if (!res.ok) throw new Error("Failed to fetch user tasks");
+    const data = await res.json();
+    return data.data || [];
+}
+
+async function fetchUserRaids(): Promise<any[]> {
+    const res = await fetch("/api/user/raids");
+    if (!res.ok) throw new Error("Failed to fetch user raids");
     const data = await res.json();
     return data.data || [];
 }
@@ -202,6 +219,22 @@ export function useSubmitContent() {
     });
 }
 
+export function useUserTasks() {
+    return useQuery({
+        queryKey: queryKeys.userTasks,
+        queryFn: fetchUserTasks,
+        staleTime: 60 * 1000,
+    });
+}
+
+export function useUserRaids() {
+    return useQuery({
+        queryKey: queryKeys.userRaids,
+        queryFn: fetchUserRaids,
+        staleTime: 60 * 1000,
+    });
+}
+
 /**
  * Fetch a single campaign by ID.
  */
@@ -290,6 +323,69 @@ export function useInvalidateQueries() {
         invalidateRaids: () => queryClient.invalidateQueries({ queryKey: queryKeys.raids }),
         invalidateContent: () => queryClient.invalidateQueries({ queryKey: queryKeys.contentCampaigns }),
         invalidateSubmissions: () => queryClient.invalidateQueries({ queryKey: queryKeys.submissions }),
+        invalidateUserTasks: () => queryClient.invalidateQueries({ queryKey: queryKeys.userTasks }),
+        invalidateUserRaids: () => queryClient.invalidateQueries({ queryKey: queryKeys.userRaids }),
         invalidateAll: () => queryClient.invalidateQueries(),
     };
+}
+/**
+ * Mutation to complete a task.
+ */
+export function useCompleteTask() {
+    const queryClient = useQueryClient();
+    const addToast = useUIStore((state) => state.addToast);
+
+    return useMutation({
+        mutationFn: async ({ taskId, sprayEntryId }: { taskId: string; sprayEntryId?: string }) => {
+            const res = await fetch("/api/user/tasks", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ taskId, sprayEntryId }),
+            });
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error || "Failed to complete task");
+            }
+            return res.json();
+        },
+        onSuccess: (data) => {
+            addToast(`Task completed! +${data.reward || 0} BP`, "success");
+            queryClient.invalidateQueries({ queryKey: queryKeys.tasks });
+            queryClient.invalidateQueries({ queryKey: queryKeys.user }); // Award BP
+        },
+        onError: (error: Error) => {
+            addToast(error.message, "error");
+        },
+    });
+}
+
+/**
+ * Mutation to complete a raid.
+ */
+export function useCompleteRaid() {
+    const queryClient = useQueryClient();
+    const addToast = useUIStore((state) => state.addToast);
+
+    return useMutation({
+        mutationFn: async (raidId: string) => {
+            const res = await fetch("/api/user/raids", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ raidId }),
+            });
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error || "Failed to complete raid");
+            }
+            return res.json();
+        },
+        onSuccess: (data) => {
+            addToast(`Raid completed! +${data.bpAwarded || 0} BP`, "success");
+            queryClient.invalidateQueries({ queryKey: queryKeys.raids });
+            queryClient.invalidateQueries({ queryKey: queryKeys.user }); // Award BP
+        },
+        onError: (error: Error) => {
+            addToast(error.message, "error");
+        },
+    });
 }

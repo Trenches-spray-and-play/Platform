@@ -3,7 +3,17 @@
 export const dynamic = "force-dynamic";
 
 import { useState } from "react";
-import { useTasks, useRaids, useContentCampaigns, useSubmissions, useSubmitContent } from "@/hooks/useQueries";
+import {
+  useTasks,
+  useRaids,
+  useContentCampaigns,
+  useSubmissions,
+  useSubmitContent,
+  useCompleteTask,
+  useCompleteRaid,
+  useUserTasks,
+  useUserRaids
+} from "@/hooks/useQueries";
 import Layout from "../components/Layout";
 import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
@@ -57,19 +67,65 @@ export default function EarnPage() {
   const { data: raids = [] } = useRaids();
   const { data: contentCampaigns = [] } = useContentCampaigns();
   const { data: mySubmissions = [] } = useSubmissions();
+  const { data: userTasks = [] } = useUserTasks();
+  const { data: userRaids = [] } = useUserRaids();
+  const completeTask = useCompleteTask();
+  const completeRaid = useCompleteRaid();
+
   const openModal = useUIStore((state) => state.openModal);
 
   const [activeTab, setActiveTab] = useState<"tasks" | "raids" | "content">("tasks");
+  const [pendingTaskId, setPendingTaskId] = useState<string | null>(null);
+  const [pendingRaidId, setPendingRaidId] = useState<string | null>(null);
+
+  const isTaskCompleted = (taskId: string) => userTasks.some((ut: any) => ut.taskId === taskId);
+  const isRaidCompleted = (raidId: string) => userRaids.some((ur: any) => ur.raidId === raidId);
+
+  const handleTaskStart = (task: Task) => {
+    if (task.link) {
+      window.open(task.link, "_blank");
+    }
+    setPendingTaskId(task.id);
+  };
+
+  const handleTaskComplete = (taskId: string) => {
+    completeTask.mutate({ taskId }, {
+      onSuccess: () => setPendingTaskId(null)
+    });
+  };
+
+  const handleRaidStart = (raid: Raid) => {
+    if (raid.url) {
+      window.open(raid.url, "_blank");
+    }
+    setPendingRaidId(raid.id);
+  };
+
+  const handleRaidComplete = (raidId: string) => {
+    completeRaid.mutate(raidId, {
+      onSuccess: () => setPendingRaidId(null)
+    });
+  };
 
   const openSubmitModal = (campaign: any) => {
     openModal('SUBMIT_CONTENT', campaign);
   };
 
-  const oneTimeTasks = tasks.filter((t) => t.taskType === "ONE_TIME" && t.isActive);
-  const recurringTasks = tasks.filter((t) => t.taskType === "RECURRING" && t.isActive);
+  const oneTimeTasks = (tasks as Task[]).filter((t: Task) => t.taskType === "ONE_TIME" && t.isActive);
+  const recurringTasks = (tasks as Task[]).filter((t: Task) => t.taskType === "RECURRING" && t.isActive);
 
-  const pendingSubmissions = mySubmissions.filter((s) => s.status === "pending");
-  const approvedSubmissions = mySubmissions.filter((s) => s.status === "approved");
+  const pendingSubmissions = (mySubmissions as ContentSubmission[]).filter((s: ContentSubmission) => s.status === "pending");
+  const approvedSubmissions = (mySubmissions as ContentSubmission[]).filter((s: ContentSubmission) => s.status === "approved");
+
+  // Separate tasks and raids for Step 3
+  const availableOneTime = oneTimeTasks.filter(t => !isTaskCompleted(t.id));
+  const completedOneTime = oneTimeTasks.filter(t => isTaskCompleted(t.id));
+
+  const availableRecurring = recurringTasks.filter(t => !isTaskCompleted(t.id));
+  const completedRecurring = recurringTasks.filter(t => isTaskCompleted(t.id));
+
+  const availableRaids = (raids as Raid[]).filter(r => !isRaidCompleted(r.id));
+  const completedRaids = (raids as Raid[]).filter(r => isRaidCompleted(r.id));
 
   return (
     <Layout>
@@ -114,72 +170,156 @@ export default function EarnPage() {
               <section className={styles.section}>
                 <h2>One-Time Missions</h2>
                 <div className={styles.taskGrid}>
-                  {oneTimeTasks.map((task) => (
-                    <div key={task.id} className={styles.taskCard}>
-                      <div className={styles.taskReward}>+{task.reward} BP</div>
-                      <h3>{task.title}</h3>
-                      <p>{task.description || "Complete this task to earn Boost Points"}</p>
-                      <button
-                        className={styles.taskBtn}
-                        onClick={() => task.link && window.open(task.link, "_blank")}
-                      >
-                        Complete
-                      </button>
-                    </div>
-                  ))}
-                  {oneTimeTasks.length === 0 && (
-                    <div className={styles.empty}>No one-time tasks available</div>
+                  {availableOneTime.map((task) => {
+                    const isPending = pendingTaskId === task.id;
+                    return (
+                      <div key={task.id} className={styles.taskCard}>
+                        <div className={styles.taskReward}>+{task.reward} BP</div>
+                        <h3>{task.title}</h3>
+                        <p>{task.description || "Complete this task to earn Boost Points"}</p>
+
+                        {isPending ? (
+                          <button
+                            className={styles.completeBtn}
+                            onClick={() => handleTaskComplete(task.id)}
+                            disabled={completeTask.isPending}
+                          >
+                            {completeTask.isPending ? "Verifying..." : "Mark Complete ✓"}
+                          </button>
+                        ) : (
+                          <button
+                            className={styles.taskBtn}
+                            onClick={() => handleTaskStart(task)}
+                            disabled={completeTask.isPending}
+                          >
+                            Start Task
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {availableOneTime.length === 0 && (
+                    <div className={styles.empty}>No new one-time tasks available</div>
                   )}
                 </div>
               </section>
 
               {/* Recurring Tasks */}
               <section className={styles.section}>
-                <h2>Recurring Operations</h2>
+                <h2>Daily Operations</h2>
                 <div className={styles.taskGrid}>
-                  {recurringTasks.map((task) => (
-                    <div key={task.id} className={styles.taskCard}>
-                      <div className={styles.taskReward}>+{task.reward} BP</div>
-                      <h3>{task.title}</h3>
-                      <p>{task.description || "Complete this task to earn Boost Points"}</p>
-                      <button
-                        className={styles.taskBtn}
-                        onClick={() => task.link && window.open(task.link, "_blank")}
-                      >
-                        Complete
-                      </button>
-                    </div>
-                  ))}
-                  {recurringTasks.length === 0 && (
-                    <div className={styles.empty}>No recurring tasks available</div>
+                  {availableRecurring.map((task) => {
+                    const isPending = pendingTaskId === task.id;
+                    return (
+                      <div key={task.id} className={styles.taskCard}>
+                        <div className={styles.taskReward}>+{task.reward} BP</div>
+                        <h3>{task.title}</h3>
+                        <p>{task.description || "Complete this task to earn Boost Points"}</p>
+
+                        {isPending ? (
+                          <button
+                            className={styles.completeBtn}
+                            onClick={() => handleTaskComplete(task.id)}
+                            disabled={completeTask.isPending}
+                          >
+                            {completeTask.isPending ? "Verifying..." : "Mark Complete ✓"}
+                          </button>
+                        ) : (
+                          <button
+                            className={styles.taskBtn}
+                            onClick={() => handleTaskStart(task)}
+                            disabled={completeTask.isPending}
+                          >
+                            Start Task
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {availableRecurring.length === 0 && (
+                    <div className={styles.empty}>Daily tasks completed! Check back later.</div>
                   )}
                 </div>
               </section>
+
+              {/* Completed Tasks */}
+              {(completedOneTime.length > 0 || completedRecurring.length > 0) && (
+                <section className={styles.section}>
+                  <h2>Completed Missions</h2>
+                  <div className={styles.taskGrid}>
+                    {[...completedOneTime, ...completedRecurring].map((task) => (
+                      <div key={task.id} className={`${styles.taskCard} ${styles.completed}`}>
+                        <div className={styles.taskReward}>+{task.reward} BP Earned</div>
+                        <h3>{task.title}</h3>
+                        <div className={styles.completedBadge}>✓ Completed</div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
           ) : activeTab === "raids" ? (
             <div className={styles.content}>
+              {/* Available Raids */}
               <div className={styles.raidList}>
-                {raids.map((raid) => (
-                  <div key={raid.id} className={styles.raidCard}>
-                    <div className={styles.raidInfo}>
-                      <span className={styles.raidPlatform}>{raid.platform}</span>
-                      <h3>{raid.title}</h3>
+                {availableRaids.map((raid) => {
+                  const isPending = pendingRaidId === raid.id;
+
+                  return (
+                    <div key={raid.id} className={styles.raidCard}>
+                      <div className={styles.raidInfo}>
+                        <span className={styles.raidPlatform}>{raid.platform}</span>
+                        <h3>{raid.title}</h3>
+                      </div>
+                      <div className={styles.raidAction}>
+                        <span className={styles.raidReward}>+{raid.reward} BP</span>
+
+                        {isPending ? (
+                          <button
+                            className={styles.completeBtn}
+                            onClick={() => handleRaidComplete(raid.id)}
+                            disabled={completeRaid.isPending}
+                          >
+                            {completeRaid.isPending ? "..." : "Claim ✓"}
+                          </button>
+                        ) : (
+                          <button
+                            className={styles.raidBtn}
+                            onClick={() => handleRaidStart(raid)}
+                            disabled={completeRaid.isPending}
+                          >
+                            Raid
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <div className={styles.raidAction}>
-                      <span className={styles.raidReward}>+{raid.reward} BP</span>
-                      <button
-                        className={styles.raidBtn}
-                        onClick={() => window.open(raid.url, "_blank")}
-                      >
-                        Raid
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {raids.length === 0 && (
-                  <div className={styles.empty}>No active raids</div>
+                  );
+                })}
+                {availableRaids.length === 0 && (
+                  <div className={styles.empty}>No active raids available</div>
                 )}
               </div>
+
+              {/* Completed Raids */}
+              {completedRaids.length > 0 && (
+                <section className={styles.section} style={{ marginTop: 'var(--space-8)' }}>
+                  <h2>Completed Raids</h2>
+                  <div className={styles.raidList}>
+                    {completedRaids.map((raid) => (
+                      <div key={raid.id} className={`${styles.raidCard} ${styles.completed}`}>
+                        <div className={styles.raidInfo}>
+                          <span className={styles.raidPlatform}>{raid.platform}</span>
+                          <h3>{raid.title}</h3>
+                        </div>
+                        <div className={styles.raidAction}>
+                          <span className={styles.raidReward}>+{raid.reward} BP Earned</span>
+                          <div className={styles.completedBadge}>✓ Complete</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
           ) : (
             <div className={styles.content}>
