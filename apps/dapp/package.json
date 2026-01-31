@@ -16,6 +16,8 @@
     "@solana/web3.js": "^1.98.4",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.90.1",
+    "@tanstack/react-query": "^5.90.20",
+    "@tanstack/react-query-devtools": "^5.91.3",
     "@trenches/auth": "*",
     "@trenches/database": "*",
     "@trenches/ui": "*",

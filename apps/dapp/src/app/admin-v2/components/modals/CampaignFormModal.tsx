@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import styles from "../../admin-v2/campaigns/page.module.css";
+import styles from "../../campaigns/page.module.css";
 
 interface Campaign {
     id: string;
@@ -147,9 +147,9 @@ export default function CampaignFormModal({
 
                 {/* Error display */}
                 {error && (
-                    <div style={{ 
+                    <div style={{
                         padding: "0.75rem 1.5rem",
-                        background: "rgba(239, 68, 68, 0.1)", 
+                        background: "rgba(239, 68, 68, 0.1)",
                         borderTop: "1px solid var(--danger)",
                         color: "var(--danger)",
                         fontSize: "0.875rem"

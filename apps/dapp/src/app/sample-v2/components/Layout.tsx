@@ -1,4 +1,4 @@
-import LayoutClient from "./components/LayoutClient";
+import LayoutClient from "./LayoutClient";
 
 async function getUser() {
   try {

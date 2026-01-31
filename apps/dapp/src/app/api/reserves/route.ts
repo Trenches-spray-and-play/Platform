@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-export const dynamic = 'force-dynamic';
+
 import { getCachedReserve, refreshReserveCache, ROUNDING_OPTIONS } from '@/services/reserve.service';
 import { prisma } from '@/lib/db';
 

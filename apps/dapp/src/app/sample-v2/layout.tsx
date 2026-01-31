@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./globals.mobile.css";
 import ErrorBoundary from "./components/ErrorBoundary";
+import QueryProvider from "@/providers/QueryProvider";
 
 export const metadata: Metadata = {
   title: "Trenches v2 - Spray & Play",
@@ -16,9 +17,11 @@ export default function SampleRootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+        <QueryProvider>
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </QueryProvider>
       </body>
     </html>
   );

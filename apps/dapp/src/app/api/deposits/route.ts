@@ -20,7 +20,7 @@ const CONFIRMATION_REQUIREMENTS: Record<string, { threshold: number; total: numb
     solana: { threshold: 32, total: 48 },
 };
 
-export const dynamic = 'force-dynamic';
+
 
 // GET /api/deposits
 export async function GET(request: NextRequest) {
