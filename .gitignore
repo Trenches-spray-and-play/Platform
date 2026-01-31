@@ -43,3 +43,66 @@ Thumbs.db
 debug-*.ts
 activate-*.ts
 fix-*.ts
+
+# ========================================
+# Documentation Filtering
+# ========================================
+# AI session memory and temporary docs - local only
+# Core project docs remain in GitHub
+
+# AI Session Memory (ephemeral, session-specific)
+docs/*_MEMORY.md
+docs/*_MEMORY_*.md
+docs/AGENT_MEMORY.md
+docs/DUDU_*.md
+docs/DIDI_*.md
+docs/MOLLY_*.md
+docs/TBO_*.md
+docs/KIMI-*.md
+
+# Temporary/Debugging (one-time use, gets stale)
+docs/*_DIAGNOSIS*.md
+docs/*_DEBUG*.md
+docs/*_EMERGENCY*.md
+docs/*_AUDIT_*.md
+docs/*_STATUS.md
+docs/*_INVESTIGATION*.md
+docs/DEPOSIT_SYSTEM_ANALYSIS.md
+docs/FULL_SITE_AUDIT_REPORT.md
+docs/LIGHTHOUSE_*.md
+
+# Implementation artifacts (completed work)
+docs/IMPLEMENTATION_*.md
+docs/LAYER1_*.md
+docs/TASK_*.md
+docs/TBO_*.md
+docs/*_COMPLETION_*.md
+
+# Personal/Individual context
+docs/DUDU_CHECKLIST.md
+docs/DUDU_PERFORMANCE_EMERGENCY.md
+docs/DEBUG_GUIDE_FOR_DUDU.md
+docs/QUICK_FIX_*.md
+
+# Verification reports (one-time)
+docs/VERIFICATION_*.md
+docs/LANDING_PAGE_VERIFICATION_*.md
+
+# Keep core project docs (exceptions to above rules)
+!docs/README.md
+!docs/BRAND_GUIDELINES.md
+!docs/JOB_DESCRIPTIONS.md
+!docs/COMPLIANT_COPY_LIBRARY.md
+!docs/CERTIFICATION_CHECKLIST.md
+!docs/CERTIFICATION_QUICKREF.md
+!docs/POSTGRESQL_SETUP.md
+!docs/PLATFORM_DOCUMENTATION.md
+!docs/QUICK_START.md
+!docs/non_negotiables.md
+!docs/INVESTOR_AND_USER_PITCHES.md
+!docs/BMAD_WORKFLOW.md
+!docs/VOICE_TONE_DECISION_TREE.md
+!docs/social_contribution_system.md
+!docs/ui_to_systems_mapping.md
+!docs/existing_ui_audit.md
+!docs/AI_UGC_TIKTOK_SYSTEM.md

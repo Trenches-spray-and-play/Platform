@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import styles from "./page.module.css";
-import { Shield, Zap, Cpu, Activity, Sun, Moon, X, ChevronRight } from "lucide-react";
+import { Shield, Zap, Cpu, Activity, Sun, Moon } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import {
     Logo,
@@ -13,52 +12,121 @@ import {
     CountdownTimer,
     RadialProgress
 } from "@trenches/ui";
-import Image from "next/image";
-import dynamic from "next/dynamic";
 
-const OnboardingModal = dynamic(() => import("@/components/OnboardingModal"), { ssr: false });
-const WaitlistDashboard = dynamic(() => import("@/components/WaitlistDashboard"), { ssr: false });
+// Lazy load heavy components to reduce initial bundle
+const OnboardingModal = lazy(() => import("@/components/OnboardingModal"));
+const WaitlistDashboard = lazy(() => import("@/components/WaitlistDashboard"));
 
-/**
- * [UI] Standardized Animation Presets
- * Purpose: Codifies the "Institutional Elite" motion standard.
- */
-const springConfig = { type: "spring", stiffness: 300, damping: 30, mass: 1 } as const;
+// Lightweight animation - only fade, no heavy motion
+const fadeUpStyle = {
+    animation: "fadeUp 0.6s ease-out forwards",
+};
 
-const fadeUp = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { ...springConfig, duration: 0.6 }
-} as const;
+// Mission statements
+const missionStatements = [
+    "Turn Belief into Profit.",
+    "The Future of Community Rewards.",
+    "Turn $1000 into $1500 in 24 hours.",
+    "Direct payouts. Structured rewards."
+];
 
-/**
- * [UI] Countdown Timer
- * Purpose: Re-introduces launch-critical transparency with Super Scale aesthetic.
- */
+// Feature data
+const features = [
+    { num: "01", title: "Get Early Access", icon: <Cpu strokeWidth={1.5} />, desc: "Join projects before they go viral. Secure your spot at the best price before everyone else." },
+    { num: "02", title: "Help Projects Grow", icon: <Activity strokeWidth={1.5} />, desc: "Share a post, verify others, and receive rewards for your support. Your activity moves you forward." },
+    { num: "03", title: "Rebuild Trust", icon: <Shield strokeWidth={1.5} />, desc: "Bring projects back to life by working together with your community to rebuild market value." }
+];
+
+const steps = [
+    { num: "01", title: "Spray", icon: <Zap strokeWidth={1.5} />, desc: "Put your tokens into the project fund with as low as $5 to start your 24h timer." },
+    { num: "02", title: "Play", icon: <Activity strokeWidth={1.5} />, desc: "Help the project grow on social media to verify your spot and stay in the game." },
+    { num: "03", title: "Collect", icon: <Shield strokeWidth={1.5} />, desc: "Receive your settlement sent instantly to your account when the timer hits zero." }
+];
+
+// Simple CSS-based animation component (no JS overhead)
+function AnimatedSection({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+    const [isVisible, setIsVisible] = useState(false);
+    const ref = React.useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1, rootMargin: "-10%" }
+        );
+
+        if (ref.current) observer.observe(ref.current);
+        return () => observer.disconnect();
+    }, []);
+
+    return (
+        <div
+            ref={ref}
+            className={className}
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(30px)",
+                transition: `opacity 0.5s ease-out ${delay}s, transform 0.5s ease-out ${delay}s`,
+            }}
+        >
+            {children}
+        </div>
+    );
+}
+
+// Mission rotator with minimal re-renders
+function MissionRotator() {
+    const [activeMission, setActiveMission] = useState(0);
+    const [isAnimating, setIsAnimating] = useState(false);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setIsAnimating(true);
+            setTimeout(() => {
+                setActiveMission(prev => (prev + 1) % missionStatements.length);
+                setIsAnimating(false);
+            }, 300);
+        }, 4000);
+        return () => clearInterval(timer);
+    }, []);
+
+    return (
+        <div className="h-[200px] flex items-center justify-center overflow-hidden">
+            <h1
+                className={styles.v6H1}
+                style={{
+                    opacity: isAnimating ? 0 : 1,
+                    transform: isAnimating ? "translateY(-10px)" : "translateY(0)",
+                    transition: "opacity 0.3s ease, transform 0.3s ease",
+                }}
+            >
+                {missionStatements[activeMission].split(' ').map((word, i) => (
+                    <React.Fragment key={i}>
+                        {word}
+                        {i === 1 && <br />}
+                        {' '}
+                    </React.Fragment>
+                ))}
+            </h1>
+        </div>
+    );
+}
 
 export default function WelcomePage() {
-    // 1. Core Auth Hooks
     const { user, signInWithGoogle, signOut, isLoading: authLoading } = useAuth();
-
-    // 2. Universal Theme Hook
     const { isDarkMode, toggleTheme } = useTheme();
 
-    // 3. Local State
     const [userSession, setUserSession] = useState<any>(null);
     const [isDetermining, setIsDetermining] = useState(true);
     const [config, setConfig] = useState<any>(null);
-    const [activeMission, setActiveMission] = useState(0);
     const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
     const [isAuthenticating, setIsAuthenticating] = useState(false);
 
-    const missionStatements = [
-        "Turn Belief into Profit.",
-        "The Future of Community Rewards.",
-        "Turn $1000 into $1500 in 24 hours.",
-        "Direct payouts. Structured rewards."
-    ];
-
-    // 3. Effects: Config & Session Sync
+    // Fetch config once on mount
     useEffect(() => {
         fetch('/api/config')
             .then(res => res.json())
@@ -66,9 +134,9 @@ export default function WelcomePage() {
             .catch(err => console.error('Failed to fetch config:', err));
     }, []);
 
+    // Session sync
     useEffect(() => {
         const cached = localStorage.getItem('user_session');
-        console.log('WelcomePage: Mount cached session:', cached ? 'YES' : 'NO');
         if (cached) {
             try { setUserSession(JSON.parse(cached)); }
             catch (e) { console.error("Failed to parse cached session"); }
@@ -79,11 +147,9 @@ export default function WelcomePage() {
     useEffect(() => {
         if (user && !userSession) {
             setIsDetermining(true);
-            console.log('Syncing user session for:', user.id);
             fetch(`/api/user/sync?supabaseId=${user.id}`)
                 .then(res => res.json())
                 .then(data => {
-                    console.log('Sync result:', { exists: data.exists, hasUser: !!data.user });
                     if (data.exists && data.user) {
                         setUserSession(data.user);
                         localStorage.setItem('user_session', JSON.stringify(data.user));
@@ -100,15 +166,6 @@ export default function WelcomePage() {
         }
     }, [user, authLoading, userSession]);
 
-    // 4. UI Rotation Effect
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setActiveMission(prev => (prev + 1) % missionStatements.length);
-        }, 4000);
-        return () => clearInterval(timer);
-    }, [missionStatements.length]);
-
-    // 5. Handlers
     const handleEnlist = async () => {
         if (!user) {
             setIsAuthenticating(true);
@@ -121,7 +178,6 @@ export default function WelcomePage() {
     };
 
     const handleOnboardingComplete = (userData: any) => {
-        console.log('Onboarding complete received:', userData);
         setUserSession(userData);
         localStorage.setItem('user_session', JSON.stringify(userData));
         setIsOnboardingOpen(false);
@@ -133,13 +189,13 @@ export default function WelcomePage() {
         localStorage.removeItem('user_session');
     };
 
-    // 6. Early Returns
+    // Dashboard view
     if (userSession) {
         return (
             <div className={styles.v6Container} data-theme={isDarkMode ? 'dark' : 'light'}>
-                <WaitlistDashboard userSession={userSession} onLogout={handleLogout} />
-
-                {/* Dashboard-level Theme Toggle for UX parity */}
+                <Suspense fallback={<div className="p-8">Loading dashboard...</div>}>
+                    <WaitlistDashboard userSession={userSession} onLogout={handleLogout} />
+                </Suspense>
                 <button
                     className={styles.themeToggle}
                     style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 100 }}
@@ -159,39 +215,18 @@ export default function WelcomePage() {
         <div className={styles.v6Container} data-theme={isDarkMode ? 'dark' : 'light'}>
             <header className={styles.v6Meta}>
                 <Logo platformName={platformName} />
-
                 <div className={styles.v6MetaRight}>
-                    <AnimatePresence mode="wait">
-                        {authLoading || isDetermining ? (
-                            <motion.div
-                                key="loader"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className={styles.headerSkeleton}
-                                aria-hidden="true"
-                            />
-                        ) : (
-                            <motion.div
-                                key="status"
-                                initial={{ opacity: 0, x: 10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className={styles.statusBadge}
-                            >
-                                <span className={styles.statusPulse} />
-                                System Online
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    <button
-                        className={styles.themeToggle}
-                        onClick={toggleTheme}
-                        aria-label="Toggle Theme"
-                    >
+                    {authLoading || isDetermining ? (
+                        <div className={styles.headerSkeleton} aria-hidden="true" />
+                    ) : (
+                        <div className={styles.statusBadge}>
+                            <span className={styles.statusPulse} />
+                            System Online
+                        </div>
+                    )}
+                    <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle Theme">
                         {isDarkMode ? <Sun size={14} strokeWidth={1.5} /> : <Moon size={14} strokeWidth={1.5} />}
                     </button>
-
                     <TacticalButton
                         variant="primary"
                         className={styles.v6MetaCTA}
@@ -204,43 +239,19 @@ export default function WelcomePage() {
             </header>
 
             <main className={styles.v6Main}>
-                {/* 1. HERO NARRATIVE */}
+                {/* HERO */}
                 <section className={`${styles.v6Section} ${styles.v6Hero}`} aria-label="Hero Narrative">
                     <div className={styles.v6TagSection}>
-                        <span className={styles.v6Tag} title="The system is live and ready for participation">[ Protocol Activated ]</span>
+                        <span className={styles.v6Tag}>[ Protocol Activated ]</span>
                     </div>
 
                     <CountdownTimer targetDate={targetDate} />
+                    <MissionRotator />
 
-                    <div className="h-[200px] flex items-center justify-center">
-                        <AnimatePresence mode="wait">
-                            <motion.h1
-                                key={activeMission}
-                                className={styles.v6H1}
-                                initial={{ opacity: 0, y: 10, filter: "blur(10px)" }}
-                                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                                exit={{ opacity: 0, y: -10, filter: "blur(10px)" }}
-                                transition={{ duration: 0.6, ease: "easeOut" }}
-                            >
-                                {missionStatements[activeMission].split(' ').map((word, i) => (
-                                    <React.Fragment key={i}>
-                                        {word}
-                                        {i === 1 && <br />}
-                                        {' '}
-                                    </React.Fragment>
-                                ))}
-                            </motion.h1>
-                        </AnimatePresence>
-                    </div>
-
-                    <motion.p
-                        className={styles.v6P}
-                        {...fadeUp}
-                        transition={{ delay: 0.2 }}
-                    >
+                    <p className={styles.v6P} style={fadeUpStyle}>
                         Put $1000 in, get $1500 out in 24 hours. Start with as low as $5.<br />
                         No complicated trading. Just direct payouts backed by the community.
-                    </motion.p>
+                    </p>
 
                     <TacticalButton
                         variant="hybrid"
@@ -251,81 +262,53 @@ export default function WelcomePage() {
                         <GoogleIcon /> {isAuthenticating ? "..." : "Join waitlist"}
                     </TacticalButton>
 
-                    {/* [UI] Partner Trust Strip */}
-                    <motion.div
-                        className={styles.v6TrustStrip}
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                    >
+                    <div className={styles.v6TrustStrip} style={{ opacity: 1 }}>
                         <span className={styles.v6TrustLabel}>Enterprise Infrastructure //</span>
                         <div className={styles.v6TrustLogos}>
                             {['Solana', 'Base', 'Google Cloud', 'HyperEVM', 'AnyWallet'].map(partner => (
                                 <span key={partner} className={styles.v6TrustLogo}>{partner}</span>
                             ))}
                         </div>
-                    </motion.div>
+                    </div>
                 </section>
 
-                {/* 2. THE WHY */}
+                {/* THE WHY */}
                 <section className={styles.v6Section} aria-label="Project Objectives">
                     <div className={styles.sectionHeader}>
                         <span className={styles.v6Tag}>The Objective</span>
                         <h2>Better<br />by Design.</h2>
                     </div>
                     <div className={styles.featureGrid}>
-                        {[
-                            { num: "01", title: "Get Early Access", icon: <Cpu strokeWidth={1.5} />, desc: "Join projects before they go viral. Secure your spot at the best price before everyone else." },
-                            { num: "02", title: "Help Projects Grow", icon: <Activity strokeWidth={1.5} />, desc: "Share a post, verify others, and receive rewards for your support. Your activity moves you forward." },
-                            { num: "03", title: "Rebuild Trust", icon: <Shield strokeWidth={1.5} />, desc: "Bring projects back to life by working together with your community to rebuild market value." }
-                        ].map((feature, i) => (
-                            <motion.div
-                                key={i}
-                                className={styles.featureCard}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, margin: "-10%" }}
-                                transition={{ delay: i * 0.1, ...springConfig }}
-                            >
+                        {features.map((feature, i) => (
+                            <AnimatedSection key={i} delay={i * 0.1} className={styles.featureCard}>
                                 <span className={styles.cardNumber}>{feature.num}</span>
                                 <div className={styles.featureIcon}>{feature.icon}</div>
                                 <h3>{feature.title}</h3>
                                 <p>{feature.desc}</p>
-                            </motion.div>
+                            </AnimatedSection>
                         ))}
                     </div>
                 </section>
 
-                {/* 3. THE CYCLE */}
+                {/* THE CYCLE */}
                 <section className={styles.v6Section} aria-label="The Coordination Cycle">
                     <div className={styles.sectionHeader}>
                         <span className={styles.v6Tag}>The Mechanism</span>
                         <h2>Three-Step<br />Cycle.</h2>
                     </div>
                     <div className={styles.featureGrid}>
-                        {[
-                            { num: "01", title: "Spray", icon: <Zap strokeWidth={1.5} />, desc: "Put your tokens into the project fund with as low as $5 to start your 24h timer." },
-                            { num: "02", title: "Play", icon: <Activity strokeWidth={1.5} />, desc: "Help the project grow on social media to verify your spot and stay in the game." },
-                            { num: "03", title: "Collect", icon: <Shield strokeWidth={1.5} />, desc: "Receive your settlement sent instantly to your account when the timer hits zero." }
-                        ].map((step, i) => (
-                            <motion.div
-                                key={i}
-                                className={styles.featureCard}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, margin: "-10%" }}
-                                transition={{ delay: i * 0.1, ...springConfig }}
-                            >
+                        {steps.map((step, i) => (
+                            <AnimatedSection key={i} delay={i * 0.1} className={styles.featureCard}>
                                 <span className={styles.cardNumber}>{step.num}</span>
                                 <div className={styles.featureIcon}>{step.icon}</div>
                                 <h3>{step.title}</h3>
                                 <p>{step.desc}</p>
-                            </motion.div>
+                            </AnimatedSection>
                         ))}
                     </div>
                 </section>
 
-                {/* 4. THE GAME */}
+                {/* THE GAME */}
                 <section className={styles.v6Section} aria-label="Platform Sustainability">
                     <div className={styles.mechanicContainer}>
                         <div className={styles.mechanicContent}>
@@ -349,7 +332,7 @@ export default function WelcomePage() {
                     </div>
                 </section>
 
-                {/* 5. FOOTER (V5 Parity) */}
+                {/* FOOTER */}
                 <footer className={styles.v5Footer}>
                     <div className={styles.v5FooterContent}>
                         <div className={styles.v5FooterLinks}>
@@ -366,11 +349,15 @@ export default function WelcomePage() {
                 </footer>
             </main>
 
-            <OnboardingModal
-                isOpen={isOnboardingOpen}
-                onClose={() => setIsOnboardingOpen(false)}
-                onComplete={handleOnboardingComplete}
-            />
+            <Suspense fallback={null}>
+                {isOnboardingOpen && (
+                    <OnboardingModal
+                        isOpen={isOnboardingOpen}
+                        onClose={() => setIsOnboardingOpen(false)}
+                        onComplete={handleOnboardingComplete}
+                    />
+                )}
+            </Suspense>
         </div>
     );
 }

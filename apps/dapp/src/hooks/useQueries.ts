@@ -1,12 +1,15 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Campaign, CampaignSchema, UserSchema, UserPosition, UserPositionSchema } from "@/lib/schemas";
-import { validateApiResponse } from "@/lib/validation";
+import type { Campaign, User, UserPosition } from "@/lib/types";
 import { useUIStore } from "@/store/uiStore";
-import { z } from "zod";
 
-type User = z.infer<typeof UserSchema>;
+// Lazy import Zod validation helpers only when needed
+const loadValidation = async () => {
+    const { UserSchema, UserPositionSchema } = await import("@/lib/schemas");
+    const { validateApiResponse } = await import("@/lib/validation");
+    return { UserSchema, UserPositionSchema, validateApiResponse };
+};
 
 // ============================================
 // Query Keys
@@ -27,28 +30,31 @@ export const queryKeys = {
     userRaids: ["userRaids"] as const,
 };
 
-
-
 // ============================================
 // Fetchers
 // ============================================
 async function fetchUser(): Promise<User | null> {
     const res = await fetch("/api/user");
-    return validateApiResponse(UserSchema, res);
+    if (!res.ok) throw new Error("Failed to fetch user");
+    const data = await res.json();
+    return data.data || null;
 }
 
 async function fetchPositions(): Promise<UserPosition[]> {
     const res = await fetch("/api/user/positions");
-    return validateApiResponse(z.array(UserPositionSchema), res).then(data => data || []);
+    if (!res.ok) throw new Error("Failed to fetch positions");
+    const data = await res.json();
+    return data.data || [];
 }
 
 async function fetchCampaigns(): Promise<Campaign[]> {
     const res = await fetch("/api/trenches");
-    const data = await validateApiResponse(z.array(z.any()), res); // API returns trench groups
+    if (!res.ok) throw new Error("Failed to fetch campaigns");
+    const data = await res.json();
 
     // Flatten trench groups
     return (
-        data?.flatMap((group: any) =>
+        data.data?.flatMap((group: any) =>
             group.campaigns.map((c: any) => ({
                 ...c,
                 level: group.level,
@@ -86,6 +92,14 @@ async function fetchSubmissions(): Promise<any[]> {
     return data.data || [];
 }
 
+async function fetchDeposits(userId?: string): Promise<any[]> {
+    const url = userId ? `/api/deposits?userId=${userId}` : "/api/deposits";
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to fetch deposits");
+    const data = await res.json();
+    return data.data || [];
+}
+
 async function fetchUserTasks(): Promise<any[]> {
     const res = await fetch("/api/user/tasks");
     if (!res.ok) throw new Error("Failed to fetch user tasks");
@@ -101,12 +115,8 @@ async function fetchUserRaids(): Promise<any[]> {
 }
 
 // ============================================
-// Hooks
+// Query Hooks
 // ============================================
-
-/**
- * Fetch and cache the current user profile.
- */
 export function useUser(initialData?: User | null) {
     return useQuery({
         queryKey: queryKeys.user,
@@ -117,9 +127,6 @@ export function useUser(initialData?: User | null) {
     });
 }
 
-/**
- * Fetch and cache the user's positions.
- */
 export function usePositions(initialData?: UserPosition[]) {
     return useQuery({
         queryKey: queryKeys.positions,
@@ -129,9 +136,6 @@ export function usePositions(initialData?: UserPosition[]) {
     });
 }
 
-/**
- * Fetch and cache all available campaigns.
- */
 export function useCampaigns() {
     return useQuery({
         queryKey: queryKeys.campaigns,
@@ -140,40 +144,11 @@ export function useCampaigns() {
     });
 }
 
-/**
- * Fetch and cache all active tasks.
- */
 export function useTasks() {
     return useQuery({
         queryKey: queryKeys.tasks,
         queryFn: fetchTasks,
         staleTime: 5 * 60 * 1000, // 5 minutes
-    });
-}
-
-/**
- * Mutation to update current user profile (e.g. wallets).
- */
-export function useUpdateUser() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: async (updateData: any) => {
-            const res = await fetch("/api/user", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updateData),
-            });
-            if (!res.ok) throw new Error("Failed to update user");
-            return res.json();
-        },
-        onSuccess: (data) => {
-            if (data.success) {
-                queryClient.setQueryData(queryKeys.user, data.data);
-            } else {
-                queryClient.invalidateQueries({ queryKey: queryKeys.user });
-            }
-        },
     });
 }
 
@@ -201,21 +176,11 @@ export function useSubmissions() {
     });
 }
 
-export function useSubmitContent() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (submitData: { campaignId: string; url: string; platform: string }) => {
-            const res = await fetch("/api/user/content-submissions", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(submitData),
-            });
-            if (!res.ok) throw new Error("Failed to submit content");
-            return res.json();
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.submissions });
-        },
+export function useDeposits(userId?: string) {
+    return useQuery({
+        queryKey: queryKeys.deposits(userId),
+        queryFn: () => fetchDeposits(userId),
+        staleTime: 30 * 1000,
     });
 }
 
@@ -235,157 +200,179 @@ export function useUserRaids() {
     });
 }
 
-/**
- * Fetch a single campaign by ID.
- */
-export function useCampaign(id: string) {
-    const { data: campaigns, ...rest } = useCampaigns();
-    const campaign = campaigns?.find((c) => c.id === id);
-    return { data: campaign, ...rest };
-}
-
-/**
- * Mutation for the full spray flow: create -> finalize -> optional auto-boost.
- */
-export function useApplySpray() {
+// ============================================
+// Mutation Hooks
+// ============================================
+export function useUpdateUser() {
     const queryClient = useQueryClient();
+    const addToast = useUIStore((state) => state.addToast);
 
     return useMutation({
-        mutationFn: async ({
-            trenchId,
-            amount,
-            level,
-            useAutoBoost,
-        }: {
-            trenchId: string;
-            amount: number;
-            level: string;
-            useAutoBoost?: boolean;
-        }) => {
-            // Step 1: Create spray entry
-            const sprayRes = await fetch("/api/spray", {
-                method: "POST",
+        mutationFn: async (data: { handle?: string; walletEvm?: string; walletSol?: string }) => {
+            const res = await fetch("/api/user", {
+                method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ trenchId, amount, level }),
+                body: JSON.stringify(data),
             });
-            const sprayData = await sprayRes.json();
-            if (!sprayRes.ok) throw new Error(sprayData.error || "Failed to create spray entry");
-
-            const sprayEntryId = sprayData.data.sprayEntryId;
-
-            // Step 2: Finalize
-            const finalizeRes = await fetch("/api/spray/finalize", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sprayEntryId }),
-            });
-            const finalizeData = await finalizeRes.json();
-            if (!finalizeRes.ok) {
-                if (finalizeData.remainingTasks) {
-                    throw { type: "TASKS_REQUIRED", remaining: finalizeData.remainingTasks };
-                }
-                throw new Error(finalizeData.error || "Failed to finalize entry");
-            }
-
-            // Step 3: Optional Auto-Boost
-            if (useAutoBoost && finalizeData.data?.participantId) {
-                try {
-                    await fetch(`/api/user/positions/${finalizeData.data.participantId}/auto-boost`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ enabled: true }),
-                    });
-                } catch (e) {
-                    console.error("Auto-boost failed:", e);
-                }
-            }
-
-            return finalizeData.data;
+            if (!res.ok) throw new Error("Failed to update user");
+            return res.json();
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.user });
-            queryClient.invalidateQueries({ queryKey: queryKeys.positions });
+            addToast("Profile updated successfully", "success");
+        },
+        onError: (error: Error) => {
+            addToast(error.message || "Failed to update profile", "error");
         },
     });
 }
 
-/**
- * Hook for custom cache invalidation.
- */
-export function useInvalidateQueries() {
+export function useSpray() {
     const queryClient = useQueryClient();
+    const addToast = useUIStore((state) => state.addToast);
 
-    return {
-        invalidateUser: () => queryClient.invalidateQueries({ queryKey: queryKeys.user }),
-        invalidatePositions: () => queryClient.invalidateQueries({ queryKey: queryKeys.positions }),
-        invalidateCampaigns: () => queryClient.invalidateQueries({ queryKey: queryKeys.campaigns }),
-        invalidateTasks: () => queryClient.invalidateQueries({ queryKey: queryKeys.tasks }),
-        invalidateRaids: () => queryClient.invalidateQueries({ queryKey: queryKeys.raids }),
-        invalidateContent: () => queryClient.invalidateQueries({ queryKey: queryKeys.contentCampaigns }),
-        invalidateSubmissions: () => queryClient.invalidateQueries({ queryKey: queryKeys.submissions }),
-        invalidateUserTasks: () => queryClient.invalidateQueries({ queryKey: queryKeys.userTasks }),
-        invalidateUserRaids: () => queryClient.invalidateQueries({ queryKey: queryKeys.userRaids }),
-        invalidateAll: () => queryClient.invalidateQueries(),
-    };
+    return useMutation({
+        mutationFn: async (data: { trenchId: string; amount: number; level: string }) => {
+            const res = await fetch("/api/spray", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+            if (!res.ok) throw new Error("Spray failed");
+            return res.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.positions });
+            queryClient.invalidateQueries({ queryKey: queryKeys.user });
+            addToast("Spray successful!", "success");
+        },
+        onError: (error: Error) => {
+            addToast(error.message || "Spray failed", "error");
+        },
+    });
 }
-/**
- * Mutation to complete a task.
- */
+
 export function useCompleteTask() {
     const queryClient = useQueryClient();
     const addToast = useUIStore((state) => state.addToast);
 
     return useMutation({
-        mutationFn: async ({ taskId, sprayEntryId }: { taskId: string; sprayEntryId?: string }) => {
-            const res = await fetch("/api/user/tasks", {
+        mutationFn: async ({ taskId }: { taskId: string }) => {
+            const res = await fetch(`/api/tasks/${taskId}/complete`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ taskId, sprayEntryId }),
             });
-            if (!res.ok) {
-                const error = await res.json();
-                throw new Error(error.error || "Failed to complete task");
-            }
+            if (!res.ok) throw new Error("Failed to complete task");
             return res.json();
         },
-        onSuccess: (data) => {
-            addToast(`Task completed! +${data.reward || 0} BP`, "success");
-            queryClient.invalidateQueries({ queryKey: queryKeys.tasks });
-            queryClient.invalidateQueries({ queryKey: queryKeys.user }); // Award BP
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.userTasks });
+            queryClient.invalidateQueries({ queryKey: queryKeys.user });
+            addToast("Task completed!", "success");
         },
         onError: (error: Error) => {
-            addToast(error.message, "error");
+            addToast(error.message || "Failed to complete task", "error");
         },
     });
 }
 
-/**
- * Mutation to complete a raid.
- */
 export function useCompleteRaid() {
     const queryClient = useQueryClient();
     const addToast = useUIStore((state) => state.addToast);
 
     return useMutation({
         mutationFn: async (raidId: string) => {
-            const res = await fetch("/api/user/raids", {
+            const res = await fetch(`/api/raids/${raidId}/complete`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ raidId }),
             });
-            if (!res.ok) {
-                const error = await res.json();
-                throw new Error(error.error || "Failed to complete raid");
-            }
+            if (!res.ok) throw new Error("Failed to complete raid");
             return res.json();
         },
-        onSuccess: (data) => {
-            addToast(`Raid completed! +${data.bpAwarded || 0} BP`, "success");
-            queryClient.invalidateQueries({ queryKey: queryKeys.raids });
-            queryClient.invalidateQueries({ queryKey: queryKeys.user }); // Award BP
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.userRaids });
+            queryClient.invalidateQueries({ queryKey: queryKeys.user });
+            addToast("Raid completed!", "success");
         },
         onError: (error: Error) => {
-            addToast(error.message, "error");
+            addToast(error.message || "Failed to complete raid", "error");
         },
     });
+}
+
+// ============================================
+// Additional Hooks (for compatibility)
+// ============================================
+export function useCampaign(id: string) {
+    return useQuery({
+        queryKey: queryKeys.campaign(id),
+        queryFn: async (): Promise<Campaign | null> => {
+            const res = await fetch(`/api/campaigns/${id}`);
+            if (!res.ok) throw new Error("Failed to fetch campaign");
+            const data = await res.json();
+            return data.data || null;
+        },
+        staleTime: 5 * 60 * 1000,
+        enabled: !!id,
+    });
+}
+
+export function useApplySpray() {
+    const queryClient = useQueryClient();
+    const addToast = useUIStore((state) => state.addToast);
+
+    return useMutation({
+        mutationFn: async (data: { trenchId: string; amount: number; level: string }) => {
+            const res = await fetch("/api/spray/apply", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+            if (!res.ok) throw new Error("Failed to apply spray");
+            return res.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.positions });
+            addToast("Spray applied successfully!", "success");
+        },
+        onError: (error: Error) => {
+            addToast(error.message || "Failed to apply spray", "error");
+        },
+    });
+}
+
+export function useSubmitContent() {
+    const queryClient = useQueryClient();
+    const addToast = useUIStore((state) => state.addToast);
+
+    return useMutation({
+        mutationFn: async (data: { campaignId: string; url: string; platform: string }) => {
+            const res = await fetch("/api/content-submissions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contentCampaignId: data.campaignId,
+                    url: data.url,
+                    platform: data.platform,
+                }),
+            });
+            if (!res.ok) throw new Error("Failed to submit content");
+            return res.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.submissions });
+            addToast("Content submitted successfully!", "success");
+        },
+        onError: (error: Error) => {
+            addToast(error.message || "Failed to submit content", "error");
+        },
+    });
+}
+
+export function useInvalidateQueries() {
+    const queryClient = useQueryClient();
+    return {
+        invalidateUser: () => queryClient.invalidateQueries({ queryKey: queryKeys.user }),
+        invalidatePositions: () => queryClient.invalidateQueries({ queryKey: queryKeys.positions }),
+        invalidateCampaigns: () => queryClient.invalidateQueries({ queryKey: queryKeys.campaigns }),
+        invalidateAll: () => queryClient.invalidateQueries(),
+    };
 }

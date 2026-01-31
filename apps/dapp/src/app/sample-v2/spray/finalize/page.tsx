@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Layout from "../../components/Layout";
 import FinalizeClient from "./FinalizeClient";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import styles from "../page.module.css";
@@ -82,7 +81,7 @@ export default async function FinalizePage({
 
   if (!session || !searchParams.id) {
     return (
-      <Layout>
+      <>
         <div className={styles.page}>
           <div className={styles.container}>
             <div className={styles.card} style={{ textAlign: "center", padding: "3rem" }}>
@@ -91,7 +90,7 @@ export default async function FinalizePage({
             </div>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
@@ -102,7 +101,7 @@ export default async function FinalizePage({
   ]);
 
   return (
-    <Layout>
+    <>
       <div className={styles.page}>
         <div className={styles.container}>
           <div className={styles.header}>
@@ -132,6 +131,6 @@ export default async function FinalizePage({
           </ErrorBoundary>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

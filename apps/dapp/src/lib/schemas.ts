@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+// ============================================
+// Zod Schemas (Only import when validation needed)
+// Use types from './types' for type-only imports
+// ============================================
+
 // Basic Types
 export const CampaignLevelSchema = z.enum(['RAPID', 'MID', 'DEEP']);
 export const ChainSchema = z.enum(['ethereum', 'base', 'arbitrum', 'bsc', 'hyperevm', 'solana']);
@@ -13,7 +18,7 @@ export const CampaignSchema = z.object({
     tokenDecimals: z.number().optional(),
     chainId: z.number(),
     chainName: z.string(),
-    roiMultiplier: z.string(), // Coming as decimal string from API
+    roiMultiplier: z.string(),
     reserveCachedBalance: z.string().nullable().optional(),
     trenchIds: z.array(z.string()),
     phase: z.enum(['WAITLIST', 'ACCEPTING', 'LIVE', 'PAUSED']).optional(),
@@ -23,8 +28,8 @@ export const CampaignSchema = z.object({
     isActive: z.boolean(),
     currentPrice: z.string().optional(),
     endPrice: z.string().optional(),
-    level: CampaignLevelSchema.optional(), // Added by fetcher flattening
-    entryRange: z.object({ min: z.number(), max: z.number() }).optional(), // Added by fetcher flattening
+    level: CampaignLevelSchema.optional(),
+    entryRange: z.object({ min: z.number(), max: z.number() }).optional(),
 });
 
 // User Schema
@@ -55,7 +60,7 @@ export const UserUpdateSchema = z.object({
     walletSol: z.string().min(32).max(44).optional(),
 });
 
-// UserPosition Schema (for dashboard/portfolio display)
+// UserPosition Schema
 export const UserPositionSchema = z.object({
     id: z.string(),
     type: z.enum(['active', 'secured', 'enlisted']),
@@ -87,10 +92,3 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
         data: dataSchema.optional(),
         error: z.string().optional(),
     });
-
-// Types exported for convenience
-export type Campaign = z.infer<typeof CampaignSchema>;
-export type User = z.infer<typeof UserSchema>;
-export type UserPosition = z.infer<typeof UserPositionSchema>;
-export type SprayRequest = z.infer<typeof SprayRequestSchema>;
-export type UserUpdate = z.infer<typeof UserUpdateSchema>;

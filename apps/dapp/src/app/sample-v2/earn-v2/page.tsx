@@ -1,8 +1,7 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useState } from "react";
+export const dynamic = "force-dynamic";
 import {
   useTasks,
   useRaids,
@@ -14,7 +13,6 @@ import {
   useUserTasks,
   useUserRaids
 } from "@/hooks/useQueries";
-import Layout from "../components/Layout";
 import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
 import { useUIStore } from "@/store/uiStore";
@@ -128,7 +126,7 @@ export default function EarnPage() {
   const completedRaids = (raids as Raid[]).filter(r => isRaidCompleted(r.id));
 
   return (
-    <Layout>
+    <>
       <div className={styles.page}>
         <div className={styles.container}>
           {/* Header */}
@@ -409,6 +407,6 @@ export default function EarnPage() {
       </div>
 
       <ComplianceDisclaimer variant="footer" />
-    </Layout>
+    </>
   );
 }

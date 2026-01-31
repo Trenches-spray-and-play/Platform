@@ -30,8 +30,9 @@ export async function initializeBlockchainServices() {
   // Start monitoring for spray entries (legacy system) - DISABLED to save connections
   // await startMonitoring();
 
-  // Start deposit monitoring for all chains (deposit address system)
-  await startAllChainMonitoring();
+  // DISABLED: Continuous deposit monitoring - should only run when user clicks "I've Deposited"
+  // await startAllChainMonitoring();
+  console.log('⏸️  Continuous deposit monitoring DISABLED - use manual trigger only');
 
   // Start scheduled sweeps to consolidate deposits
   // startScheduledSweeps();

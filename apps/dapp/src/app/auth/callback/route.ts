@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db';
@@ -22,8 +22,27 @@ export async function GET(request: Request) {
             return NextResponse.redirect(`${origin}${errorRedirect}?error=auth_failed`);
         }
 
-        const supabase = await createClient();
-        console.log('[Auth Callback] Supabase client created');
+        // Initialize response object early so Supabase can write cookies to it
+        let response = NextResponse.redirect(`${origin}${next}`);
+
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+        const cookieStore = await cookies();
+
+        const supabase = createServerClient(supabaseUrl, supabaseKey, {
+            cookies: {
+                getAll() {
+                    return cookieStore.getAll();
+                },
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value, options }) => {
+                        response.cookies.set(name, value, options as CookieOptions);
+                    });
+                },
+            },
+        });
+
+        console.log('[Auth Callback] Supabase client created with response-sync');
 
         // Exchange the code for a session
         console.log('[Auth Callback] Code received, exchanging for session...');
@@ -35,13 +54,6 @@ export async function GET(request: Request) {
             console.log('[Auth Callback] Session exchanged successfully for', data.user.email);
         }
 
-        console.log('[Auth Callback] Exchange result:', {
-            hasUser: !!data.user,
-            error: error?.message,
-            hasSession: !!data.session,
-            userEmail: data.user?.email
-        });
-
         if (error || !data.user) {
             console.error('[Auth Callback] Exchange error:', error);
             const errorRedirect = isAdminFlow ? '/admin/login' : '/login';
@@ -51,16 +63,17 @@ export async function GET(request: Request) {
         console.log('[Auth Callback] User authenticated:', data.user.email);
 
         // Debug: Check what cookies are set after exchange
-        const cookieStore = await cookies();
-        const allCookies = cookieStore.getAll();
-        const authCookies = allCookies.filter(c => c.name.includes('auth') || c.name.includes('supabase'));
-        console.log('[Auth Callback] Cookies after exchange:', authCookies.map(c => ({ name: c.name, valueLen: c.value?.length })));
+        const allCookies = response.cookies.getAll();
+        console.log('[Auth Callback] Cookies in response after exchange:', allCookies.map(c => ({ name: c.name, valueLen: c.value?.length })));
 
         // Handle admin login flow
         if (isAdminFlow) {
             if (isAdminEmail(data.user.email)) {
                 console.log(`[Auth Callback] Admin login: ${data.user.email}`);
-                return NextResponse.redirect(`${origin}/admin`);
+                // Re-initialize redirect to preserve cookies
+                const adminResponse = NextResponse.redirect(`${origin}/admin`);
+                response.cookies.getAll().forEach(c => adminResponse.cookies.set(c.name, c.value, c as any));
+                return adminResponse;
             } else {
                 await supabase.auth.signOut();
                 console.warn(`[Auth Callback] Non-admin login attempt: ${data.user.email}`);
@@ -81,10 +94,10 @@ export async function GET(request: Request) {
 
             if (!existingUser) {
                 console.log('[Auth Callback] New user - creating user record');
-                
+
                 // Create user with potential referral
                 const handle = data.user.email?.split('@')[0] || `user_${data.user.id.slice(0, 8)}`;
-                
+
                 existingUser = await prisma.user.create({
                     data: {
                         supabaseId: data.user.id,
@@ -92,7 +105,7 @@ export async function GET(request: Request) {
                         handle: `@${handle}`,
                     }
                 });
-                
+
                 // Apply referral if code exists and is valid
                 if (referralCode) {
                     try {
@@ -100,11 +113,12 @@ export async function GET(request: Request) {
                         if (validation.valid && validation.referrer) {
                             await applyReferral(existingUser.id, validation.referrer.id);
                             console.log(`[Auth Callback] Applied referral ${referralCode} to new user ${existingUser.id}`);
-                            
-                            // Clear the referral cookie since we've applied it
-                            const response = NextResponse.redirect(`${origin}/register?refApplied=true`);
-                            response.cookies.set('referralCode', '', { maxAge: 0, path: '/' });
-                            return response;
+
+                            // Re-initialize redirect to /register
+                            const registerResponse = NextResponse.redirect(`${origin}/register?refApplied=true`);
+                            response.cookies.getAll().forEach(c => registerResponse.cookies.set(c.name, c.value, c as any));
+                            registerResponse.cookies.set('referralCode', '', { maxAge: 0, path: '/' });
+                            return registerResponse;
                         } else {
                             console.log('[Auth Callback] Invalid referral code:', referralCode);
                         }
@@ -112,9 +126,11 @@ export async function GET(request: Request) {
                         console.error('[Auth Callback] Error applying referral:', err);
                     }
                 }
-                
+
                 // Redirect to registration for new users
-                return NextResponse.redirect(`${origin}/register`);
+                const registerResponse = NextResponse.redirect(`${origin}/register`);
+                response.cookies.getAll().forEach(c => registerResponse.cookies.set(c.name, c.value, c as any));
+                return registerResponse;
             }
 
             // Check if user needs to complete registration (has auto-generated handle)
@@ -125,7 +141,7 @@ export async function GET(request: Request) {
 
             if (hasAutoHandle) {
                 console.log('[Auth Callback] User needs to complete registration');
-                
+
                 // If there's a referral code and user doesn't have a referrer yet, apply it
                 if (referralCode && !existingUser.referredById) {
                     try {
@@ -133,34 +149,36 @@ export async function GET(request: Request) {
                         if (validation.valid && validation.referrer) {
                             await applyReferral(existingUser.id, validation.referrer.id);
                             console.log(`[Auth Callback] Applied referral ${referralCode} to existing user ${existingUser.id}`);
-                            
-                            // Clear the referral cookie
-                            const response = NextResponse.redirect(`${origin}/register?refApplied=true`);
-                            response.cookies.set('referralCode', '', { maxAge: 0, path: '/' });
-                            return response;
+
+                            // Re-initialize redirect to /register
+                            const registerResponse = NextResponse.redirect(`${origin}/register?refApplied=true`);
+                            response.cookies.getAll().forEach(c => registerResponse.cookies.set(c.name, c.value, c as any));
+                            registerResponse.cookies.set('referralCode', '', { maxAge: 0, path: '/' });
+                            return registerResponse;
                         }
                     } catch (err) {
                         console.error('[Auth Callback] Error applying referral to existing user:', err);
                     }
                 }
-                
-                return NextResponse.redirect(`${origin}/register`);
+
+                const registerResponse = NextResponse.redirect(`${origin}/register`);
+                response.cookies.getAll().forEach(c => registerResponse.cookies.set(c.name, c.value, c as any));
+                return registerResponse;
             }
 
             console.log('[Auth Callback] Existing user with custom handle - redirecting to dashboard');
 
             // User has completed registration - clear any stale referral cookie
-            const response = NextResponse.redirect(`${origin}${next}`);
             response.cookies.set('referralCode', '', { maxAge: 0, path: '/' });
             return response;
-            
+
         } catch (dbError: any) {
             console.error('[Auth Callback] Database error:', dbError);
             // If DB fails, still redirect to dashboard - user is authenticated with Supabase
-            return NextResponse.redirect(`${origin}${next}`);
+            return response;
         }
     } catch (err: any) {
         console.error('[Auth Callback] Fatal error:', err);
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://trenches-dapp.vercel.app'}/login?error=auth_failed`);
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://playtrenches.xyz'}/login?error=auth_failed`);
     }
 }

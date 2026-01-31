@@ -1,128 +1,61 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-
-// Calculate campaign phase
-function getCampaignPhase(campaign: {
-    isPaused: boolean;
-    startsAt: Date | null;
-    acceptDepositsBeforeStart: boolean;
-}): 'WAITLIST' | 'ACCEPTING' | 'LIVE' | 'PAUSED' {
-    const now = new Date();
-
-    if (campaign.isPaused) {
-        return 'PAUSED';
-    }
-
-    if (campaign.startsAt && campaign.startsAt > now) {
-        return campaign.acceptDepositsBeforeStart ? 'ACCEPTING' : 'WAITLIST';
-    }
-
-    return 'LIVE';
-}
+import { getTrenchGroups, clearCampaignsCache } from '@/services/trenchService';
 
 /**
  * GET /api/trenches - Get campaigns grouped by trench level
+ * 
+ * Cache strategy: 
+ * - In-memory: 30 seconds (reduces DB queries)
+ * - CDN/Edge: 60 seconds with stale-while-revalidate for 5 minutes
+ * - Campaigns don't change frequently, so this reduces database load significantly
  */
 export async function GET() {
+    const startTime = performance.now();
+    
     try {
-        // Get all active, non-hidden campaigns
-        const campaigns = await prisma.campaignConfig.findMany({
-            where: {
-                isActive: true,
-                isHidden: false,
-            },
-            orderBy: { createdAt: 'desc' },
-        });
+        const data = await getTrenchGroups();
+        
+        const duration = performance.now() - startTime;
+        console.log(`[PERF] /api/trenches completed in ${duration.toFixed(2)}ms`);
 
-        // Get participant counts per trench
-        const participantCounts = await prisma.participant.groupBy({
-            by: ['trenchId'],
-            _count: true,
-        });
-        const participantMap = Object.fromEntries(
-            participantCounts.map(p => [p.trenchId, p._count])
-        );
-
-        // USD entry ranges per level
-        const trenchLevels = {
-            'RAPID': {
-                name: 'RAPID CAMPAIGNS',
-                entryRange: { min: 5, max: 1000 },
-                cadence: '1-3 DAYS',
-            },
-            'MID': {
-                name: 'MID CAMPAIGNS',
-                entryRange: { min: 100, max: 10000 },
-                cadence: '7-14 DAYS',
-            },
-            'DEEP': {
-                name: 'DEEP CAMPAIGNS',
-                entryRange: { min: 1000, max: 100000 },
-                cadence: '30-60 DAYS',
-            },
-        };
-
-        // Group campaigns by trench level with phase info
-        const grouped: Record<string, {
-            level: string;
-            name: string;
-            entryRange: { min: number; max: number };
-            cadence: string;
-            campaigns: Array<typeof campaigns[0] & {
-                phase: 'WAITLIST' | 'ACCEPTING' | 'LIVE' | 'PAUSED';
-                participantCount: number;
-            }>;
-        }> = {};
-
-        // Initialize groups
-        for (const [level, config] of Object.entries(trenchLevels)) {
-            grouped[level] = {
-                level,
-                name: config.name,
-                entryRange: config.entryRange,
-                cadence: config.cadence,
-                campaigns: [],
-            };
-        }
-
-        // Assign campaigns to their trench levels with phase data
-        for (const campaign of campaigns) {
-            const phase = getCampaignPhase(campaign);
-
-            // Sum participants across all trenches in this campaign
-            const participantCount = campaign.trenchIds.reduce((sum, tid) => {
-                return sum + (participantMap[tid] || 0);
-            }, 0);
-
-            const campaignWithPhase = {
-                ...campaign,
-                phase,
-                participantCount,
-            };
-
-            for (const trenchId of campaign.trenchIds) {
-                const level = trenchId.toUpperCase();
-                if (grouped[level]) {
-                    grouped[level].campaigns.push(campaignWithPhase);
-                }
-            }
-        }
-
-        // Convert to array, only include levels with campaigns
-        const data = Object.values(grouped).filter(g => g.campaigns.length > 0);
-
-        return NextResponse.json({
+        const response = NextResponse.json({
             data,
             meta: {
                 updatedAt: new Date().toISOString(),
-                totalCampaigns: campaigns.length,
+                totalLevels: data.length,
+                responseTimeMs: Math.round(duration),
             },
         });
+
+        // Aggressive caching to reduce DB load:
+        // - s-maxage=60: Cache on CDN/server for 60 seconds
+        // - stale-while-revalidate=300: Serve stale content for 5 min while refreshing
+        // - This means users get instant responses after first request
+        response.headers.set(
+            'Cache-Control',
+            'public, s-maxage=60, stale-while-revalidate=300'
+        );
+
+        return response;
     } catch (error) {
-        console.error('Error fetching trenches:', error);
+        const duration = performance.now() - startTime;
+        console.error(`[PERF] /api/trenches failed after ${duration.toFixed(2)}ms:`, error);
+        
         return NextResponse.json(
             { error: 'Failed to fetch trenches' },
             { status: 500 }
         );
     }
+}
+
+/**
+ * POST /api/trenches - Clear the campaigns cache (admin use)
+ * Call this when campaigns are updated to refresh the cache immediately
+ */
+export async function POST() {
+    clearCampaignsCache();
+    return NextResponse.json({ 
+        success: true, 
+        message: 'Campaigns cache cleared' 
+    });
 }

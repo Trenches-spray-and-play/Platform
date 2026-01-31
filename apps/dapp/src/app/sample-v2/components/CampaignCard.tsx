@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import Link from "next/link";
 import styles from "./CampaignCard.module.css";
 
@@ -20,9 +20,11 @@ interface CampaignCardProps {
   startsAt?: string | null;
   isPaused?: boolean;
   participantCount?: number;
+  totalDeposited?: number; // Optional: actual amount deposited
 }
 
-export default function CampaignCard({
+// Memoized to prevent unnecessary re-renders when parent updates
+function CampaignCard({
   id,
   name,
   level,
@@ -36,6 +38,7 @@ export default function CampaignCard({
   startsAt,
   isPaused = false,
   participantCount = 0,
+  totalDeposited,
 }: CampaignCardProps) {
   const [countdown, setCountdown] = useState<string>("");
 
@@ -81,6 +84,17 @@ export default function CampaignCard({
     }
   };
 
+  const getDuration = () => {
+    switch (level) {
+      case "RAPID":
+        return "1 day";
+      case "MID":
+        return "7 days";
+      case "DEEP":
+        return "30 days";
+    }
+  };
+
   const getPhaseBadge = () => {
     if (isPaused) return <span className={`${styles.phaseBadge} ${styles.phasePaused}`}>Paused</span>;
     if (countdown) return <span className={`${styles.phaseBadge} ${styles.phaseCountdown}`}>Starts in {countdown}</span>;
@@ -107,6 +121,40 @@ export default function CampaignCard({
 
   const roi = parseFloat(roiMultiplier) || 1.5;
   const reserveDisplay = reserves || "0";
+  
+  // Calculate fill percentage for progress bar
+  // Priority: totalDeposited > estimate from participantCount > fallback to random
+  const calculateFillPercentage = () => {
+    // If we have actual deposited amount
+    if (totalDeposited && reserves) {
+      const reservesNum = parseFloat(reserves.replace(/[^0-9.]/g, ''));
+      if (reservesNum > 0) {
+        return Math.min((totalDeposited / reservesNum) * 100, 100);
+      }
+    }
+    
+    // Estimate from participant count (assuming average entry)
+    if (participantCount > 0 && reserves) {
+      const avgEntrySize = (entryRange.min + entryRange.max) / 2;
+      const estimatedDeposited = participantCount * avgEntrySize;
+      const reservesNum = parseFloat(reserves.replace(/[^0-9.]/g, '')) || 1000000;
+      return Math.min((estimatedDeposited / reservesNum) * 100, 100);
+    }
+    
+    // Fallback: show 0% (not random fake data)
+    return 0;
+  };
+  
+  const fillPercentage = calculateFillPercentage();
+  
+  // Get tooltip text based on fill level
+  const getProgressTooltip = () => {
+    if (fillPercentage === 0) return "Campaign just started. Be the first to enter!";
+    if (fillPercentage < 30) return `${Math.round(fillPercentage)}% filled. Plenty of room for your spray.`;
+    if (fillPercentage < 60) return `${Math.round(fillPercentage)}% filled. Good momentum building.`;
+    if (fillPercentage < 85) return `${Math.round(fillPercentage)}% filled. Filling up fast!`;
+    return `${Math.round(fillPercentage)}% filled. Almost at capacity - act fast!`;
+  };
 
   return (
     <Link href={`/sample-v2/campaign-v2/${id}`} className={styles.card}>
@@ -131,6 +179,10 @@ export default function CampaignCard({
           <span className={`${styles.statValue} ${styles.roiValue}`}>{roi.toFixed(1)}x</span>
         </div>
         <div className={styles.stat}>
+          <span className={styles.statLabel}>Duration</span>
+          <span className={styles.statValue}>{getDuration()}</span>
+        </div>
+        <div className={styles.stat}>
           <span className={styles.statLabel}>Entry Range</span>
           <span className={styles.statValue}>
             ${entryRange.min.toLocaleString()} - ${entryRange.max.toLocaleString()}
@@ -142,12 +194,12 @@ export default function CampaignCard({
         </div>
       </div>
 
-      {/* Progress Bar (visual indicator) */}
-      <div className={styles.progressSection}>
+      {/* Progress Bar - Trench Fill Level */}
+      <div className={styles.progressSection} title={getProgressTooltip()}>
         <div className={styles.progressBar}>
           <div 
-            className={`${styles.progressFill} ${styles[`progress${level}`]}`}
-            style={{ width: `${Math.min(65 + Math.random() * 20, 100)}%` }}
+            className={`${styles.progressFill} ${styles[`progress${level}`]} ${fillPercentage > 90 ? styles.nearlyFull : ''}`}
+            style={{ width: `${fillPercentage}%` }}
           />
         </div>
       </div>
@@ -167,3 +219,6 @@ export default function CampaignCard({
     </Link>
   );
 }
+
+// Export memoized version to prevent parent re-renders from affecting this component
+export default memo(CampaignCard);

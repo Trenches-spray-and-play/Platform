@@ -151,7 +151,7 @@
 /* Stats Grid */
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-4);
   padding: var(--space-5) 0;
   border-top: 1px solid var(--border-secondary);
@@ -189,6 +189,8 @@
 /* Progress Section */
 .progressSection {
   margin-bottom: var(--space-5);
+  cursor: help;
+  position: relative;
 }
 
 .progressBar {
@@ -196,24 +198,43 @@
   background: var(--bg-tertiary);
   border-radius: var(--radius-full);
   overflow: hidden;
+  position: relative;
 }
 
 .progressFill {
   height: 100%;
   border-radius: var(--radius-full);
   transition: width 1s ease-out;
+  position: relative;
+}
+
+/* Animated glow effect for nearly full trenches */
+.progressFill.nearlyFull {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 4px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
+  }
 }
 
 .progressRAPID {
   background: var(--accent-rapid);
+  color: var(--accent-rapid);
 }
 
 .progressMID {
   background: var(--accent-mid);
+  color: var(--accent-mid);
 }
 
 .progressDEEP {
   background: var(--accent-deep);
+  color: var(--accent-deep);
 }
 
 /* Footer */

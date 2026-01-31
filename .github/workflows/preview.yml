@@ -1,0 +1,157 @@
+name: Preview Deployment
+
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ─────────────────────────────────────────
+  # Detect Changes
+  # ─────────────────────────────────────────
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      dapp: ${{ steps.filter.outputs.dapp }}
+      landing: ${{ steps.filter.outputs.landing }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            dapp:
+              - 'apps/dapp/**'
+              - 'packages/**'
+              - 'package*.json'
+            landing:
+              - 'apps/landing/**'
+              - 'packages/**'
+              - 'package*.json'
+
+  # ─────────────────────────────────────────
+  # Deploy DApp Preview
+  # ─────────────────────────────────────────
+  preview-dapp:
+    name: Preview DApp
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.dapp == 'true' }}
+    environment:
+      name: preview-dapp
+      url: ${{ steps.deploy.outputs.preview_url }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: apps/dapp
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        working-directory: apps/dapp
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        working-directory: apps/dapp
+        id: deploy
+        run: |
+          DEPLOY_OUTPUT=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "preview_url=$DEPLOY_OUTPUT" >> $GITHUB_OUTPUT
+          echo "Deployed preview to: $DEPLOY_OUTPUT"
+
+      - name: Comment Preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previewUrl = '${{ steps.deploy.outputs.preview_url }}';
+            const comment = `🚀 **DApp Preview Deployed**
+            
+            🔗 Preview URL: ${previewUrl}
+            
+            _This preview will be automatically updated when you push new commits._`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # ─────────────────────────────────────────
+  # Deploy Landing Preview
+  # ─────────────────────────────────────────
+  preview-landing:
+    name: Preview Landing
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.landing == 'true' }}
+    environment:
+      name: preview-landing
+      url: ${{ steps.deploy.outputs.preview_url }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: apps/landing
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        working-directory: apps/landing
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        working-directory: apps/landing
+        id: deploy
+        run: |
+          DEPLOY_OUTPUT=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "preview_url=$DEPLOY_OUTPUT" >> $GITHUB_OUTPUT
+          echo "Deployed preview to: $DEPLOY_OUTPUT"
+
+      - name: Comment Preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previewUrl = '${{ steps.deploy.outputs.preview_url }}';
+            const comment = `🚀 **Landing Page Preview Deployed**
+            
+            🔗 Preview URL: ${previewUrl}
+            
+            _This preview will be automatically updated when you push new commits._`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

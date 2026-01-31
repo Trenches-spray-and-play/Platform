@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { getUserProfile } from '@/services/userService';
 
 /**
  * GET /api/user - Get current authenticated user's profile
@@ -8,14 +9,14 @@ import { getSession } from '@/lib/auth';
 export async function GET(request: Request) {
     try {
         console.log('[API /user] Request received');
-        
+
         // Debug: Log all cookies from the request
         const cookieHeader = request.headers.get('cookie');
         console.log('[API /user] All cookies:', cookieHeader?.slice(0, 500));
-        
+
         const session = await getSession();
         console.log('[API /user] Session result:', { hasSession: !!session, userId: session?.id });
-        
+
         if (!session) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
@@ -23,21 +24,7 @@ export async function GET(request: Request) {
             );
         }
 
-        // Fetch full user data with stats
-        const user = await prisma.user.findUnique({
-            where: { id: session.id },
-            include: {
-                _count: {
-                    select: {
-                        participants: true,
-                        deposits: true,
-                        postSubmissions: true,
-                        userTasks: true,
-                        referrals: true,
-                    },
-                },
-            },
-        });
+        const user = await getUserProfile(session.id);
 
         if (!user) {
             return NextResponse.json(
@@ -46,49 +33,7 @@ export async function GET(request: Request) {
             );
         }
 
-        // Calculate stats
-        const participantStats = await prisma.participant.aggregate({
-            where: { userId: user.id },
-            _sum: {
-                boostPoints: true,
-                receivedAmount: true,
-            },
-            _count: {
-                _all: true,
-            },
-        });
-
-        const exitedCount = await prisma.participant.count({
-            where: { userId: user.id, status: 'exited' },
-        });
-
-        return NextResponse.json({
-            data: {
-                id: user.id,
-                handle: user.handle,
-                email: user.email,
-                wallet: user.wallet,
-                walletEvm: user.walletEvm,
-                walletSol: user.walletSol,
-                referralCode: user.referralCode,
-                beliefScore: user.beliefScore,
-                balance: Number(user.balance) || 0, // USD-normalized balance
-                boostPoints: user.boostPoints || 0, // BP wallet balance (Issue 14 fix)
-                stats: {
-                    sprays: participantStats._count._all || 0,
-                    exits: exitedCount,
-                    earnings: participantStats._sum.receivedAmount || 0,
-                    tasksCompleted: user._count.userTasks,
-                    postsSubmitted: user._count.postSubmissions,
-                    referrals: user._count.referrals,
-                },
-                socials: {
-                    twitter: true, // TODO: Implement actual social connection status
-                    telegram: false,
-                },
-                createdAt: user.createdAt,
-            },
-        });
+        return NextResponse.json({ data: user });
     } catch (error) {
         console.error('Error fetching user profile:', error);
         return NextResponse.json(

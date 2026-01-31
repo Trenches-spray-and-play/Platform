@@ -108,6 +108,8 @@ model Participant {
 
   @@unique([userId, trenchId])
   @@index([expectedPayoutAt])                   // Index for efficient payout queries
+  @@index([trenchId])                           // Index for participant count queries
+  @@index([userId, status])                     // Index for user position queries
 }
 
 model Transaction {
@@ -359,6 +361,9 @@ model CampaignConfig {
   
   // Relations
   waitlist        CampaignWaitlist[]
+
+  @@index([isActive, isHidden])                 // Index for active/hidden campaign queries
+  @@index([createdAt])                          // Index for ordering
 }
 
 // Waitlist for campaigns that haven't started yet

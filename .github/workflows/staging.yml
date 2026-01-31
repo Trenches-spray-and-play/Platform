@@ -1,0 +1,131 @@
+name: Staging Deployment
+
+on:
+  push:
+    branches: [develop, staging]
+  workflow_dispatch:  # Allow manual trigger
+
+concurrency:
+  group: staging-deployment
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ─────────────────────────────────────────
+  # Deploy DApp to Staging
+  # ─────────────────────────────────────────
+  deploy-dapp-staging:
+    name: Deploy DApp (Staging)
+    runs-on: ubuntu-latest
+    environment:
+      name: staging-dapp
+      url: https://staging-app.playtrenches.xyz  # Staging DApp URL
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: apps/dapp
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        working-directory: apps/dapp
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Staging
+        working-directory: apps/dapp
+        run: |
+          DEPLOY_OUTPUT=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "deploy_url=$DEPLOY_OUTPUT" >> $GITHUB_OUTPUT
+          echo "Deployed staging to: $DEPLOY_OUTPUT"
+        id: deploy
+
+      - name: Alias to Staging Domain
+        working-directory: apps/dapp
+        run: |
+          vercel alias ${{ steps.deploy.outputs.deploy_url }} staging-app.playtrenches.xyz --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }}
+        continue-on-error: true
+
+  # ─────────────────────────────────────────
+  # Deploy Landing to Staging
+  # ─────────────────────────────────────────
+  deploy-landing-staging:
+    name: Deploy Landing (Staging)
+    runs-on: ubuntu-latest
+    environment:
+      name: staging-landing
+      url: https://staging.playtrenches.xyz  # Staging Landing URL
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: apps/landing
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        working-directory: apps/landing
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Staging
+        working-directory: apps/landing
+        run: |
+          DEPLOY_OUTPUT=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "deploy_url=$DEPLOY_OUTPUT" >> $GITHUB_OUTPUT
+          echo "Deployed staging to: $DEPLOY_OUTPUT"
+        id: deploy
+
+      - name: Alias to Staging Domain
+        working-directory: apps/landing
+        run: |
+          vercel alias ${{ steps.deploy.outputs.deploy_url }} staging.playtrenches.xyz --token=${{ secrets.VERCEL_TOKEN }} --scope=${{ secrets.VERCEL_ORG_ID }}
+        continue-on-error: true
+
+  # ─────────────────────────────────────────
+  # Staging Health Check
+  # ─────────────────────────────────────────
+  health-check-staging:
+    name: Staging Health Check
+    runs-on: ubuntu-latest
+    needs: [deploy-dapp-staging, deploy-landing-staging]
+    if: always() && needs.deploy-dapp-staging.result == 'success' && needs.deploy-landing-staging.result == 'success'
+    
+    steps:
+      - name: Wait for Deployment
+        run: sleep 30
+
+      - name: Health Check - DApp Staging
+        run: |
+          curl -f -s https://staging-app.playtrenches.xyz/api/health || echo "Health endpoint not available"
+        continue-on-error: true
+
+      - name: Health Check - Landing Staging
+        run: |
+          curl -f -s https://staging.playtrenches.xyz || echo "Landing page check failed"
+        continue-on-error: true
+
+      - name: Notify Success
+        run: |
+          echo "✅ Staging deployments completed"

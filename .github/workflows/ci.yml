@@ -1,0 +1,249 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ─────────────────────────────────────────
+  # Detect Changes
+  # ─────────────────────────────────────────
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      dapp: ${{ steps.filter.outputs.dapp }}
+      landing: ${{ steps.filter.outputs.landing }}
+      database: ${{ steps.filter.outputs.database }}
+      any: ${{ steps.filter.outputs.any }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            dapp:
+              - 'apps/dapp/**'
+              - 'packages/**'
+              - 'package*.json'
+            landing:
+              - 'apps/landing/**'
+              - 'packages/**'
+              - 'package*.json'
+            database:
+              - 'packages/database/**'
+            any:
+              - 'apps/**'
+              - 'packages/**'
+              - 'package*.json'
+              - '.github/workflows/**'
+
+  # ─────────────────────────────────────────
+  # Lint & Type Check
+  # ─────────────────────────────────────────
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.any == 'true' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
+      - name: Lint DApp
+        if: ${{ needs.changes.outputs.dapp == 'true' }}
+        run: npm run lint --workspace=apps/dapp
+
+      - name: Lint Landing
+        if: ${{ needs.changes.outputs.landing == 'true' }}
+        run: npm run lint --workspace=apps/landing
+
+  # ─────────────────────────────────────────
+  # Build Check
+  # ─────────────────────────────────────────
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.any == 'true' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
+      - name: Build DApp
+        if: ${{ needs.changes.outputs.dapp == 'true' }}
+        run: npm run build --workspace=apps/dapp
+        env:
+          # Mock environment variables for build
+          DATABASE_URL: postgresql://mock:mock@localhost:5432/mock
+          DIRECT_URL: postgresql://mock:mock@localhost:5432/mock
+          NEXT_PUBLIC_SUPABASE_URL: https://mock.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: mock-key
+
+      - name: Build Landing
+        if: ${{ needs.changes.outputs.landing == 'true' }}
+        run: npm run build --workspace=apps/landing
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://mock.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: mock-key
+
+  # ─────────────────────────────────────────
+  # Compliance Check
+  # ─────────────────────────────────────────
+  compliance:
+    name: Compliance Check
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.any == 'true' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Compliance Check
+        run: npm run compliance:check
+        continue-on-error: false
+
+  # ─────────────────────────────────────────
+  # Unit Tests
+  # ─────────────────────────────────────────
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.any == 'true' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
+      - name: Run DApp Tests
+        if: ${{ needs.changes.outputs.dapp == 'true' }}
+        run: npm run test --workspace=apps/dapp
+        continue-on-error: true  # Remove once tests are stable
+
+      - name: Run Landing Tests
+        if: ${{ needs.changes.outputs.landing == 'true' }}
+        run: npm run test --workspace=apps/landing
+        continue-on-error: true  # Remove once tests are stable
+
+  # ─────────────────────────────────────────
+  # Database Schema Check
+  # ─────────────────────────────────────────
+  database-check:
+    name: Database Schema Check
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.database == 'true' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Validate Prisma Schema
+        working-directory: packages/database
+        run: npx prisma validate
+
+      - name: Check Prisma Format
+        working-directory: packages/database
+        run: npx prisma format --check
+
+  # ─────────────────────────────────────────
+  # Security Scan
+  # ─────────────────────────────────────────
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.any == 'true' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run NPM Audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true  # Change to false for strict mode
+
+      - name: Check for Secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified

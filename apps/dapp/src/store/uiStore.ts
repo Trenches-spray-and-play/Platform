@@ -10,52 +10,50 @@ export interface Toast {
 }
 
 interface UIState {
-    // Modals
     activeModal: string | null;
     modalData: any;
     openModal: (name: string, data?: any) => void;
     closeModal: () => void;
-
-    // Toasts
     toasts: Toast[];
     addToast: (message: string, type?: ToastType, duration?: number) => void;
     removeToast: (id: string) => void;
-
-    // Loading
     globalLoading: boolean;
     setGlobalLoading: (loading: boolean) => void;
 }
 
-export const useUIStore = create<UIState>()(
-    devtools(
-        (set, get) => ({
-            activeModal: null,
-            modalData: null,
-            openModal: (name, data = null) => set({ activeModal: name, modalData: data }, false, 'openModal'),
-            closeModal: () => set({ activeModal: null, modalData: null }, false, 'closeModal'),
+// Base store configuration
+const storeConfig = (set: any, get: any) => ({
+    activeModal: null as string | null,
+    modalData: null,
+    openModal: (name: string, data = null) => set({ activeModal: name, modalData: data }, false, 'openModal'),
+    closeModal: () => set({ activeModal: null, modalData: null }, false, 'closeModal'),
 
-            toasts: [],
-            addToast: (message, type = 'info', duration = 5000) => {
-                const id = crypto.randomUUID();
-                const newToast: Toast = { id, message, type };
+    toasts: [] as Toast[],
+    addToast: (message: string, type: ToastType = 'info', duration = 5000) => {
+        const id = crypto.randomUUID();
+        const newToast: Toast = { id, message, type };
 
-                set((state) => ({
-                    toasts: [...state.toasts, newToast]
-                }), false, 'addToast');
+        set((state: UIState) => ({
+            toasts: [...state.toasts, newToast]
+        }), false, 'addToast');
 
-                if (duration > 0) {
-                    setTimeout(() => {
-                        get().removeToast(id);
-                    }, duration);
-                }
-            },
-            removeToast: (id) => set((state) => ({
-                toasts: state.toasts.filter(t => t.id !== id)
-            }), false, 'removeToast'),
+        if (duration > 0) {
+            setTimeout(() => {
+                get().removeToast(id);
+            }, duration);
+        }
+    },
+    removeToast: (id: string) => set((state: UIState) => ({
+        toasts: state.toasts.filter(t => t.id !== id)
+    }), false, 'removeToast'),
 
-            globalLoading: false,
-            setGlobalLoading: (loading) => set({ globalLoading: loading }, false, 'setGlobalLoading'),
-        }),
-        { name: 'UI Store' }
-    )
-);
+    globalLoading: false,
+    setGlobalLoading: (loading: boolean) => set({ globalLoading: loading }, false, 'setGlobalLoading'),
+});
+
+// Create store based on environment
+const isDev = process.env.NODE_ENV === 'development';
+
+export const useUIStore = isDev
+    ? create<UIState>()(devtools(storeConfig, { name: 'UI Store' }))
+    : create<UIState>()(storeConfig);

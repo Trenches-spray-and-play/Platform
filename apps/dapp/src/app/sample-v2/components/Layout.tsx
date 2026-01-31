@@ -1,17 +1,14 @@
 import LayoutClient from "./LayoutClient";
 
+import { getSession } from "@/lib/auth";
 export const dynamic = "force-dynamic";
+import { getUserProfile } from "@/services/userService";
 
 async function getUser() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    // Use Next.js caching to prevent duplicate requests
-    // Data is cached for 60 seconds and reused across renders
-    const res = await fetch(`${baseUrl}/api/user`, {
-      next: { revalidate: 60 }
-    });
-    const data = await res.json();
-    return data.data || null;
+    const session = await getSession();
+    if (!session) return null;
+    return await getUserProfile(session.id);
   } catch (error) {
     console.error("Failed to fetch user for layout:", error);
     return null;

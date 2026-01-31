@@ -15,8 +15,11 @@ export interface AuthUser {
  * Get the current session user. Returns null if not authenticated.
  */
 export async function getSession(): Promise<AuthUser | null> {
+    console.log('[DEBUG] getSession: creating client');
     const supabase = await createClient();
+    console.log('[DEBUG] getSession: calling getUser');
     const { data: { user }, error } = await supabase.auth.getUser();
+    console.log('[DEBUG] getSession: getUser result', { hasUser: !!user, error: error?.message });
 
     if (error) {
         console.log('[getSession] getUser error:', error.message);
@@ -26,7 +29,7 @@ export async function getSession(): Promise<AuthUser | null> {
         console.log('[getSession] No user found');
         return null;
     }
-    
+
     console.log('[getSession] User found:', user.email)
 
     // Find or create user in our database

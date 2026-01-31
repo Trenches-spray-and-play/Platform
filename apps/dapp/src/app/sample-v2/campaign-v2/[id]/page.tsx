@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Layout from "../../components/Layout";
 import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
 import { useUser, useCampaign, useApplySpray } from "@/hooks/useQueries";
@@ -66,19 +65,19 @@ export default function CampaignDetailPage() {
 
   if (isLoadingCampaign) {
     return (
-      <Layout>
+      <>
         <div className={styles.page}>
           <div className={styles.container}>
             <div className={styles.loading}>LOADING_CAMPAIGN_DATA...</div>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   if (!campaign) {
     return (
-      <Layout>
+      <>
         <div className={styles.page}>
           <div className={styles.container}>
             <div className={styles.error}>
@@ -91,7 +90,7 @@ export default function CampaignDetailPage() {
             </div>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
@@ -106,7 +105,7 @@ export default function CampaignDetailPage() {
   const isSubmitting = sprayMutation.isPending;
 
   return (
-    <Layout>
+    <>
       <div className={styles.page}>
         <div className={styles.container}>
           <nav className={styles.breadcrumb} aria-label="Breadcrumb">
@@ -333,6 +332,6 @@ export default function CampaignDetailPage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

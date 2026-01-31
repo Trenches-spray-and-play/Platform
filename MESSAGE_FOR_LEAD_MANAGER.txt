@@ -1,0 +1,120 @@
+═══════════════════════════════════════════════════════════════════
+  📋 CHANGES READY FOR GITHUB PUSH - LEAD MANAGER ACTION REQUIRED
+═══════════════════════════════════════════════════════════════════
+
+TO: Lead Manager / Lead Dev
+FROM: Kimi (Lead Dev AI Assistant)
+DATE: 2026-01-31
+PRIORITY: HIGH
+
+───────────────────────────────────────────────────────────────────
+🚨 SUMMARY
+───────────────────────────────────────────────────────────────────
+
+Total Changes: 99 modified files + 40 new files
+Status: ⏳ AWAITING CERTIFICATION BEFORE PUSH
+Location: /Users/mac/Trenches - Spray and Play
+
+CRITICAL FIXES INCLUDED:
+• Emergency SSE performance fix (UI freezing issue)
+• Database indexes for API performance
+• Campaign detail page fix
+• Client-side performance optimizations
+• New certification process documentation
+
+───────────────────────────────────────────────────────────────────
+✅ ACTION REQUIRED
+───────────────────────────────────────────────────────────────────
+
+STEP 1: REVIEW CHANGES
+─────────────────────
+File: CHANGES_SUMMARY_FOR_LEAD_MANAGER.md (detailed breakdown)
+
+Key areas to review:
+1. SSE Fix (HIGH RISK) - apps/dapp/src/app/api/sse/route.ts
+2. Database indexes (MEDIUM) - packages/database/prisma/schema.prisma
+3. Certification process (NEW) - docs/CERTIFICATION_CHECKLIST.md
+
+STEP 2: RUN CHECKS
+─────────────────
+cd "/Users/mac/Trenches - Spray and Play/apps/dapp"
+npm run build
+npx tsc --noEmit
+npm run compliance:check
+
+STEP 3: TEST LOCALLY
+───────────────────
+npm run dev
+→ Test: http://localhost:3000/sample-v2
+→ Verify: Campaign cards clickable (no delay)
+→ Verify: SSE quiet in Network tab (30s intervals)
+
+STEP 4: DATABASE (if not done)
+──────────────────────────────
+Run in Supabase SQL Editor:
+CREATE INDEX "Participant_trenchId_idx" ON "Participant"("trenchId");
+CREATE INDEX "Participant_userId_status_idx" ON "Participant"("userId", "status");
+
+STEP 5: PUSH TO GITHUB
+──────────────────────
+git add .
+git commit -m "fix: performance issues, SSE fix, certification process"
+git push origin main
+
+(Or use separate commits - see CHANGES_SUMMARY_FOR_LEAD_MANAGER.md)
+
+───────────────────────────────────────────────────────────────────
+📊 RISK ASSESSMENT
+───────────────────────────────────────────────────────────────────
+
+HIGH RISK:
+• SSE route changes (affects all logged-in users)
+→ Requires: Lead Dev + Product Sr Eng sign-off
+
+MEDIUM RISK:
+• Database schema changes (indexes)
+• API route modifications
+→ Requires: Lead Dev sign-off
+
+LOW RISK:
+• Documentation (certification process)
+• UI components (React.memo)
+→ Requires: Lead Dev sign-off
+
+───────────────────────────────────────────────────────────────────
+📞 QUESTIONS?
+───────────────────────────────────────────────────────────────────
+
+Detailed docs in project root:
+• CHANGES_SUMMARY_FOR_LEAD_MANAGER.md (this doc)
+• EMERGENCY_SSE_FIX.md (SSE technical details)
+• CLIENT_PERF_FIXES_SUMMARY.md (performance fixes)
+• DOCS_RESTRUCTURING_SUMMARY.md (documentation changes)
+
+───────────────────────────────────────────────────────────────────
+⏰ TIMELINE
+───────────────────────────────────────────────────────────────────
+
+Estimated Review: 30-45 minutes
+Estimated Testing: 15-20 minutes
+Total Time: ~1 hour
+
+───────────────────────────────────────────────────────────────────
+✍️ CERTIFICATION
+───────────────────────────────────────────────────────────────────
+
+Lead Dev: _________________________ Date: ___________
+
+☐ Build passes
+☐ Tests pass  
+☐ Local testing complete
+☐ Database indexes applied
+☐ CERTIFIED FOR GITHUB PUSH
+
+Product Sr Eng (for SSE changes): ___________________ Date: _______
+
+☐ SSE changes reviewed
+☐ Risk acceptable
+☐ APPROVED FOR DEPLOYMENT
+
+═══════════════════════════════════════════════════════════════════

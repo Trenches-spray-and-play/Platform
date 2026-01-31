@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Layout from "../components/Layout";
 import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
 import { useUser, useUpdateUser } from "@/hooks/useQueries";
@@ -76,7 +75,7 @@ export default function WalletPage() {
   };
 
   return (
-    <Layout>
+    <>
       <div className={styles.page}>
         <div className={styles.container}>
           {/* Header */}
@@ -192,6 +191,6 @@ export default function WalletPage() {
         </div>
       </div>
       <ComplianceDisclaimer variant="footer" />
-    </Layout>
+    </>
   );
 }

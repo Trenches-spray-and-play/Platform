@@ -8,6 +8,7 @@ import { ComplianceDisclaimer } from "@trenches/ui";
 
 import { getSession } from "@/lib/auth";
 import { getUserProfile, getUserPositions } from "@/services/userService";
+import { getTrenchGroups } from "@/services/trenchService";
 
 async function getDashboardData() {
   console.log('[DEBUG] getDashboardData: starting...');
@@ -21,21 +22,32 @@ async function getDashboardData() {
 
   try {
     console.log('[DEBUG] getDashboardData: fetching user and positions for', session.id);
-    const [user, positions] = await Promise.all([
+    const [user, positions, trenchGroups] = await Promise.all([
       getUserProfile(session.id),
-      getUserPositions(session.id)
+      getUserPositions(session.id),
+      getTrenchGroups().catch(() => [])
     ]);
     
     console.log('[DEBUG] getDashboardData: user:', user?.handle);
     console.log('[DEBUG] getDashboardData: positions count:', positions?.length);
 
+    // Flatten campaigns from trench groups
+    const campaigns = trenchGroups?.flatMap((group: any) =>
+      group.campaigns.map((c: any) => ({
+        ...c,
+        level: group.level,
+        entryRange: group.entryRange
+      }))
+    ) || [];
+
     return {
       user,
-      positions: positions || []
+      positions: positions || [],
+      campaigns
     };
   } catch (error) {
     console.error("[DEBUG] getDashboardData: Failed to fetch dashboard data:", error);
-    return { user: null, positions: [] };
+    return { user: null, positions: [], campaigns: [] };
   }
 }
 
@@ -55,7 +67,7 @@ function UnauthenticatedDashboard() {
 }
 
 export default async function DashboardPage() {
-  const { user, positions } = await getDashboardData();
+  const { user, positions, campaigns } = await getDashboardData();
 
   if (!user) {
     return (
@@ -68,7 +80,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <DashboardClient initialUser={user} initialPositions={positions} />
+      <DashboardClient initialUser={user} initialPositions={positions} campaigns={campaigns} />
       <ComplianceDisclaimer variant="footer" />
     </>
   );

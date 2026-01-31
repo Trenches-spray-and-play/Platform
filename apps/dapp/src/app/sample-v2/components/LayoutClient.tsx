@@ -9,7 +9,7 @@ import { useUser } from "@/hooks/useQueries";
 import { useUIStore } from "@/store/uiStore";
 import { useAuthStore } from "@/store/authStore";
 import { useRealtimeStatus } from "@/hooks/useRealtimeStatus";
-import { User } from "@/lib/schemas";
+import type { User } from "@/lib/types";
 
 
 interface LayoutClientProps {

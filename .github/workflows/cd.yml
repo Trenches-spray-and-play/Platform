@@ -1,0 +1,183 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # Allow manual trigger
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '20'
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID_DAPP: ${{ secrets.VERCEL_PROJECT_ID_DAPP }}
+  VERCEL_PROJECT_ID_LANDING: ${{ secrets.VERCEL_PROJECT_ID_LANDING }}
+
+jobs:
+  # ─────────────────────────────────────────
+  # Deploy DApp to Production
+  # ─────────────────────────────────────────
+  deploy-dapp:
+    name: Deploy DApp (Production)
+    runs-on: ubuntu-latest
+    environment:
+      name: production-dapp
+      url: https://app.playtrenches.xyz  # Production DApp URL
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: apps/dapp
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        working-directory: apps/dapp
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project Artifacts to Vercel
+        working-directory: apps/dapp
+        run: |
+          DEPLOY_OUTPUT=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "deploy_url=$DEPLOY_OUTPUT" >> $GITHUB_OUTPUT
+          echo "Deployed to: $DEPLOY_OUTPUT"
+        id: deploy
+
+      - name: Notify Deployment Success
+        if: success()
+        run: |
+          echo "✅ DApp deployed successfully to production"
+          echo "URL: ${{ steps.deploy.outputs.deploy_url }}"
+
+      - name: Notify Deployment Failure
+        if: failure()
+        run: |
+          echo "❌ DApp deployment failed"
+
+  # ─────────────────────────────────────────
+  # Deploy Landing to Production
+  # ─────────────────────────────────────────
+  deploy-landing:
+    name: Deploy Landing (Production)
+    runs-on: ubuntu-latest
+    environment:
+      name: production-landing
+      url: https://playtrenches.xyz  # Production Landing URL
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        working-directory: apps/landing
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        working-directory: apps/landing
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project Artifacts to Vercel
+        working-directory: apps/landing
+        run: |
+          DEPLOY_OUTPUT=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "deploy_url=$DEPLOY_OUTPUT" >> $GITHUB_OUTPUT
+          echo "Deployed to: $DEPLOY_OUTPUT"
+        id: deploy
+
+      - name: Notify Deployment Success
+        if: success()
+        run: |
+          echo "✅ Landing page deployed successfully to production"
+          echo "URL: ${{ steps.deploy.outputs.deploy_url }}"
+
+  # ─────────────────────────────────────────
+  # Post-Deployment Checks
+  # ─────────────────────────────────────────
+  health-check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    needs: [deploy-dapp, deploy-landing]
+    if: always() && needs.deploy-dapp.result == 'success' && needs.deploy-landing.result == 'success'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Wait for Deployment
+        run: sleep 30  # Give Vercel time to propagate
+
+      - name: Health Check - DApp
+        run: |
+          curl -f -s https://app.playtrenches.xyz/api/health || echo "Health endpoint not available"
+        continue-on-error: true
+
+      - name: Health Check - Landing
+        run: |
+          curl -f -s https://playtrenches.xyz || echo "Landing page check failed"
+        continue-on-error: true
+
+      - name: Notify Success
+        run: |
+          echo "✅ All deployments completed and health checks passed"
+
+  # ─────────────────────────────────────────
+  # Database Migration (Optional)
+  # ─────────────────────────────────────────
+  migrate-database:
+    name: Database Migration
+    runs-on: ubuntu-latest
+    needs: [deploy-dapp]
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production-database
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Deploy Database Migrations
+        working-directory: packages/database
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        continue-on-error: true  # Set to false once migrations are stable

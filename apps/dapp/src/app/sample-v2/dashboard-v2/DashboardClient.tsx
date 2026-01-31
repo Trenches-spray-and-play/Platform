@@ -6,7 +6,8 @@ import styles from "./page.module.css";
 import { useUser, usePositions, useInvalidateQueries } from "@/hooks/useQueries";
 import { useMutation } from "@tanstack/react-query";
 import { useUIStore } from "@/store/uiStore";
-import { UserPosition, User } from "@/lib/schemas";
+import GlobalModalManager from "../components/GlobalModalManager";
+import type { UserPosition, User } from "@/lib/types";
 
 
 
@@ -18,16 +19,19 @@ function formatHandle(handle: string | undefined): string {
 
 export default function DashboardClient({
     initialUser,
-    initialPositions
+    initialPositions,
+    campaigns = []
 }: {
     initialUser: User;
     initialPositions: UserPosition[];
+    campaigns?: any[];
 }) {
     // Use initialData to prevent duplicate fetches when SSR provides data
     const { data: user = initialUser } = useUser(initialUser);
     const { data: positions = initialPositions } = usePositions(initialPositions);
     const { invalidatePositions } = useInvalidateQueries();
     const addToast = useUIStore((state) => state.addToast);
+    const openModal = useUIStore((state) => state.openModal);
 
     const [copied, setCopied] = useState(false);
 
@@ -96,10 +100,13 @@ export default function DashboardClient({
                         <h1 className={styles.welcomeTitle}>{formatHandle(user?.handle)}</h1>
                     </div>
                     <div className={styles.welcomeActions}>
-                        <Link href="/sample-v2/spray" className={styles.sprayBtn}>
+                        <button 
+                            onClick={() => openModal('SPRAY', { campaigns, user })} 
+                            className={styles.sprayBtn}
+                        >
                             <span>◆</span>
                             Spray
-                        </Link>
+                        </button>
                         <Link href="/sample-v2/deposit" className={styles.depositBtn}>
                             <span>+</span>
                             Deposit
@@ -265,12 +272,17 @@ export default function DashboardClient({
                                             <label className={styles.toggleLabel}>
                                                 <input
                                                     type="checkbox"
-                                                    checked={pos.autoBoost || false}
-                                                    onChange={() => toggleAutoBoost(pos.id, pos.autoBoost || false)}
+                                                    checked={pos.autoBoostEnabled || false}
+                                                    onChange={() => toggleAutoBoost(pos.id, pos.autoBoostEnabled || false)}
                                                     disabled={toggleBoostMutation.isPending && toggleBoostMutation.variables?.positionId === pos.id}
                                                 />
                                                 <span className={styles.toggle} />
-                                                <span className={styles.toggleText}>Auto-Boost</span>
+                                                <span className={styles.toggleText}>
+                                                    Auto-Boost
+                                                    {pos.autoBoostEnabled && pos.autoBoostPaused && (
+                                                        <span className={styles.pausedBadge}>Paused</span>
+                                                    )}
+                                                </span>
                                             </label>
                                         </div>
                                     </div>
@@ -280,6 +292,9 @@ export default function DashboardClient({
                     )}
                 </div>
             </div>
+            
+            {/* Global Modal Manager */}
+            <GlobalModalManager campaigns={campaigns} user={user} />
         </div>
     );
 }

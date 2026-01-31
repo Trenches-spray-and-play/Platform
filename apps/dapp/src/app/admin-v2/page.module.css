@@ -204,6 +204,70 @@
   background: #9ca3af;
 }
 
+/* Error Banner */
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--danger-light, rgba(239, 68, 68, 0.1));
+  border: 1px solid var(--danger-border, rgba(239, 68, 68, 0.2));
+  border-radius: var(--radius-md, 10px);
+  color: var(--danger, #ef4444);
+}
+
+.errorIcon {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.errorMessage {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.retryButton {
+  padding: 0.5rem 1rem;
+  background: var(--danger, #ef4444);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.retryButton:hover {
+  opacity: 0.9;
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem;
+  color: var(--text-secondary, #a1a1aa);
+  font-size: 0.875rem;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-primary, rgba(255, 255, 255, 0.08));
+  border-top-color: var(--accent-primary, #22c55e);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .statsGrid {

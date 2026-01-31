@@ -1,0 +1,390 @@
+/* ========================================
+   ONBOARDING TUTORIAL - Design System v2.0
+   ======================================== */
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-modal);
+    padding: var(--space-4);
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal */
+.modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 520px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: var(--shadow-lg), 0 0 80px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Progress Bar */
+.progressBar {
+    height: 3px;
+    background: var(--bg-tertiary);
+    position: relative;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-primary), #4ade80);
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* Header */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 1px solid var(--border-secondary);
+}
+
+.stepIndicator {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.skipBtn {
+    padding: var(--space-1) var(--space-3);
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.skipBtn:hover {
+    color: var(--text-secondary);
+}
+
+/* Content */
+.content {
+    padding: var(--space-8) var(--space-6);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 320px;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.content.animating {
+    opacity: 0;
+}
+
+.content.animating.next {
+    transform: translateX(-20px);
+}
+
+.content.animating.prev {
+    transform: translateX(20px);
+}
+
+/* Icon */
+.iconWrapper {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--success-light), rgba(34, 197, 94, 0.05));
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-6);
+    animation: iconPulse 3s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.2);
+        transform: scale(1);
+    }
+    50% { 
+        box-shadow: 0 0 20px 5px rgba(34, 197, 94, 0.1);
+        transform: scale(1.02);
+    }
+}
+
+.icon {
+    font-size: 2rem;
+    color: var(--accent-primary);
+}
+
+/* Personalization */
+.personalization {
+    margin-bottom: var(--space-4);
+}
+
+.username {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4);
+    background: var(--success-light);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    font-family: var(--font-mono);
+}
+
+/* Title & Description */
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    margin: 0 0 var(--space-3) 0;
+}
+
+.description {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 var(--space-6) 0;
+    max-width: 400px;
+}
+
+/* Features List */
+.features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: 100%;
+    max-width: 320px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-align: left;
+    transition: var(--transition-fast);
+}
+
+.feature:hover {
+    border-color: var(--border-accent);
+    background: rgba(34, 197, 94, 0.03);
+}
+
+.featureIcon {
+    font-size: 0.625rem;
+    color: var(--accent-primary);
+    flex-shrink: 0;
+}
+
+/* Navigation */
+.navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--border-secondary);
+    background: var(--bg-tertiary);
+}
+
+.navBtn {
+    padding: var(--space-3) var(--space-4);
+    background: transparent;
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    min-width: 90px;
+}
+
+.navBtn:hover:not(:disabled) {
+    background: var(--bg-elevated);
+    border-color: var(--border-accent);
+    color: var(--text-primary);
+}
+
+.navBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.navBtn.primary {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: var(--bg-primary);
+}
+
+.navBtn.primary:hover {
+    background: var(--accent-primary-hover);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-1px);
+}
+
+/* Step Dots */
+.stepDots {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    background: var(--border-primary);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.dot:hover {
+    background: var(--border-accent);
+    transform: scale(1.2);
+}
+
+.dot.active {
+    background: var(--accent-primary);
+    box-shadow: 0 0 8px var(--accent-glow);
+    transform: scale(1.2);
+}
+
+.dot.completed {
+    background: var(--accent-primary);
+    opacity: 0.5;
+}
+
+/* Keyboard Hint */
+.keyboardHint {
+    text-align: center;
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    margin: 0;
+    padding: var(--space-2) var(--space-4) var(--space-4);
+    background: var(--bg-tertiary);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .modal {
+        max-width: 100%;
+        max-height: 90vh;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        animation: slideUpMobile 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes slideUpMobile {
+        from {
+            opacity: 0;
+            transform: translateY(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .header {
+        padding: var(--space-3) var(--space-5);
+    }
+
+    .content {
+        padding: var(--space-6) var(--space-5);
+        min-height: 280px;
+    }
+
+    .iconWrapper {
+        width: 64px;
+        height: 64px;
+        margin-bottom: var(--space-4);
+    }
+
+    .icon {
+        font-size: 1.5rem;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .description {
+        font-size: 0.9375rem;
+    }
+
+    .navigation {
+        padding: var(--space-3) var(--space-5);
+    }
+
+    .navBtn {
+        min-width: 70px;
+        padding: var(--space-2) var(--space-3);
+        font-size: 0.8125rem;
+    }
+
+    .keyboardHint {
+        display: none;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .overlay,
+    .modal,
+    .content,
+    .iconWrapper,
+    .progressFill {
+        animation: none;
+        transition: none;
+    }
+}

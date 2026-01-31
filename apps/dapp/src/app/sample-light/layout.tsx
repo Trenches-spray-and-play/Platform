@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "Simple, transparent crypto yields through time-locked deposits",
 };
 
+import Layout from "./components/Layout";
+
 export default function LightLayout({
   children,
 }: Readonly<{
@@ -14,7 +16,9 @@ export default function LightLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <Layout>
+          {children}
+        </Layout>
       </body>
     </html>
   );

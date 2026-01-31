@@ -1,9 +1,7 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useState, useEffect, useCallback, useRef } from "react";
-import Layout from "../components/Layout";
+export const dynamic = "force-dynamic";
 import styles from "./page.module.css";
 import QRCode from "qrcode";
 import { CheckDepositsButton } from "@/components/deposits/CheckDepositsButton";
@@ -402,7 +400,7 @@ export default function DepositPage() {
   const availableChains = getAvailableChainsForCoin(selectedCoin);
 
   return (
-    <Layout>
+    <>
       <div
         ref={pageRef}
         className={styles.page}
@@ -973,6 +971,6 @@ export default function DepositPage() {
         </div>
         <ComplianceDisclaimer variant="footer" />
       </div>
-    </Layout>
+    </>
   );
 }

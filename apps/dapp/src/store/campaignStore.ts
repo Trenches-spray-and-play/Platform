@@ -29,17 +29,20 @@ const initialFilters: CampaignFilters = {
     chain: [],
 };
 
-export const useCampaignStore = create<CampaignState>()(
-    devtools(
-        (set) => ({
-            selectedCampaign: null,
-            filters: initialFilters,
-            setSelectedCampaign: (campaign) => set({ selectedCampaign: campaign }, false, 'setSelectedCampaign'),
-            setFilters: (newFilters) => set((state) => ({
-                filters: { ...state.filters, ...newFilters }
-            }), false, 'setFilters'),
-            resetFilters: () => set({ filters: initialFilters }, false, 'resetFilters'),
-        }),
-        { name: 'Campaign Store' }
-    )
-);
+// Base store configuration
+const storeConfig = (set: any) => ({
+    selectedCampaign: null as Campaign | null,
+    filters: initialFilters,
+    setSelectedCampaign: (campaign: Campaign | null) => set({ selectedCampaign: campaign }, false, 'setSelectedCampaign'),
+    setFilters: (newFilters: Partial<CampaignFilters>) => set((state: CampaignState) => ({
+        filters: { ...state.filters, ...newFilters }
+    }), false, 'setFilters'),
+    resetFilters: () => set({ filters: initialFilters }, false, 'resetFilters'),
+});
+
+// Create store based on environment
+const isDev = process.env.NODE_ENV === 'development';
+
+export const useCampaignStore = isDev
+    ? create<CampaignState>()(devtools(storeConfig, { name: 'Campaign Store' }))
+    : create<CampaignState>()(storeConfig);

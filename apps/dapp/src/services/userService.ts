@@ -153,20 +153,31 @@ export async function getUserPositions(userId: string) {
             orderBy: { joinedAt: 'desc' },
         });
         
+        // DEBUG: Log participant autoBoost fields
+        console.log('[DEBUG] Participants autoBoost fields:', participants.map(p => ({ 
+            id: p.id, 
+            autoBoostEnabled: p.autoBoostEnabled, 
+            autoBoostPaused: p.autoBoostPaused 
+        })));
+        
         // DEBUG LOGGING
         console.log('[DEBUG] getUserPositions - All participants count:', participants.length);
         console.log('[DEBUG] getUserPositions - Participants:', participants.map(p => ({ id: p.id, trenchId: p.trenchId, status: p.status })));
 
-        // Filter participants to only include those in visible campaigns
-        // DEBUG: Temporarily disable filtering to see all participants
-        const visibleParticipants = visibleTrenchIds.size > 0 
-            ? participants.filter(p => visibleTrenchIds.has(p.trenchId))
+        // Filter participants by trench LEVEL (not trenchId)
+        // Note: campaign.trenchIds contains LEVEL names ('rapid', 'mid', 'deep')
+        // participant.trenchId is a UUID, but participant.trench.level matches
+        const visibleTrenchLevels = visibleTrenchIds; // This contains levels like 'deep', 'rapid'
+        
+        const visibleParticipants = visibleTrenchLevels.size > 0 
+            ? participants.filter(p => p.trench?.level && visibleTrenchLevels.has(p.trench.level.toLowerCase()))
             : participants; // If no visible campaigns, show all (for debugging)
         
         // DEBUG LOGGING
-        console.log('[DEBUG] getUserPositions - Visible trench IDs count:', visibleTrenchIds.size);
+        console.log('[DEBUG] getUserPositions - Visible trench LEVELS count:', visibleTrenchLevels.size);
         console.log('[DEBUG] getUserPositions - Visible participants count:', visibleParticipants.length);
         console.log('[DEBUG] getUserPositions - Filtered out count:', participants.length - visibleParticipants.length);
+        console.log('[DEBUG] getUserPositions - Sample participant trench level:', participants[0]?.trench?.level);
 
         // 2. Fetch Waitlist Entries (Enlisted & Secured) - only for non-hidden campaigns
         const waitlistEntries = await prisma.campaignWaitlist.findMany({
@@ -249,6 +260,8 @@ export async function getUserPositions(userId: string) {
                 },
                 formattedCountdown: formattedTime,
                 payoutTxHash: p.payoutTxHash,
+                autoBoostEnabled: p.autoBoostEnabled,
+                autoBoostPaused: p.autoBoostPaused,
             };
         });
 
