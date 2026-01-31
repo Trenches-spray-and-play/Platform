@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+export const dynamic = "force-dynamic";
 import "./globals.css";
 import "./globals.mobile.css";
 import ErrorBoundary from "./components/ErrorBoundary";

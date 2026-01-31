@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 import { useTasks, useRaids, useContentCampaigns, useSubmissions, useSubmitContent } from "@/hooks/useQueries";
 import Layout from "../components/Layout";

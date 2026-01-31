@@ -1,5 +1,7 @@
 import { cookies } from 'next/headers';
 import Layout from "../components/Layout";
+
+export const dynamic = "force-dynamic";
 import DashboardClient from "./DashboardClient";
 import Link from "next/link";
 import styles from "./page.module.css";

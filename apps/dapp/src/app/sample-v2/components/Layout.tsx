@@ -1,11 +1,13 @@
 import LayoutClient from "./LayoutClient";
 
+export const dynamic = "force-dynamic";
+
 async function getUser() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     // Use Next.js caching to prevent duplicate requests
     // Data is cached for 60 seconds and reused across renders
-    const res = await fetch(`${baseUrl}/api/user`, { 
+    const res = await fetch(`${baseUrl}/api/user`, {
       next: { revalidate: 60 }
     });
     const data = await res.json();
