@@ -6,32 +6,8 @@ import styles from "./page.module.css";
 import { useUser, usePositions, useInvalidateQueries } from "@/hooks/useQueries";
 import { useMutation } from "@tanstack/react-query";
 import { useUIStore } from "@/store/uiStore";
+import { Position, User } from "@/lib/schemas";
 
-interface Position {
-    id: string;
-    type: "active" | "secured" | "enlisted";
-    trenchLevel: string;
-    status: string;
-    campaignName?: string;
-    entryAmount?: number;
-    maxPayout?: number;
-    roiMultiplier?: number;
-    remainingTime?: { days: number; hours: number; minutes: number; isReady: boolean };
-    queueNumber?: number | null;
-    autoBoost?: boolean;
-}
-
-interface UserProfile {
-    id: string;
-    handle: string;
-    referralCode?: string;
-    beliefScore: number;
-    boostPoints: number;
-    balance: string;
-    walletEvm?: string;
-    walletSol?: string;
-    stats?: { referrals: number };
-}
 
 
 // Helper to format handle without double @
@@ -44,7 +20,7 @@ export default function DashboardClient({
     initialUser,
     initialPositions
 }: {
-    initialUser: UserProfile;
+    initialUser: User;
     initialPositions: Position[];
 }) {
     // Use initialData to prevent duplicate fetches when SSR provides data
@@ -110,7 +86,7 @@ export default function DashboardClient({
                 <div className={styles.welcomeSection}>
                     <div className={styles.welcomeContent}>
                         <span className={styles.welcomeLabel}>Welcome back</span>
-                        <h1 className={styles.welcomeTitle}>{formatHandle(user.handle)}</h1>
+                        <h1 className={styles.welcomeTitle}>{formatHandle(user?.handle)}</h1>
                     </div>
                     <div className={styles.welcomeActions}>
                         <Link href="/sample-v2/spray" className={styles.sprayBtn}>
@@ -129,7 +105,7 @@ export default function DashboardClient({
                     <div className={styles.balanceMain}>
                         <div className={styles.balanceInfo}>
                             <span className={styles.balanceLabel}>Platform Balance</span>
-                            <span className={styles.balanceValue}>${parseFloat(user.balance || "0").toFixed(2)}</span>
+                            <span className={styles.balanceValue}>${parseFloat(user?.balance || "0").toFixed(2)}</span>
                         </div>
                     </div>
                     <div className={styles.balanceStats}>
@@ -158,7 +134,7 @@ export default function DashboardClient({
                         </div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Belief Score</span>
-                            <span className={styles.statValue}>{user.beliefScore || 0}</span>
+                            <span className={styles.statValue}>{user?.beliefScore || 0}</span>
                         </div>
                     </div>
                     <div className={styles.statCard}>
@@ -167,7 +143,7 @@ export default function DashboardClient({
                         </div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Boost Points</span>
-                            <span className={`${styles.statValue} ${styles.boostValue}`}>{user.boostPoints || 0}</span>
+                            <span className={`${styles.statValue} ${styles.boostValue}`}>{user?.boostPoints || 0}</span>
                         </div>
                     </div>
                     <div className={styles.statCard}>
@@ -176,7 +152,7 @@ export default function DashboardClient({
                         </div>
                         <div className={styles.statInfo}>
                             <span className={styles.statLabel}>Referrals</span>
-                            <span className={styles.statValue}>{user.stats?.referrals || 0}</span>
+                            <span className={styles.statValue}>{user?.stats?.referrals || 0}</span>
                         </div>
                     </div>
                     <div className={styles.statCard}>
@@ -199,7 +175,7 @@ export default function DashboardClient({
                         </div>
                         <p className={styles.referralDesc}>Earn 10% of referrals&apos; Belief Points forever</p>
                         <div className={styles.referralCodeBox}>
-                            <code className={styles.referralCode}>playtrenches.xyz/ref/{user.referralCode || "..."}</code>
+                            <code className={styles.referralCode}>playtrenches.xyz/ref/{user?.referralCode || "..."}</code>
                             <button className={styles.copyBtn} onClick={handleCopyReferral}>
                                 {copied ? "Copied" : "Copy"}
                             </button>

@@ -8,13 +8,9 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import { useUser } from "@/hooks/useQueries";
 import { useUIStore } from "@/store/uiStore";
 import { useAuthStore } from "@/store/authStore";
+import { useRealtimeStatus } from "@/hooks/useRealtimeStatus";
+import { User } from "@/lib/schemas";
 
-interface User {
-    id: string;
-    handle: string;
-    beliefScore: number;
-    balance: string;
-}
 
 interface LayoutClientProps {
     children: React.ReactNode;
@@ -30,8 +26,10 @@ const navItems = [
 
 export default function LayoutClient({ children, initialUser }: LayoutClientProps) {
     const pathname = usePathname();
-    // Use initialData to prevent duplicate fetch when SSR provides data
-    const { data: user } = useUser(initialUser);
+    const { data: user } = useUser(initialUser as any);
+
+    // Start real-time notification listener
+    useRealtimeStatus(user?.id);
     const setUser = useAuthStore((state) => state.setUser);
 
     // UI Store states

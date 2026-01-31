@@ -6,87 +6,51 @@ import Link from "next/link";
 import Layout from "../../components/Layout";
 import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
-
-interface Campaign {
-  id: string;
-  name: string;
-  tokenSymbol: string;
-  tokenAddress: string;
-  tokenDecimals: number;
-  chainId: number;
-  chainName: string;
-  roiMultiplier: string;
-  reserveCachedBalance: string | null;
-  trenchIds: string[];
-  phase?: "WAITLIST" | "ACCEPTING" | "LIVE" | "PAUSED";
-  startsAt?: string | null;
-  isPaused?: boolean;
-  participantCount?: number;
-  isActive: boolean;
-  currentPrice?: string;
-  endPrice?: string;
-}
-
-interface User {
-  id: string;
-  handle: string;
-  balance: string;
-}
+import { useUser, useCampaign, useApplySpray } from "@/hooks/useQueries";
+import { useUIStore } from "@/store/uiStore";
+import { SprayRequestSchema } from "@/lib/schemas";
+import { validateOrToast } from "@/lib/validation";
 
 export default function CampaignDetailPage() {
   const params = useParams();
-  const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const campaignId = params.id as string;
+
+  const { data: campaign, isLoading: isLoadingCampaign } = useCampaign(campaignId);
+  const { data: user } = useUser();
+  const sprayMutation = useApplySpray();
+  const addToast = useUIStore((state) => state.addToast);
+
   const [amount, setAmount] = useState("");
   const [useAutoBoost, setUseAutoBoost] = useState(false);
-  const [status, setStatus] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  useEffect(() => {
-    fetchCampaign();
-    fetchUser();
-  }, [params.id]);
+  const handleSpraySubmit = async () => {
+    const amountNum = parseFloat(amount);
 
-  useEffect(() => {
-    if (status) {
-      const timer = setTimeout(() => setStatus(null), 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [status]);
+    const payload = validateOrToast(SprayRequestSchema, {
+      trenchId: campaignId,
+      amount: amountNum,
+      level: (campaign as any)?.level || (campaign?.trenchIds.includes("RAPID") ? "RAPID" :
+        campaign?.trenchIds.includes("MID") ? "MID" : "DEEP"),
+      useAutoBoost,
+    });
 
-  const fetchUser = async () => {
+    if (!payload || !campaign || sprayMutation.isPending) return;
+
+    addToast('Processing entry...', 'info');
+
     try {
-      const res = await fetch("/api/user");
-      const data = await res.json();
-      if (data.data) setUser(data.data);
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
-    }
-  };
-
-  const fetchCampaign = async () => {
-    try {
-      const res = await fetch("/api/trenches");
-      const data = await res.json();
-      
-      if (data.data) {
-        const allCampaigns = data.data.flatMap((g: any) => 
-          g.campaigns.map((c: any) => ({ ...c, entryRange: g.entryRange }))
-        );
-        const found = allCampaigns.find((c: any) => c.id === params.id);
-        setCampaign(found || null);
+      const result = await sprayMutation.mutateAsync(payload);
+      addToast(`Entry confirmed! Queue position #${result.queuePosition}`, 'success');
+      setAmount("");
+    } catch (error: any) {
+      console.error("Spray error:", error);
+      if (error.type === "TASKS_REQUIRED") {
+        addToast(`Please complete ${error.remaining} more tasks first`, 'error');
+        setTimeout(() => window.location.href = "/sample-v2/earn-v2", 1500);
+      } else {
+        addToast(error.message || 'Entry failed', 'error');
       }
-    } catch (error) {
-      console.error("Failed to fetch campaign:", error);
-      setStatus({ message: 'FAILED_TO_LOAD_CAMPAIGN', type: 'error' });
     }
-  };
-
-  const getLevelFromTrenchIds = (ids: string[]) => {
-    if (ids.includes("RAPID")) return "RAPID";
-    if (ids.includes("MID")) return "MID";
-    if (ids.includes("DEEP")) return "DEEP";
-    return "RAPID";
   };
 
   const getLevelColor = (level: string) => {
@@ -98,82 +62,19 @@ export default function CampaignDetailPage() {
     }
   };
 
-  const handleSpraySubmit = async () => {
-    const amountNum = parseFloat(amount);
-    if (!campaign || isSubmitting || !amountNum || amountNum <= 0) return;
-    
-    setIsSubmitting(true);
-    setStatus({ message: 'PROCESSING_ENTRY...', type: 'info' });
-    
-    try {
-      const level = getLevelFromTrenchIds(campaign.trenchIds);
-      
-      // Step 1: Create spray entry
-      const sprayRes = await fetch("/api/spray", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          trenchId: campaign.id,
-          amount: amountNum,
-          level: level,
-        }),
-      });
-
-      const sprayData = await sprayRes.json();
-
-      if (!sprayRes.ok) {
-        throw new Error(sprayData.error || "Failed to create spray entry");
-      }
-
-      // Step 2: Finalize the spray entry
-      const finalizeRes = await fetch("/api/spray/finalize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sprayEntryId: sprayData.data.sprayEntryId,
-        }),
-      });
-
-      const finalizeData = await finalizeRes.json();
-
-      if (!finalizeRes.ok) {
-        if (finalizeData.remainingTasks) {
-          setStatus({ message: `COMPLETE_${finalizeData.remainingTasks}_TASKS_FIRST`, type: 'error' });
-          setTimeout(() => window.location.href = "/sample-v2/earn-v2", 1500);
-          return;
-        }
-        throw new Error(finalizeData.error || "Failed to finalize entry");
-      }
-
-      // Step 3: Enable auto-boost if requested
-      if (useAutoBoost && finalizeData.data?.participantId) {
-        try {
-          await fetch(`/api/user/positions/${finalizeData.data.participantId}/auto-boost`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ enabled: true }),
-          });
-        } catch (e) {
-          console.error("Failed to enable auto-boost:", e);
-        }
-      }
-
-      setStatus({ 
-        message: `ENTRY_CONFIRMED_QUEUE_#${finalizeData.data.queuePosition}`, 
-        type: 'success' 
-      });
-      setAmount("");
-      fetchUser();
-      
-    } catch (error: any) {
-      console.error("Spray error:", error);
-      setStatus({ message: error.message?.toUpperCase()?.replace(/\s/g, '_') || 'ENTRY_FAILED', type: 'error' });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const userBalance = parseFloat(user?.balance || "0");
+
+  if (isLoadingCampaign) {
+    return (
+      <Layout>
+        <div className={styles.page}>
+          <div className={styles.container}>
+            <div className={styles.loading}>LOADING_CAMPAIGN_DATA...</div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!campaign) {
     return (
@@ -194,45 +95,35 @@ export default function CampaignDetailPage() {
     );
   }
 
-  const level = getLevelFromTrenchIds(campaign.trenchIds);
+  const level = (campaign as any).level || (campaign.trenchIds.includes("RAPID") ? "RAPID" :
+    campaign.trenchIds.includes("MID") ? "MID" : "DEEP");
   const roi = parseFloat(campaign.roiMultiplier) || 1.5;
-  const minEntry = level === "RAPID" ? 5 : level === "MID" ? 100 : 1000;
-  const maxEntry = level === "RAPID" ? 1000 : level === "MID" ? 10000 : 100000;
+  const minEntry = (campaign as any).entryRange?.min || (level === "RAPID" ? 5 : level === "MID" ? 100 : 1000);
+  const maxEntry = (campaign as any).entryRange?.max || (level === "RAPID" ? 1000 : level === "MID" ? 10000 : 100000);
   const waitTime = level === "RAPID" ? "1-3 days" : level === "MID" ? "7-14 days" : "30-60 days";
   const amountNum = parseFloat(amount) || 0;
   const isValidAmount = amountNum >= minEntry && amountNum <= maxEntry && amountNum <= userBalance;
+  const isSubmitting = sprayMutation.isPending;
 
   return (
     <Layout>
       <div className={styles.page}>
         <div className={styles.container}>
-          {/* Status Banner */}
-          {status && (
-            <div className={`${styles.statusBanner} ${styles[status.type]}`}>
-              <span className={styles.statusIcon}>
-                {status.type === 'success' ? '✓' : status.type === 'error' ? '✕' : '◈'}
-              </span>
-              {status.message}
-            </div>
-          )}
-
-          {/* Breadcrumb */}
           <nav className={styles.breadcrumb} aria-label="Breadcrumb">
             <Link href="/sample-v2">Campaigns</Link>
             <span>/</span>
             <span aria-current="page">{campaign.name}</span>
           </nav>
 
-          {/* Campaign Header */}
           <div className={styles.header}>
             <div className={styles.headerContent}>
               <div className={styles.badgeRow}>
                 <span className={`${styles.levelBadge} ${getLevelColor(level)}`}>
                   {level} TRENCH
                 </span>
-                {campaign.isPaused ? (
+                {(campaign as any).isPaused ? (
                   <span className={styles.pausedBadge}>Paused</span>
-                ) : campaign.phase === "LIVE" ? (
+                ) : (campaign as any).phase === "LIVE" ? (
                   <span className={styles.liveBadge}>
                     <span className={styles.liveDot} />
                     Live
@@ -254,11 +145,8 @@ export default function CampaignDetailPage() {
             </div>
           </div>
 
-          {/* Main Grid */}
           <div className={styles.grid}>
-            {/* Left Column - Info */}
             <div className={styles.infoColumn}>
-              {/* Stats Cards */}
               <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
                   <span className={styles.statLabel}>ROI Multiplier</span>
@@ -270,20 +158,19 @@ export default function CampaignDetailPage() {
                 </div>
                 <div className={styles.statCard}>
                   <span className={styles.statLabel}>Reserves</span>
-                  <span className={styles.statValue}>{campaign.reserveCachedBalance || "0"}</span>
+                  <span className={styles.statValue}>{(campaign as any).reserveCachedBalance || "0"}</span>
                 </div>
                 <div className={styles.statCard}>
                   <span className={styles.statLabel}>Participants</span>
-                  <span className={styles.statValue}>{campaign.participantCount || 0}</span>
+                  <span className={styles.statValue}>{(campaign as any).participantCount || 0}</span>
                 </div>
               </div>
 
-              {/* About Section */}
               <div className={styles.section}>
                 <h2>About This Campaign</h2>
                 <p>
-                  This is a {level.toLowerCase()} trench campaign with a {roi.toFixed(1)}x ROI multiplier. 
-                  Deposit your tokens and wait for the payout cycle to complete. 
+                  This is a {level.toLowerCase()} trench campaign with a {roi.toFixed(1)}x ROI multiplier.
+                  Deposit your tokens and wait for the payout cycle to complete.
                   Complete tasks and raids to earn Boost Points that reduce your wait time.
                 </p>
                 <div className={styles.infoList}>
@@ -306,7 +193,6 @@ export default function CampaignDetailPage() {
                 </div>
               </div>
 
-              {/* Entry Requirements */}
               <div className={styles.section}>
                 <h2>Entry Requirements</h2>
                 <div className={styles.requirements}>
@@ -330,7 +216,6 @@ export default function CampaignDetailPage() {
               </div>
             </div>
 
-            {/* Right Column - Entry Form */}
             <div className={styles.depositColumn}>
               <div className={styles.depositCard}>
                 <h3>// ENTER_CAMPAIGN</h3>
@@ -359,8 +244,7 @@ export default function CampaignDetailPage() {
                       <span className={styles.balanceLabel}>AVAILABLE_BALANCE</span>
                       <strong className={styles.balanceAmount}>${userBalance.toFixed(2)} USDC</strong>
                     </div>
-                    
-                    {/* Amount Input */}
+
                     <div className={styles.inputGroup}>
                       <label className={styles.inputLabel}>ENTRY_AMOUNT (USDC)</label>
                       <div className={styles.inputWrapper}>
@@ -374,7 +258,7 @@ export default function CampaignDetailPage() {
                           max={maxEntry}
                           step="0.01"
                           className={styles.input}
-                          disabled={isSubmitting || campaign.isPaused}
+                          disabled={isSubmitting || (campaign as any).isPaused}
                         />
                       </div>
                       <div className={styles.inputMeta}>
@@ -383,7 +267,6 @@ export default function CampaignDetailPage() {
                       </div>
                     </div>
 
-                    {/* Auto-Boost Toggle */}
                     <div className={styles.autoBoostSection}>
                       <label className={styles.toggleRow}>
                         <input
@@ -400,7 +283,6 @@ export default function CampaignDetailPage() {
                       </label>
                     </div>
 
-                    {/* Projections */}
                     {amountNum > 0 && (
                       <div className={styles.projection}>
                         <div className={styles.projectionRow}>
@@ -422,9 +304,9 @@ export default function CampaignDetailPage() {
                     <button
                       className={styles.enterBtn}
                       onClick={handleSpraySubmit}
-                      disabled={!isValidAmount || campaign.isPaused || isSubmitting}
+                      disabled={!isValidAmount || (campaign as any).isPaused || isSubmitting}
                     >
-                      {isSubmitting ? "PROCESSING..." : campaign.isPaused ? "CAMPAIGN_PAUSED" : "CONFIRM_ENTRY"}
+                      {isSubmitting ? "PROCESSING..." : (campaign as any).isPaused ? "CAMPAIGN_PAUSED" : "CONFIRM_ENTRY"}
                     </button>
 
                     <div className={styles.entryNote}>
@@ -435,7 +317,6 @@ export default function CampaignDetailPage() {
                 )}
               </div>
 
-              {/* Quick Stats */}
               <div className={styles.quickStats}>
                 <div className={styles.quickStat}>
                   <span>YOUR_POTENTIAL_ROI</span>
@@ -447,7 +328,6 @@ export default function CampaignDetailPage() {
                 </div>
               </div>
 
-              {/* Compliance Disclaimer */}
               <ComplianceDisclaimer variant="footer" />
             </div>
           </div>

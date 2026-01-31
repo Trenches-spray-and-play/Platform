@@ -5,7 +5,7 @@ import { useUIStore } from '@/store/uiStore';
  * Formats a ZodError into a readable string or array of strings.
  */
 export function formatZodError(error: ZodError): string {
-    return error.errors
+    return error.issues
         .map((e) => {
             const field = e.path.join('.');
             return `${field ? `${field}: ` : ''}${e.message}`;

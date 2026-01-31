@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Campaign, CampaignSchema, UserSchema } from "@/lib/schemas";
+import { Campaign, CampaignSchema, UserSchema, Position, PositionSchema } from "@/lib/schemas";
 import { validateApiResponse } from "@/lib/validation";
 import { z } from "zod";
 
@@ -25,19 +25,6 @@ export const queryKeys = {
 };
 
 
-interface Position {
-    id: string;
-    type: "active" | "secured" | "enlisted";
-    trenchId?: string;
-    trenchName?: string;
-    trenchLevel?: string;
-    status: string;
-    joinedAt: string;
-    entryAmount?: number;
-    maxPayout?: number;
-    expectedPayoutAt?: string;
-    formattedCountdown?: string;
-}
 
 // ============================================
 // Fetchers
@@ -49,9 +36,7 @@ async function fetchUser(): Promise<User | null> {
 
 async function fetchPositions(): Promise<Position[]> {
     const res = await fetch("/api/user/positions");
-    if (!res.ok) throw new Error("Failed to fetch positions");
-    const data = await res.json();
-    return data.data || [];
+    return validateApiResponse(z.array(PositionSchema), res).then(data => data || []);
 }
 
 async function fetchCampaigns(): Promise<Campaign[]> {

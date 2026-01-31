@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Layout from "../components/Layout";
 import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
+import { useUser, useUpdateUser } from "@/hooks/useQueries";
 
 interface UserWallets {
   wallet: string | null;
@@ -14,9 +15,9 @@ interface UserWallets {
 // Info Tooltip Component
 function InfoTooltip({ content }: { content: string }) {
   const [show, setShow] = useState(false);
-  
+
   return (
-    <span 
+    <span
       className={styles.infoIcon}
       onMouseEnter={() => setShow(true)}
       onMouseLeave={() => setShow(false)}
@@ -30,87 +31,42 @@ function InfoTooltip({ content }: { content: string }) {
   );
 }
 
+import { useUIStore } from "@/store/uiStore";
+import { UserUpdateSchema } from "@/lib/schemas";
+import { validateOrToast } from "@/lib/validation";
+
 export default function WalletPage() {
-  const [wallets, setWallets] = useState<UserWallets>({
-    wallet: null,
-    walletEvm: null,
-    walletSol: null,
-  });
+  const { data: user } = useUser();
+  const updateMutation = useUpdateUser();
+  const addToast = useUIStore((state) => state.addToast);
+
   const [evmInput, setEvmInput] = useState("");
   const [solInput, setSolInput] = useState("");
 
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-
-  useEffect(() => {
-    fetchWallets();
-  }, []);
-
-  const fetchWallets = async () => {
-    try {
-      const res = await fetch("/api/user");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.data) {
-          setWallets({
-            wallet: data.data.wallet,
-            walletEvm: data.data.walletEvm,
-            walletSol: data.data.walletSol,
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch wallets:", error);
-    }
+  const wallets = {
+    walletEvm: user?.walletEvm || null,
+    walletSol: user?.walletSol || null,
   };
 
   const saveWallets = async () => {
-    setSaving(true);
-    setMessage(null);
-
     try {
-      const updateData: Partial<UserWallets> = {};
-      
-      if (evmInput.trim()) {
-        if (!evmInput.startsWith("0x") || evmInput.length !== 42) {
-          setMessage({ type: "error", text: "Invalid EVM address format" });
-          setSaving(false);
-          return;
-        }
-        updateData.walletEvm = evmInput.toLowerCase();
-        updateData.wallet = evmInput.toLowerCase();
-      }
+      const updateData: any = {};
+      if (evmInput.trim()) updateData.walletEvm = evmInput.toLowerCase();
+      if (solInput.trim()) updateData.walletSol = solInput;
 
-      if (solInput.trim()) {
-        if (solInput.length < 32 || solInput.length > 44 || solInput.startsWith("0x")) {
-          setMessage({ type: "error", text: "Invalid Solana address" });
-          setSaving(false);
-          return;
-        }
-        updateData.walletSol = solInput;
-      }
+      const payload = validateOrToast(UserUpdateSchema, updateData);
+      if (!payload) return;
 
-      const res = await fetch("/api/user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updateData),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          setWallets(data.data);
-          setEvmInput("");
-          setSolInput("");
-          setMessage({ type: "success", text: "Wallets updated!" });
-        }
+      const result = await updateMutation.mutateAsync(payload);
+      if (result.success) {
+        setEvmInput("");
+        setSolInput("");
+        addToast("Wallets updated successfully!", "success");
       } else {
-        setMessage({ type: "error", text: "Failed to update" });
+        addToast("Failed to update wallets", "error");
       }
     } catch (error) {
-      setMessage({ type: "error", text: "An error occurred" });
-    } finally {
-      setSaving(false);
+      addToast("An error occurred while saving", "error");
     }
   };
 
@@ -135,7 +91,7 @@ export default function WalletPage() {
               <h2>Your Addresses</h2>
               <InfoTooltip content="These wallets receive your campaign payouts. Make sure you control them - payouts cannot be reversed." />
             </div>
-            
+
             <div className={styles.walletCards}>
               <div className={styles.walletCard}>
                 <div className={styles.walletHeader}>
@@ -143,11 +99,11 @@ export default function WalletPage() {
                   <span className={styles.walletType}>EVM</span>
                 </div>
                 <div className={styles.walletAddress}>
-                  {shortenAddress(wallets.walletEvm || wallets.wallet)}
+                  {shortenAddress(wallets.walletEvm)}
                 </div>
-                {(wallets.walletEvm || wallets.wallet) && (
+                {wallets.walletEvm && (
                   <div className={styles.walletFull}>
-                    {wallets.walletEvm || wallets.wallet}
+                    {wallets.walletEvm}
                   </div>
                 )}
               </div>
@@ -174,12 +130,7 @@ export default function WalletPage() {
             <div className={styles.sectionHeader}>
               <h2>Update Addresses</h2>
             </div>
-            
-            {message && (
-              <div className={`${styles.message} ${styles[message.type]}`}>
-                {message.text}
-              </div>
-            )}
+
 
             <div className={styles.form}>
               <div className={styles.inputGroup}>
@@ -195,7 +146,7 @@ export default function WalletPage() {
                   className={styles.input}
                 />
                 <span className={styles.inputHelp}>
-                  Current: {shortenAddress(wallets.walletEvm || wallets.wallet)}
+                  Current: {shortenAddress(wallets.walletEvm)}
                 </span>
               </div>
 
@@ -219,9 +170,9 @@ export default function WalletPage() {
               <button
                 className={styles.saveBtn}
                 onClick={saveWallets}
-                disabled={saving || (!evmInput.trim() && !solInput.trim())}
+                disabled={updateMutation.isPending || (!evmInput.trim() && !solInput.trim())}
               >
-                {saving ? "Saving..." : "Save Addresses"}
+                {updateMutation.isPending ? "Saving..." : "Save Addresses"}
               </button>
             </div>
           </section>

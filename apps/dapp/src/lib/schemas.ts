@@ -34,9 +34,10 @@ export const UserSchema = z.object({
     balance: z.string(),
     beliefScore: z.number().optional(),
     boostPoints: z.number().optional(),
-    stat: z.object({ referrals: z.number() }).optional(),
+    stats: z.object({ referrals: z.number() }).optional(),
     walletEvm: z.string().nullable().optional(),
     walletSol: z.string().nullable().optional(),
+    referralCode: z.string().optional(),
 });
 
 // Spray Request Schema
@@ -54,6 +55,31 @@ export const UserUpdateSchema = z.object({
     walletSol: z.string().min(32).max(44).optional(),
 });
 
+// Position Schema
+export const PositionSchema = z.object({
+    id: z.string(),
+    type: z.enum(['active', 'secured', 'enlisted']),
+    trenchId: z.string().optional(),
+    trenchName: z.string().optional(),
+    trenchLevel: z.string().optional(),
+    status: z.string(),
+    joinedAt: z.string().optional(), // Made optional to fix build error
+    entryAmount: z.number().optional(),
+    maxPayout: z.number().optional(),
+    roiMultiplier: z.number().optional(),
+    expectedPayoutAt: z.string().optional(),
+    formattedCountdown: z.string().optional(),
+    remainingTime: z.object({
+        days: z.number(),
+        hours: z.number(),
+        minutes: z.number(),
+        isReady: z.boolean(),
+    }).optional(),
+    queueNumber: z.number().nullable().optional(),
+    autoBoost: z.boolean().optional(),
+    campaignName: z.string().optional(),
+});
+
 // Generic API Response Wrapper
 export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
     z.object({
@@ -64,5 +90,7 @@ export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
 
 // Types exported for convenience
 export type Campaign = z.infer<typeof CampaignSchema>;
+export type User = z.infer<typeof UserSchema>;
+export type Position = z.infer<typeof PositionSchema>;
 export type SprayRequest = z.infer<typeof SprayRequestSchema>;
 export type UserUpdate = z.infer<typeof UserUpdateSchema>;

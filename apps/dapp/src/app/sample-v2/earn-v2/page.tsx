@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useTasks, useRaids, useContentCampaigns, useSubmissions, useSubmitContent } from "@/hooks/useQueries";
 import Layout from "../components/Layout";
 import { ComplianceDisclaimer } from "@trenches/ui";
 import styles from "./page.module.css";
+import { useUIStore } from "@/store/uiStore";
 
 interface Task {
   id: string;
@@ -49,79 +51,16 @@ interface ContentSubmission {
 }
 
 export default function EarnPage() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [raids, setRaids] = useState<Raid[]>([]);
-  const [contentCampaigns, setContentCampaigns] = useState<ContentCampaign[]>([]);
-  const [mySubmissions, setMySubmissions] = useState<ContentSubmission[]>([]);
+  const { data: tasks = [] } = useTasks();
+  const { data: raids = [] } = useRaids();
+  const { data: contentCampaigns = [] } = useContentCampaigns();
+  const { data: mySubmissions = [] } = useSubmissions();
+  const openModal = useUIStore((state) => state.openModal);
+
   const [activeTab, setActiveTab] = useState<"tasks" | "raids" | "content">("tasks");
 
-  const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [selectedCampaign, setSelectedCampaign] = useState<ContentCampaign | null>(null);
-  const [submitUrl, setSubmitUrl] = useState("");
-  const [submitPlatform, setSubmitPlatform] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const [tasksRes, raidsRes, contentRes, submissionsRes] = await Promise.all([
-        fetch("/api/tasks"),
-        fetch("/api/raids"),
-        fetch("/api/content-campaigns"),
-        fetch("/api/user/content-submissions"),
-      ]);
-
-      const tasksData = await tasksRes.json();
-      const raidsData = await raidsRes.json();
-      const contentData = await contentRes.json();
-      const submissionsData = await submissionsRes.json();
-
-      if (tasksData.data) setTasks(tasksData.data);
-      if (raidsData.data) setRaids(raidsData.data);
-      if (contentData.data) setContentCampaigns(contentData.data);
-      if (submissionsData.data) setMySubmissions(submissionsData.data);
-    } catch (error) {
-      console.error("Failed to fetch earn data:", error);
-    }
-  };
-
-  const handleSubmitContent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedCampaign || !submitUrl || !submitPlatform) return;
-
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/user/content-submissions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          campaignId: selectedCampaign.id,
-          url: submitUrl,
-          platform: submitPlatform,
-        }),
-      });
-
-      if (res.ok) {
-        setShowSubmitModal(false);
-        setSubmitUrl("");
-        setSubmitPlatform("");
-        setSelectedCampaign(null);
-        fetchData(); // Refresh submissions
-      }
-    } catch (error) {
-      console.error("Failed to submit content:", error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const openSubmitModal = (campaign: ContentCampaign) => {
-    setSelectedCampaign(campaign);
-    setSubmitPlatform(campaign.platforms[0] || "");
-    setShowSubmitModal(true);
+  const openSubmitModal = (campaign: any) => {
+    openModal('SUBMIT_CONTENT', campaign);
   };
 
   const oneTimeTasks = tasks.filter((t) => t.taskType === "ONE_TIME" && t.isActive);
@@ -143,14 +82,14 @@ export default function EarnPage() {
           {/* Tabs */}
           <div className={styles.tabs}>
             <button
-              className={`${styles.tab} ${activeTab === "tasks" ? styles.active : ""}`}
+              className={`${styles.tab} ${activeTab === "tasks" ? styles.active : ""} `}
               onClick={() => setActiveTab("tasks")}
             >
               Protocol Tasks
               <span className={styles.tabCount}>{tasks.length}</span>
             </button>
             <button
-              className={`${styles.tab} ${activeTab === "raids" ? styles.active : ""}`}
+              className={`${styles.tab} ${activeTab === "raids" ? styles.active : ""} `}
               onClick={() => setActiveTab("raids")}
               title="Coordinated social media posts to boost community engagement"
             >
@@ -158,7 +97,7 @@ export default function EarnPage() {
               <span className={styles.tabCount}>{raids.length}</span>
             </button>
             <button
-              className={`${styles.tab} ${activeTab === "content" ? styles.active : ""}`}
+              className={`${styles.tab} ${activeTab === "content" ? styles.active : ""} `}
               onClick={() => setActiveTab("content")}
             >
               Content Lab
@@ -248,7 +187,7 @@ export default function EarnPage() {
                   <h2>My Submissions</h2>
                   <div className={styles.submissionsList}>
                     {pendingSubmissions.map((sub) => (
-                      <div key={sub.id} className={`${styles.submissionCard} ${styles.pending}`}>
+                      <div key={sub.id} className={`${styles.submissionCard} ${styles.pending} `}>
                         <div className={styles.submissionInfo}>
                           <span className={styles.submissionBrand}>{sub.brand}</span>
                           <h4>{sub.campaignName}</h4>
@@ -260,7 +199,7 @@ export default function EarnPage() {
                       </div>
                     ))}
                     {approvedSubmissions.map((sub) => (
-                      <div key={sub.id} className={`${styles.submissionCard} ${styles.approved}`}>
+                      <div key={sub.id} className={`${styles.submissionCard} ${styles.approved} `}>
                         <div className={styles.submissionInfo}>
                           <span className={styles.submissionBrand}>{sub.brand}</span>
                           <h4>{sub.campaignName}</h4>
@@ -293,7 +232,7 @@ export default function EarnPage() {
                         {campaign.description || `Submit ${campaign.platforms.join("/")} content to earn Belief Points`}
                       </p>
                       <div className={styles.campaignPlatforms}>
-                        {campaign.platforms.map((platform) => (
+                        {campaign.platforms.map((platform: string) => (
                           <span key={platform} className={styles.platformTag}>{platform}</span>
                         ))}
                       </div>
@@ -327,55 +266,6 @@ export default function EarnPage() {
         </div>
       </div>
 
-      {/* Submit Content Modal */}
-      {showSubmitModal && selectedCampaign && (
-        <div className={styles.modalOverlay} onClick={() => setShowSubmitModal(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3>Submit Content</h3>
-              <button className={styles.modalClose} onClick={() => setShowSubmitModal(false)}>×</button>
-            </div>
-            <form onSubmit={handleSubmitContent} className={styles.modalForm}>
-              <div className={styles.formGroup}>
-                <label>Campaign</label>
-                <div className={styles.formValue}>{selectedCampaign.name}</div>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Platform</label>
-                <select
-                  value={submitPlatform}
-                  onChange={(e) => setSubmitPlatform(e.target.value)}
-                  required
-                  className={styles.select}
-                >
-                  {selectedCampaign.platforms.map((platform) => (
-                    <option key={platform} value={platform}>{platform}</option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Content URL</label>
-                <input
-                  type="url"
-                  value={submitUrl}
-                  onChange={(e) => setSubmitUrl(e.target.value)}
-                  placeholder="https://..."
-                  required
-                  className={styles.input}
-                />
-              </div>
-              <div className={styles.modalActions}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setShowSubmitModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className={styles.submitBtn} disabled={submitting}>
-                  {submitting ? "Submitting..." : "Submit"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
       <ComplianceDisclaimer variant="footer" />
     </Layout>
   );

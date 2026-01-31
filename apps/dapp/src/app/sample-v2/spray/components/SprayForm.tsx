@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import ChainSelector, { ChainId, CHAINS } from "./ChainSelector";
 import styles from "./SprayForm.module.css";
+import { useUIStore } from "@/store/uiStore";
+import { SprayRequestSchema } from "@/lib/schemas";
+import { validateOrToast } from "@/lib/validation";
 
 interface Campaign {
     id: string;
@@ -26,6 +29,7 @@ interface SprayFormProps {
 }
 
 export default function SprayForm({ campaigns, user }: SprayFormProps) {
+    const addToast = useUIStore((state) => state.addToast);
     const router = useRouter();
     const [selectedCampaignId, setSelectedCampaignId] = useState<string>(
         campaigns[0]?.id || ""
@@ -33,7 +37,6 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
     const [amount, setAmount] = useState<string>("");
     const [selectedChain, setSelectedChain] = useState<ChainId>("hyperevm");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [depositAddress, setDepositAddress] = useState<string | null>(null);
     const [qrCode, setQrCode] = useState<string | null>(null);
     const [isGeneratingAddress, setIsGeneratingAddress] = useState(false);
@@ -43,7 +46,6 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
     const amountNum = parseFloat(amount) || 0;
     const isInsufficientBalance = amountNum > userBalance;
 
-    // Handle address generation when balance is insufficient or chain changes
     useEffect(() => {
         if (isInsufficientBalance && selectedChain && user?.id) {
             fetchDepositAddress();
@@ -57,13 +59,10 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
         if (!user?.id || !selectedChain) return;
         setIsGeneratingAddress(true);
         try {
-            // First try to GET existing address
             const res = await fetch(`/api/deposit-address?userId=${user.id}&chain=${selectedChain}`);
             let data = await res.json();
-
             let address = data.addresses?.find((a: any) => a.chain === selectedChain)?.address;
 
-            // If not found, POST to generate new one
             if (!address) {
                 const genRes = await fetch("/api/deposit-address", {
                     method: "POST",
@@ -81,7 +80,7 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
             }
         } catch (err) {
             console.error("Failed to fetch deposit address:", err);
-            setError("Failed to fetch deposit address");
+            addToast("Failed to fetch deposit address", "error");
         } finally {
             setIsGeneratingAddress(false);
         }
@@ -89,21 +88,23 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
 
     const handleSpray = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedCampaign || !selectedChain || amountNum <= 0) return;
+
+        const payload = validateOrToast(SprayRequestSchema, {
+            trenchId: selectedCampaignId,
+            amount: amountNum,
+            level: selectedCampaign?.level,
+        });
+
+        if (!payload) return;
         if (isInsufficientBalance) return;
 
         setIsSubmitting(true);
-        setError(null);
 
         try {
             const res = await fetch("/api/spray", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    trenchId: selectedCampaign.id,
-                    amount: amountNum,
-                    level: selectedCampaign.level,
-                }),
+                body: JSON.stringify(payload),
             });
 
             const data = await res.json();
@@ -114,7 +115,7 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
                 throw new Error(data.error || "Failed to initiate spray");
             }
         } catch (err: any) {
-            setError(err.message);
+            addToast(err.message, "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -126,7 +127,6 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
 
     return (
         <form onSubmit={handleSpray} className={styles.form}>
-            {/* Campaign Selection */}
             <div className={styles.section}>
                 <label className={styles.label}>1. Select Target Trench</label>
                 <div className={styles.campaignGrid}>
@@ -134,8 +134,7 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
                         <button
                             key={c.id}
                             type="button"
-                            className={`${styles.campaignBtn} ${selectedCampaignId === c.id ? styles.active : ""
-                                }`}
+                            className={`${styles.campaignBtn} ${selectedCampaignId === c.id ? styles.active : ""}`}
                             onClick={() => setSelectedCampaignId(c.id)}
                         >
                             <span className={styles.levelBadge}>{c.level}</span>
@@ -146,7 +145,6 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
                 </div>
             </div>
 
-            {/* Amount Input */}
             <div className={styles.section}>
                 <div className={styles.labelRow}>
                     <label className={styles.label}>2. Entry Amount (USDC)</label>
@@ -182,7 +180,6 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
                 )}
             </div>
 
-            {/* Network Selector */}
             <div className={styles.section}>
                 <ChainSelector
                     selectedChain={selectedChain}
@@ -191,7 +188,6 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
                 />
             </div>
 
-            {/* Insufficient Balance / Deposit QR */}
             {isInsufficientBalance && amountNum > 0 && (
                 <div className={styles.depositSection}>
                     <div className={styles.depositHeader}>
@@ -234,7 +230,6 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
                 </div>
             )}
 
-            {/* Projections & Submit */}
             {!isInsufficientBalance && amountNum > 0 && (
                 <div className={styles.projection}>
                     <div className={styles.projRow}>
@@ -249,8 +244,6 @@ export default function SprayForm({ campaigns, user }: SprayFormProps) {
                     </div>
                 </div>
             )}
-
-            {error && <div className={styles.formError}>{error}</div>}
 
             <button
                 type="submit"
