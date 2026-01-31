@@ -25,7 +25,7 @@ export async function parseApiError(res: Response): Promise<string> {
 }
 
 // Debounce utility for search
-export function debounce<T extends (...args: unknown[]) => void>(
+export function debounce<T extends (...args: any[]) => void>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
