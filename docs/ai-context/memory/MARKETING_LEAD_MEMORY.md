@@ -1,7 +1,7 @@
 # Marketing Lead Memory Document
 
 > **Role:** Marketing Lead for Trenches Platform  
-> **Last Updated:** 2026-01-30  
+> **Last Updated:** 2026-01-31  
 > **Status:** Platform 98% Ready — Full Marketing Clearance  
 > **Next Review:** Daily during launch week
 
@@ -10,6 +10,7 @@
 # 📋 PROJECT OVERVIEW
 
 **Platform:** Trenches — Belief Coordination Platform  
+**Headline:** "3 Trenches. Infinite Projects."  
 **Tagline:** "Spray and Play" / "Turn Belief into Profit"  
 **Target:** Crypto projects (B2B) and crypto users (B2C)  
 **Launch Status:** ✅ **CLEARED FOR LAUNCH** (98% platform health)
@@ -317,10 +318,68 @@
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-30 | Initial creation — all docs created, team assigned, launch cleared |
+| 1.1 | 2026-01-31 | Added "3 Trenches. Infinite Projects." rebrand — TBO approved, team notified |
 
 ---
 
-**Last Updated:** 2026-01-30  
+# 🎨 REBRAND: "3 Trenches. Infinite Projects."
+
+## Overview
+**Status:** 🟢 **APPROVED & ROLLING OUT**  
+**Approved By:** TBO  
+**Headline:** "3 Trenches. Infinite Projects."  
+**Deadline:** All materials ready by Week 4 (March 2, 2026)
+
+## Documents Created
+| Document | Location | Purpose |
+|----------|----------|---------|
+| TBO Approved Specification | `docs/TBO_APPROVED_SPECIFICATION.md` | Full technical spec |
+| Lead Dev Implementation Brief | `docs/LEAD_DEV_IMPLEMENTATION_BRIEF.md` | Dev implementation guide |
+| Team Messages Summary | `docs/TEAM_MESSAGES_SUMMARY.md` | Distribution tracking |
+| Notification Package README | `docs/NOTIFICATION_PACKAGE_README.txt` | Quick reference |
+| LEAD_DEV.txt | `docs/team_messages/LEAD_DEV.txt` | Lead Dev notification (HIGH) |
+| DEV_TEAM.txt | `docs/team_messages/DEV_TEAM.txt` | Dev team notification |
+| MARKETING.txt | `docs/team_messages/MARKETING.txt` | Marketing team notification |
+| TBO.txt | `docs/team_messages/TBO.txt` | TBO FYI notification |
+| ALL_TEAM.txt | `docs/team_messages/ALL_TEAM.txt` | All team notification |
+
+## Rollout Timeline
+| Week | Deliverables | Owner | Checkpoint |
+|------|--------------|-------|------------|
+| Week 1 (Feb 3-9) | Website headlines, social bios | Lead Dev + Didi | Feb 9 |
+| Week 2 (Feb 10-16) | Pitch decks, outreach templates | Molly + Lead Dev | Feb 16 |
+| Week 3 (Feb 17-23) | AI scripts, visual assets | Didi | Feb 23 |
+| Week 4 (Feb 24-Mar 2) | QA, final launch | All | Mar 2 |
+
+## Team Assignments (Rebrand)
+
+### Lead Dev
+- Website hero headline
+- Meta tags (title, OG, Twitter)
+- Component defaults
+- Email templates
+
+### Molly
+- Investor pitch deck v2.0
+- PROJECT_PITCH_BLURB.md update
+- Cold outreach templates
+- Partnership materials
+
+### Didi
+- Social media bios (Twitter, IG, TikTok)
+- AI avatar script updates (all 5 avatars)
+- Social media templates
+- Visual asset refresh
+
+## Key Decisions
+1. Headline is LOCKED — "3 Trenches. Infinite Projects."
+2. Voice variations allowed per Voice & Tone Decision Tree
+3. Hard deadline: Week 4 (March 2) — no extensions without TBO approval
+4. Compliance requirements remain unchanged
+
+---
+
+**Last Updated:** 2026-01-31  
 **Next Update:** Daily during launch week, then weekly  
 **Owner:** Marketing Lead  
-**Status:** 🟢 **ACTIVE MONITORING**
+**Status:** 🟢 **ACTIVE MONITORING + REBRAND ROLLOUT**

@@ -17,7 +17,9 @@ docs/
 │   └── completed/               ← Completed implementation artifacts
 │
 ├── [Core Project Docs]          ← GitHub tracked (see list below)
-└── [Technical Specs]            ← GitHub tracked (see list below)
+├── [Technical Specs]            ← GitHub tracked (see list below)
+└── ai-context/                  ← Local-only (see ai-context/README.md)
+    └── TRENCHES_BUSINESS_MODEL.md  ← Internal business model (confidential)
 ```
 
 ---

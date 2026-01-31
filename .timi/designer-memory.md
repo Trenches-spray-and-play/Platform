@@ -560,17 +560,33 @@ Weights: 400, 500, 600, 700, 800
 ### High Priority 🔴
 - [x] **Username Picker Modal Redesign** — ✅ Complete
 - [x] **Post-Username Onboarding Tutorial** — ✅ Complete
-- [ ] **Dashboard Contextual Tooltips** — First-time user guidance on key features
-  - Target: New users after completing onboarding
-  - Elements: Balance card, Spray button, Positions section, Belief Score
-  - Style: Floating tooltips with spotlight effect
-  - Persistence: Show once, dismissible
+- [x] **Homepage Trench-Centric Redesign** — ✅ Complete (2026-01-31)
+  - Changed from campaign grid to 3 trench cards
+  - Shows featured projects, reserve composition, reserve value
+  - New "How Trenches Work" section explaining the flywheel
   
-- [ ] **First Spray Guided Tour** — Walkthrough for user's first spray
-  - Target: Users with 0 positions
-  - Trigger: Click "Spray" button for first time
-  - Steps: Campaign selection → Amount input → Confirmation → Success
-  - Style: Step-by-step overlay with highlights
+- [x] **Trench Detail Page** — ✅ Complete (2026-01-31)
+  - 4-tab layout: Overview, Composition, Projects, Mechanics
+  - Pie chart showing reserve token composition
+  - Line chart showing 30-day reserve value history
+  - Featured projects grid with performance metrics
+  - Rotation history for past projects
+  - Entry/exit mechanics explained with visual steps
+  - User position card (if active)
+  - Fully responsive design
+  
+- [x] **Dashboard Contextual Tooltips** — ✅ Complete (2026-01-31)
+  - 5-step spotlight tour highlighting key dashboard elements
+  - Targets: Balance card, Spray button, Belief Score, Boost Points, Positions
+  - Features progress bar, step counter, skip option
+  - Persists completion to localStorage (shows once per user)
+  
+- [x] **First Spray Guided Tour** — ✅ Complete (2026-01-31)
+  - 5-step tour inside Spray Modal for first-time sprayers
+  - Steps: Welcome → Trench Select → Amount Input → Review → Success
+  - Spotlight effect highlights interactive elements
+  - Tracks completion to avoid repeating for returning users
+  - Includes success celebration with checkmark animation
   
 - [ ] **Onboarding Completion Celebration** — Reward animation
   - Trigger: Tutorial completion
@@ -588,6 +604,7 @@ Weights: 400, 500, 600, 700, 800
   - Show network fees estimate
   - Remember last selection in localStorage
   - Add "max" button with gas consideration
+  - **Update for trench model**: Show which trench, featured projects
   
 - [ ] **Deposit Modal** — Similar pattern to Spray Modal
   - Standalone modal for quick deposits
@@ -599,6 +616,11 @@ Weights: 400, 500, 600, 700, 800
   - Quick actions from position cards
 
 ### Low Priority 🟢
+- [ ] **API Integration** — Replace mock data with real trench endpoints
+  - GET /api/trenches/v2 — 3 trench objects with reserve data
+  - GET /api/trenches/:level/detail — Full reserve breakdown
+  - Real-time reserve value updates (WebSocket?)
+  
 - [ ] **Figma Component Library** — Match coded components
 - [ ] **Icon System Inventory** — Audit and document all icons
 - [ ] **Animation/Motion Guidelines** — Document patterns
@@ -635,6 +657,60 @@ Weights: 400, 500, 600, 700, 800
 ### Low Priority
 - [ ] Deposit Modal (similar pattern to Spray)
 - [ ] Boost Modal for position management
+
+---
+
+## 🏗️ Architecture Evolution Log
+
+### Major Change: Campaign → Trench Model (2026-01-31)
+
+**OLD MODEL (DEPRECATED):**
+- Multiple campaigns created by different projects
+- Each campaign = standalone entity
+- Grid of many campaign cards
+
+**NEW MODEL (CURRENT):**
+- **Only 3 trenches exist permanently**: RAPID, MID, DEEP
+- Projects add reserve (their tokens) to existing trenches
+- Featured projects rotate through the 3 trenches
+- Users spray capital → platform buys featured tokens → reserve grows
+- Users earn from reserve appreciation
+
+**Business Logic:**
+```
+Project wants marketing → Adds tokens to trench reserve
+                              ↓
+Users spray (deposit $) → Platform buys featured tokens
+                              ↓
+Token price increases → Reserve value grows
+                              ↓
+Users earn yields → Paid in token mix or dollar-pegged
+```
+
+**Design Implications:**
+1. Homepage shows **3 large trench cards** (not campaign grid)
+2. Each card shows:
+   - Featured project(s) with token badges
+   - Reserve composition bar (visual token mix)
+   - Total reserve value (primary metric)
+   - Entry range, duration, APY
+   - Number of active sprayers
+3. "How It Works" explains the perpetual flywheel
+4. Need trench detail page showing reserve breakdown
+
+**Files Created/Modified:**
+- ✅ `apps/dapp/src/app/sample-v2/components/TrenchCard.tsx` (new)
+- ✅ `apps/dapp/src/app/sample-v2/components/TrenchCard.module.css` (new)
+- ✅ `apps/dapp/src/app/sample-v2/page.tsx` (complete redesign)
+- ✅ `apps/dapp/src/app/sample-v2/page.module.css` (updated)
+- ✅ `apps/dapp/src/app/sample-v2/trench/[level]/page.tsx` (new)
+- ✅ `apps/dapp/src/app/sample-v2/trench/[level]/page.module.css` (new)
+- ✅ `apps/dapp/src/app/sample-v2/components/DashboardTooltips.tsx` (new)
+- ✅ `apps/dapp/src/app/sample-v2/components/DashboardTooltips.module.css` (new)
+- ✅ `apps/dapp/src/app/sample-v2/components/FirstSprayTour.tsx` (new)
+- ✅ `apps/dapp/src/app/sample-v2/components/FirstSprayTour.module.css` (new)
+- ✅ `apps/dapp/src/app/sample-v2/dashboard-v2/DashboardClient.tsx` (tooltips integrated)
+- ✅ `apps/dapp/src/app/sample-v2/components/SprayModal.tsx` (tour integrated)
 
 ---
 

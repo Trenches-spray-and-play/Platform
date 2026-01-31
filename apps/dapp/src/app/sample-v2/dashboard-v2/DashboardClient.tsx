@@ -7,6 +7,7 @@ import { useUser, usePositions, useInvalidateQueries } from "@/hooks/useQueries"
 import { useMutation } from "@tanstack/react-query";
 import { useUIStore } from "@/store/uiStore";
 import GlobalModalManager from "../components/GlobalModalManager";
+import DashboardTooltips from "../components/DashboardTooltips";
 import type { UserPosition, User } from "@/lib/types";
 
 
@@ -103,6 +104,7 @@ export default function DashboardClient({
                         <button 
                             onClick={() => openModal('SPRAY', { campaigns, user })} 
                             className={styles.sprayBtn}
+                            data-tooltip="spray-btn"
                         >
                             <span>◆</span>
                             Spray
@@ -115,7 +117,7 @@ export default function DashboardClient({
                 </div>
 
                 {/* Main Balance Card */}
-                <div className={styles.balanceCard}>
+                <div className={styles.balanceCard} data-tooltip="balance">
                     <div className={styles.balanceMain}>
                         <div className={styles.balanceInfo}>
                             <span className={styles.balanceLabel}>Platform Balance</span>
@@ -142,7 +144,7 @@ export default function DashboardClient({
 
                 {/* Stats Grid */}
                 <div className={styles.statsGrid}>
-                    <div className={styles.statCard}>
+                    <div className={styles.statCard} data-tooltip="belief-score">
                         <div className={styles.statIconWrapper}>
                             <span className={styles.statIcon}>◆</span>
                         </div>
@@ -151,7 +153,7 @@ export default function DashboardClient({
                             <span className={styles.statValue}>{user?.beliefScore || 0}</span>
                         </div>
                     </div>
-                    <div className={styles.statCard}>
+                    <div className={styles.statCard} data-tooltip="boost-points">
                         <div className={`${styles.statIconWrapper} ${styles.boost}`}>
                             <span className={styles.statIcon}>⚡</span>
                         </div>
@@ -198,7 +200,7 @@ export default function DashboardClient({
                 </div>
 
                 {/* Positions Grid */}
-                <div className={styles.positionsSection}>
+                <div className={styles.positionsSection} data-tooltip="positions">
                     <h2>Active Positions</h2>
                     {activePositions.length === 0 ? (
                         <p className={styles.emptyText}>No active positions.</p>
@@ -295,6 +297,9 @@ export default function DashboardClient({
             
             {/* Global Modal Manager */}
             <GlobalModalManager campaigns={campaigns} user={user} />
+            
+            {/* First-time User Tooltips */}
+            <DashboardTooltips />
         </div>
     );
 }

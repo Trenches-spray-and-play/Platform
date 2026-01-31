@@ -1,0 +1,103 @@
+🎨 New Messaging: "3 Trenches. Infinite Projects."
+
+Hey Marketing Lead,
+
+Big change: We're rebranding from "many campaigns" to "3 perpetual trenches." This is a fundamental shift in how we present the platform.
+
+The New Narrative:
+
+OLD: "Browse 20+ campaigns"
+NEW: "Three Trenches. Infinite Projects."
+
+What Changed:
+
+Before | After
+-------|------
+Individual campaigns | 3 perpetual trenches
+Campaigns start/end | Trenches never end
+One project = one campaign | Multiple projects per trench
+Static returns | Growing reserve flywheel
+
+Key Messaging Pillars:
+
+1. Simplicity:
+- "Just 3 trenches to choose from"
+- "Rapid (1-3 days), Mid (7-14 days), Deep (30-60 days)"
+- "No more decision fatigue"
+
+2. Perpetual Growth:
+- "Trenches that never end"
+- "Reserve grows with every spray"
+- "Compound benefits over time"
+
+3. Multi-Project Exposure:
+- "One trench, many projects"
+- "Diversified token exposure"
+- "Featured projects rotate"
+
+4. Dollar-Pegged Safety:
+- "Guaranteed USD returns"
+- "Paid in appreciating tokens"
+- "Insurance-backed payouts"
+
+New Homepage Copy (Approved):
+
+Headline: "Three Trenches. Infinite Projects."
+
+Subheadline: "Deposit into perpetual trenches. Earn boosted yields from multiple projects. The fairer way to coordinate liquidity."
+
+How It Works (4 steps):
+1. Projects Add Reserve - Tokens enter the trench
+2. You Spray Capital - USD powers the flywheel
+3. Reserve Grows - Buying pressure raises token prices
+4. Cycle Repeats - Compound growth for everyone
+
+Visual Changes:
+
+Homepage:
+- 3 large trench cards (not a grid of 20+)
+- Each card shows multiple token badges [HYPE][SOL][BLT]
+- Reserve composition bar (visual)
+- Risk indicators (🟢🟡🔴)
+
+Trench Cards:
+- Show combined reserve value ($2.5M+)
+- Featured project logos
+- "+N more" indicator
+- APY and duration
+
+Materials to Update:
+- [ ] Website homepage copy
+- [ ] Pitch deck (investor & user versions)
+- [ ] Social media messaging
+- [ ] Email campaigns
+- [ ] Help center articles
+- [ ] SEO metadata
+
+Competitive Positioning:
+
+vs. Traditional Launchpads:
+"They have campaigns that end. We have trenches that grow."
+
+vs. Yield Farms:
+"They pay in one token. We pay in a diversified mix."
+
+vs. Staking:
+"They have fixed yields. We have appreciating reserves."
+
+Docs to Review:
+- docs/ai-context/TRENCHES_BUSINESS_MODEL.md - Full business logic
+- TBO_APPROVED_SPECIFICATION.md - Technical details for accurate copy
+
+Launch Timeline:
+- Week 1-2: Backend development
+- Week 3: Frontend integration
+- Week 4: Testing + your marketing materials ready
+- Week 5: Launch
+
+Questions?
+- Messaging: Check with TBO for business accuracy
+- Technical details: Ask Lead Dev
+- Timeline: Coordinate with product
+
+Ready to tell the new story? 🎨

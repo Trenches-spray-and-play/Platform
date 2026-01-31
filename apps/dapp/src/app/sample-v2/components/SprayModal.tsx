@@ -7,6 +7,7 @@ import QRCode from "qrcode";
 import { useUIStore } from "@/store/uiStore";
 import styles from "./SprayModal.module.css";
 import { SprayRequestSchema } from "@/lib/schemas";
+import FirstSprayTour, { useFirstSprayTour } from "./FirstSprayTour";
 
 interface Campaign {
     id: string;
@@ -116,6 +117,7 @@ export default function SprayModal({ campaigns, user }: SprayModalProps) {
     const router = useRouter();
     const closeModal = useUIStore((state) => state.closeModal);
     const addToast = useUIStore((state) => state.addToast);
+    const { shouldShowTour, markTourCompleted } = useFirstSprayTour();
 
     const [selectedCampaignId, setSelectedCampaignId] = useState<string>(
         campaigns[0]?.id || ""
@@ -128,6 +130,14 @@ export default function SprayModal({ campaigns, user }: SprayModalProps) {
     const [showDepositOptions, setShowDepositOptions] = useState(false);
     const [selectedToken, setSelectedToken] = useState<string>("usdc");
     const [selectedChain, setSelectedChain] = useState<string>("base");
+    const [showTour, setShowTour] = useState(false);
+
+    // Show tour on first spray
+    useEffect(() => {
+        if (shouldShowTour) {
+            setShowTour(true);
+        }
+    }, [shouldShowTour]);
 
     const selectedCampaign = campaigns.find((c) => c.id === selectedCampaignId);
     const userBalance = parseFloat(user?.balance || "0");
@@ -281,7 +291,7 @@ export default function SprayModal({ campaigns, user }: SprayModalProps) {
                 {/* Form */}
                 <form onSubmit={handleSpray} className={styles.form}>
                     {/* Step 1: Campaign Selection */}
-                    <div className={styles.section}>
+                    <div className={styles.section} data-tour="trench-select">
                         <label className={styles.sectionLabel}>
                             <span className={styles.stepNumber}>1</span>
                             Select Target Trench
@@ -317,7 +327,7 @@ export default function SprayModal({ campaigns, user }: SprayModalProps) {
                     </div>
 
                     {/* Step 2: Amount */}
-                    <div className={styles.section}>
+                    <div className={styles.section} data-tour="amount-input">
                         <div className={styles.labelRow}>
                             <label className={styles.sectionLabel}>
                                 <span className={styles.stepNumber}>2</span>
@@ -542,22 +552,24 @@ export default function SprayModal({ campaigns, user }: SprayModalProps) {
                     )}
 
                     {/* Submit */}
-                    <button
-                        type="submit"
-                        className={styles.submitBtn}
-                        disabled={isSubmitting || !isValidAmount || isInsufficientBalance}
-                    >
-                        {isSubmitting ? (
-                            <>
-                                <span className={styles.btnSpinner} />
-                                Processing...
-                            </>
-                        ) : isInsufficientBalance ? (
-                            "Waiting for Funds..."
-                        ) : (
-                            "Confirm & Spray"
-                        )}
-                    </button>
+                    <div data-tour="review-section">
+                        <button
+                            type="submit"
+                            className={styles.submitBtn}
+                            disabled={isSubmitting || !isValidAmount || isInsufficientBalance}
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <span className={styles.btnSpinner} />
+                                    Processing...
+                                </>
+                            ) : isInsufficientBalance ? (
+                                "Waiting for Funds..."
+                            ) : (
+                                "Confirm & Spray"
+                            )}
+                        </button>
+                    </div>
 
                     <p className={styles.footerNote}>
                         Funds will be time-locked based on trench level.{" "}
@@ -567,6 +579,15 @@ export default function SprayModal({ campaigns, user }: SprayModalProps) {
                     </p>
                 </form>
             </div>
+
+            {/* First Spray Tour */}
+            <FirstSprayTour
+                isOpen={showTour}
+                onClose={() => {
+                    setShowTour(false);
+                    markTourCompleted();
+                }}
+            />
         </div>
     );
 }

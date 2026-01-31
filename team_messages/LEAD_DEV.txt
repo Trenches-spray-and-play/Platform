@@ -1,0 +1,52 @@
+🚀 APPROVED: Begin Backend Implementation - 3 Trenches Model
+
+Hey Lead Dev,
+
+Great news: TBO has approved the 3 Trenches business model with specifications. You can begin backend implementation immediately.
+
+What's Approved:
+✅ 3 perpetual trenches (Rapid, Mid, Deep)
+✅ Insurance buffer mechanism (10%)
+✅ Reserve thresholds (20% warning, 10% pause, 5% emergency)
+✅ 0.5% deposit fee structure
+✅ Proportional token allocation
+✅ New API: GET /api/trenches/v2
+
+Critical Implementation Notes:
+
+1. Insurance Buffer (REQUIRED)
+   - Each trench keeps 10% insurance buffer
+   - Covers token price drops
+   - Platform takes loss, not users
+   - Triggers: <20% warning, <10% pause sprays, <5% emergency
+
+2. Fee Structure
+   - 0.5% taken from every spray
+   - Example: $1,000 spray = $5 fee, $995 effective
+
+3. Token Allocation Formula
+   Project Share = (Project Reserve / Total Trench Reserve) × Spray Amount
+
+Your Implementation Docs:
+- Full Spec: TBO_APPROVED_SPECIFICATION.md
+- Implementation Guide: LEAD_DEV_IMPLEMENTATION_BRIEF.md
+- Database Schema: See implementation guide
+
+Timeline:
+- Week 1: Database + Core Services
+- Week 2: API + Background Jobs
+- Week 3: Frontend Integration + Testing
+- Week 4: Deployment
+
+First Tasks:
+1. Review LEAD_DEV_IMPLEMENTATION_BRIEF.md
+2. Update Prisma schema with insurance/thresholds
+3. Plan migration strategy
+4. Assign tasks to Dev 1 / Dev 2
+
+Questions?
+- Technical: Check implementation guide
+- Business logic: Ask TBO
+- Frontend: Current implementation uses mock data in components/TrenchCard.tsx
+
+Ready when you are! 🚀

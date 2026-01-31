@@ -1,0 +1,92 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    TRECHES REBRAND — MARKETING TEAM NOTIFICATION
+                          Priority: MEDIUM — ACTION REQUIRED
+═══════════════════════════════════════════════════════════════════════════════
+
+TO: Marketing Lead (Molly, Didi, Extended Team)
+FROM: TBO
+DATE: 2026-01-31
+RE: New Rebrand — "3 Trenches. Infinite Projects." — Content Updates Required
+
+───────────────────────────────────────────────────────────────────────────────
+🎯 HEADLINE APPROVED
+───────────────────────────────────────────────────────────────────────────────
+
+   "3 Trenches. Infinite Projects."
+
+This is now the LOCKED headline for all Trenches platform materials.
+
+───────────────────────────────────────────────────────────────────────────────
+📋 MOLLY'S ACTION ITEMS
+───────────────────────────────────────────────────────────────────────────────
+
+□ 1. PITCH DECKS (Week 1-2)
+   □ Update investor pitch deck cover slide
+   □ Update all "About Trenches" slides with new headline
+   □ Update speaker notes to incorporate new messaging
+   □ Create version history (v2.0 - Rebrand)
+
+□ 2. PROJECT OUTREACH (Week 1-2)
+   □ Update PROJECT_PITCH_BLURB.md with new headline
+   □ Update cold outreach email templates
+   □ Update LinkedIn DM scripts
+   □ Refresh Telegram pitch messages
+
+□ 3. PARTNERSHIP MATERIALS (Week 2-3)
+   □ Update partnership proposal template
+   □ Update one-pager PDF
+   □ Update media kit headline
+
+───────────────────────────────────────────────────────────────────────────────
+📋 DIDI'S ACTION ITEMS
+───────────────────────────────────────────────────────────────────────────────
+
+□ 1. SOCIAL MEDIA (Week 1-2)
+   □ Update TikTok bio/link headlines
+   □ Update Instagram bio
+   □ Update Twitter/X bio and pinned tweet
+   □ Create new cover/header images with headline
+
+□ 2. AI UGC CONTENT (Week 2-3)
+   □ Update all 5 avatar scripts to include new headline
+   □ Jake: "3 Trenches, infinite ways to degen..."
+   □ Maria: "3 Trenches, infinite side hustles..."
+   □ Tyler: "3 Trenches, infinite skepticism..."
+   □ David: "3 Trenches, infinite trades..."
+   □ Sophie: "3 Trenches, infinite ramen money..."
+
+□ 3. VISUAL ASSETS (Week 2-4)
+   □ Create social media templates with new headline
+   □ Update 10 flyer designs
+   □ Update thumbnail templates
+
+───────────────────────────────────────────────────────────────────────────────
+📅 TIMELINE
+───────────────────────────────────────────────────────────────────────────────
+
+   Week 1 (Feb 3-9):    Pitch decks + social bios updated
+   Week 2 (Feb 10-16):  Outreach templates + AI scripts updated
+   Week 3 (Feb 17-23):  Visual assets refresh + partnership materials
+   Week 4 (Feb 24-Mar 2): QA + Full launch of rebrand
+
+   🔴 HARD DEADLINE: All materials ready by Week 4
+
+───────────────────────────────────────────────────────────────────────────────
+🎨 BRAND VOICE NOTES
+───────────────────────────────────────────────────────────────────────────────
+
+The "3 Trenches. Infinite Projects." headline works across all 3 voices:
+
+• Institutional Elite: "Three Trenches. Infinite Projects."
+• Accessible Institutional: "3 Trenches = Infinite Project Possibilities"
+• Energy: "3 Trenches. Infinite Projects. Let's GOOO."
+
+───────────────────────────────────────────────────────────────────────────────
+📎 SUPPORTING DOCUMENTS
+───────────────────────────────────────────────────────────────────────────────
+
+   • TBO_APPROVED_SPECIFICATION.md — Full technical spec
+   • TEAM_MESSAGES_SUMMARY.md — All team assignments
+   • VOICE_TONE_DECISION_TREE.md — Voice guidelines
+
+═══════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,59 @@
+📋 New Project: 3 Trenches Backend Implementation
+
+Hey Dev Team,
+
+Context: We're rebuilding the platform from "many campaigns" to "3 perpetual trenches." TBO has approved the business model, and Lead Dev is starting implementation.
+
+What You'll Be Building:
+
+Background Jobs (Your Main Focus):
+1. Reserve Health Monitor (runs every 5 minutes)
+   - Calculate current reserve USD values
+   - Update insurance buffer status
+   - Trigger status changes (ACTIVE → PAUSED → EMERGENCY)
+   - Log InsuranceEvents
+
+2. Token Price Updater (runs every 5 minutes)
+   - Fetch current prices for all featured tokens
+   - Update reserveUsdValue for each project
+   - Recalculate proportions
+   - Flag projects with LOW_RESERVE status
+
+API Support:
+- Help build GET /api/trenches/v2
+- Help build POST /api/spray
+- Implement proportional allocation algorithm
+
+Key Concepts:
+
+Insurance Buffer:
+- Each trench keeps 10% insurance buffer
+- Used when token prices drop
+- Protects users from losses
+
+Reserve Thresholds:
+>20% buffer = 🟢 ACTIVE (normal)
+10-20% buffer = 🟡 CAUTION (warnings)
+<10% buffer = 🔴 PAUSED (block sprays)
+<5% buffer = 🚨 EMERGENCY (early exit)
+
+Fee Structure:
+- 0.5% taken from every spray
+- Simple calculation: fee = amount * 0.005
+
+Docs to Review:
+1. LEAD_DEV_IMPLEMENTATION_BRIEF.md - See "Algorithms" section
+2. TBO_APPROVED_SPECIFICATION.md - Full technical details
+3. Current mock implementation: components/TrenchCard.tsx
+
+Your Tasks (Lead Dev Will Assign):
+- [ ] Implement price updater job
+- [ ] Implement reserve monitor job
+- [ ] Build insurance event logging
+- [ ] Test allocation algorithms
+- [ ] Help with API endpoints
+
+Questions?
+Ask Lead Dev for task assignments and technical guidance.
+
+Let's build this! 💪

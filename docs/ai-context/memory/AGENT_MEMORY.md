@@ -381,6 +381,25 @@ setInterval(async () => {
 - **Build:** ✅ Passing
 - **Hidden campaign filter:** ✅ Working
 
+### Business Model Clarification (2026-01-31)
+
+**Critical Understanding:** Trenches operates **3 perpetual trenches** (Rapid, Mid, Deep) - NOT individual campaigns:
+
+**How It Actually Works:**
+- ✅ **3 trenches only:** Rapid (1-3d), Mid (7-14d), Deep (30-60d)
+- ✅ **Never end:** Trenches are permanent, progressive
+- ✅ **Multi-project:** Multiple projects can share one trench
+- ✅ **Reserve mechanics:** 
+  - Project adds token reserve to trench
+  - Users spray USD → Platform buys project tokens
+  - Buy pressure → Token price rises
+  - Reserve $ value grows
+  - Users paid in project tokens (dollar-pegged)
+
+**See:** `docs/TRENCHES_BUSINESS_MODEL.md` for complete explanation
+
+**UI Implication:** Campaign cards should show multiple featured tokens, not single projects
+
 ---
 
 ## Team Structure (Current + Planned)

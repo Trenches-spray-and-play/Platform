@@ -615,3 +615,176 @@ model ReferralVisit {
   @@index([createdAt])
   @@index([converted])
 }
+
+
+// ============================================
+// 3 TRENCHES MODEL - TBO APPROVED IMPLEMENTATION
+// Added: Insurance Buffer, Reserve Thresholds, Fee Structure
+// ============================================
+
+// Extend Trench model with insurance and thresholds
+model TrenchV2 {
+  id                  String   @id @default(cuid())
+  level               TrenchLevelV2 // RAPID, MID, DEEP
+  
+  // Reserve with insurance (NEW)
+  totalReserveUsd     Decimal  @db.Decimal(20, 8)
+  insuranceBuffer     Decimal  @db.Decimal(20, 8)  // 10%
+  minReserveThreshold Decimal  @db.Decimal(20, 8)  // 20% floor
+  
+  // Status management (NEW)
+  status              TrenchStatusV2 @default(ACTIVE)
+  // ACTIVE | PAUSED | EMERGENCY
+  
+  // Relations
+  featuredProjects    FeaturedProject[]
+  insuranceEvents     InsuranceEvent[]
+  sprayEntriesV2      SprayEntryV2[]
+  
+  // Stats
+  participantCount    Int @default(0)
+  totalSprayed        Decimal @default(0) @db.Decimal(20, 8)
+  totalFeesCollected  Decimal @default(0) @db.Decimal(20, 8)
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([level])
+  @@index([status])
+}
+
+// Featured projects in trench
+model FeaturedProject {
+  id                  String @id @default(cuid())
+  trenchId            String
+  trench              TrenchV2 @relation(fields: [trenchId], references: [id])
+  
+  name                String
+  tokenSymbol         String
+  tokenAddress        String
+  logoUrl             String?
+  chainId             Int
+  
+  // Reserve tracking
+  reserveAmount       Decimal @db.Decimal(36, 18)
+  reserveUsdValue     Decimal @db.Decimal(20, 8)
+  reserveProportion   Decimal @db.Decimal(5, 4)  // % of trench
+  
+  // Status
+  status              ProjectStatusV2 @default(ACTIVE)
+  minReserveThreshold Decimal @db.Decimal(20, 8)
+  
+  // Terms
+  promisedApy         Decimal @db.Decimal(5, 2)
+  
+  addedAt             DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([trenchId])
+  @@index([status])
+  @@index([tokenSymbol])
+}
+
+// Insurance events tracking
+model InsuranceEvent {
+  id          String   @id @default(cuid())
+  trenchId    String
+  trench      TrenchV2 @relation(fields: [trenchId], references: [id])
+  
+  amount      Decimal  @db.Decimal(20, 8)
+  reason      InsuranceReason
+  details     String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([trenchId])
+  @@index([createdAt])
+}
+
+// Spray entries with allocation
+model SprayEntryV2 {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  trenchId      String
+  trench        TrenchV2 @relation(fields: [trenchId], references: [id])
+  
+  // Amounts
+  amount        Decimal  @db.Decimal(20, 8)  // User input
+  fee           Decimal  @db.Decimal(20, 8)  // 0.5%
+  effectiveAmount Decimal @db.Decimal(20, 8) // After fee
+  
+  // Allocation (JSON)
+  allocation    String   // [{tokenSymbol, amount, usdValue}]
+  
+  // Payout
+  expectedPayout Decimal @db.Decimal(20, 8)
+  payoutDate    DateTime
+  
+  status        SprayStatusV2 @default(PENDING)
+  
+  // Insurance tracking
+  insuranceUsed Boolean @default(false)
+  insuranceAmount Decimal? @db.Decimal(20, 8)
+  
+  createdAt     DateTime @default(now())
+  paidAt        DateTime?
+  
+  @@index([userId])
+  @@index([trenchId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Token price tracking for featured projects
+model TokenPrice {
+  id            String   @id @default(cuid())
+  tokenSymbol   String
+  tokenAddress  String
+  chainId       Int
+  
+  priceUsd      Decimal  @db.Decimal(20, 8)
+  source        String   // oracle source
+  
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([tokenSymbol, chainId])
+  @@index([tokenSymbol])
+  @@index([updatedAt])
+}
+
+// ============================================
+// ENUMS FOR 3 TRENCHES MODEL
+// ============================================
+
+enum TrenchLevelV2 {
+  RAPID
+  MID
+  DEEP
+}
+
+enum TrenchStatusV2 {
+  ACTIVE
+  PAUSED
+  EMERGENCY
+}
+
+enum ProjectStatusV2 {
+  ACTIVE
+  LOW_RESERVE
+  EXITING
+  EXITED
+}
+
+enum InsuranceReason {
+  PRICE_DROP
+  RESERVE_COVERAGE
+  EMERGENCY_PAYOUT
+}
+
+enum SprayStatusV2 {
+  PENDING
+  ACTIVE
+  READY
+  PAID_OUT
+}

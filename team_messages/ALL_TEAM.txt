@@ -1,0 +1,81 @@
+🚀 Platform Redesign: "3 Trenches" Model Approved
+
+Team,
+
+Exciting update: We're redesigning the core Trenches platform from "many campaigns" to "3 perpetual trenches."
+
+Why This Change?
+
+Old Model:
+- 20+ individual campaigns
+- Each campaign starts and ends
+- One project per campaign
+- Complex user experience
+
+New Model:
+- Just 3 trenches (Rapid, Mid, Deep)
+- Trenches never end (perpetual)
+- Multiple projects per trench
+- Simple, clean UX
+
+What This Means:
+
+For Users:
+- Easier choice: Pick from 3 options, not 20+
+- Better returns: Reserve grows over time
+- Diversified: Exposure to multiple projects
+- Safer: Dollar-pegged payouts with insurance
+
+For Projects:
+- Join existing trenches (no setup)
+- Benefit from combined liquidity
+- Automatic price support (buy pressure)
+- Flexible: Can join multiple trenches
+
+For Platform:
+- Simpler operations
+- Network effects (more users → more projects → more users)
+- Sustainable flywheel economics
+
+Key Features:
+
+1. 3 Trenches Only:
+   ⚡ Rapid (1-3 days)
+   ◆ Mid (7-14 days)
+   ▲ Deep (30-60 days)
+
+2. Growing Reserves:
+   - User sprays USD → Platform buys tokens
+   - Token price rises → Reserve value grows
+   - Users paid in appreciating tokens
+
+3. Insurance Protection:
+   - 10% insurance buffer per trench
+   - Platform covers token price drops
+   - Users protected from losses
+
+Timeline:
+
+- Week 1-2: Backend development
+- Week 3: Frontend integration
+- Week 4: Testing
+- Week 5: Launch 🚀
+
+Your Role:
+
+Engineering: Building the new system (see separate messages)
+Marketing: New messaging and materials (see separate message)
+Product: Oversight and UAT
+
+Questions?
+
+Business model: Ask TBO
+Technical: Ask Lead Dev
+Timeline: Ask Product
+
+Resources:
+
+Business model: docs/ai-context/TRENCHES_BUSINESS_MODEL.md
+Full spec: TBO_APPROVED_SPECIFICATION.md
+
+This is a major upgrade. Let's make it happen! 🎯
